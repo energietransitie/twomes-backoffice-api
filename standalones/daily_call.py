@@ -83,11 +83,11 @@ def insert_enelogic_measurements(data, property):
         try:
             conn = create_connection()
             cur = conn.cursor()
-            result = cur.execute("INSERT INTO enelogic_measurements(measurement_id, rate, property, value, datetime) VALUES (?, ?, ?, ?, ?)", (str(item['id']), str(item['rate']), str(property), str(item['quantity']), str(item['datetime']),))
+            result = cur.execute("INSERT INTO enelogic_measurements(rate, property, value, datetime) VALUES (?, ?, ?, ?)", (str(item['rate']), str(property), str(item['quantity']), str(item['timezone']),))
             conn.commit()
             conn.close()
-        except mariadb.Error as e:
-            print(f"Error: {e}")
+        except:
+            print("Error")
 
 # restart process after a day
 def countdown(t):
