@@ -1,4 +1,6 @@
+#CREATORS: Victor Woord, Boet Schrama, Gulsah Kurnaz, Ben van Ommen
 import mariadb
+
 import sys
 import json
 from datetime import datetime

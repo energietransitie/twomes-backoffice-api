@@ -1,3 +1,5 @@
+#CREATORS: Victor Woord, Boet Schrama, Gulsah Kurnaz, Ben van Ommen
+
 import ssl
 
 from flask import Flask, jsonify, request
