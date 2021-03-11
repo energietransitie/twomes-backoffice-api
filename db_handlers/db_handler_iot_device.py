@@ -34,7 +34,8 @@ def insert_device_measurements(device_mac_address, prop, value, datetime):
         cur = conn.cursor()
         result = cur.execute("INSERT INTO device_measurements (device_mac_address, property, value, datetime) values (?, ?, ?, ?)", (device_mac_address, prop, value, datetime))
         conn.commit() 
-        return (f"last inserted id: {cur.lastrowid}")
+        last_row_id = cur.lastrowid
         conn.close()
+        return f"last inserted id: {last_row_id}"
     except mariadb.Error as e: 
         print(f"Error: {e}")

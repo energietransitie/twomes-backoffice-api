@@ -51,9 +51,9 @@ def insert_house(house_id, postal_code, house_number, house_number_addition):
         conn = create_connection()
         cur = conn.cursor()
         result = cur.execute("INSERT INTO house(house_id, postal_code, house_number, house_number_addition) VALUES (?, ?, ?, ?)", (house_id, postal_code, house_number, house_number_addition))
-        conn.commit() 
-        return (f"Last Inserted ID: {cur.lastrowid}")
+        last_row_id = cur.lastrowid
         conn.close()
+        return f"last inserted id: {last_row_id}"
     except mariadb.Error as e: 
         print(f"Error: {e}")
 
@@ -63,9 +63,9 @@ def insert_device(house_id, device_mac_address):
         conn = create_connection()
         cur = conn.cursor()
         result = cur.execute("INSERT INTO device(house_id, device_mac_address) VALUES (?, ? )", (house_id, device_mac_address))
-        conn.commit() 
-        return (f"Last Inserted ID: {cur.lastrowid}")
+        last_row_id = cur.lastrowid
         conn.close()
+        return f"last inserted id: {last_row_id}"
     except mariadb.Error as e: 
         print(f"Error: {e}")
 
@@ -75,9 +75,9 @@ def insert_house_devices(postal_code, house_number, house_number_addition, devic
         conn = create_connection()
         cur = conn.cursor()
         result = cur.execute("INSERT INTO house_devices(postal_code, house_number, house_number_addition, device) VALUES (?, ?, ?, ? )", (postal_code, house_number, house_number_addition, device))
-        conn.commit() 
-        return (f"Last Inserted ID: {cur.lastrowid}")
+        last_row_id = cur.lastrowid
         conn.close()
+        return f"last inserted id: {last_row_id}"
     except mariadb.Error as e: 
         print(f"Error: {e}")
 
