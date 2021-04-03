@@ -1,0 +1,77 @@
+#
+# Overview of Twomes API data model
+# Format as specified by https://github.com/BurntSushi/erd
+#
+entity {bgcolor: "#ececfc"}
+
+[Account]
+*id {label: "Integer"}
+pseudonym {label: "Integer"}
+
+created_on {label: "Timestamp"}
+activated_on {label: "Timestamp, null"}
+
+activation_token {label: "String, unique"}
+session_token {label: "String, null"}
+
+
+[Building]
+*id {label: "Integer"}
++account_id {label: "Integer"}
+
+longitude {label: "Numeric(15, 10)"}
+latitude {label: "Numeric(15, 10)"}
+
+
+[DeviceType]
+*id {label: "Integer"}
+name {label: "String, unique"}
+
+installation_manual_url {label: "String"}
+
+
+[Device]
+*id {label: "Integer"}
++device_type_id {label: "Integer"}
++building_id {label: "Integer, null"}
+
+proof_of_presence_id {label: "String, unique"}
+session_token {label: "String, null"}
+
+created_on {label: "Timestamp"}
+coupled_on {label: "Timestamp, null"}
+
+
+[Property]
+*id {label: "Integer"}
+name {label: "String"}
+
+unit {label: "String, null"}
+
+
+[Upload]
+*id {label: "Integer"}
++device_id {label: "Integer"}
+
+server_time {label: "Timestamp"}
+device_time {label: "Timestamp"}
+size {label: "Integer"}
+
+
+[Measurement]
+*id {label: "Integer"}
++device_id {label: "Integer"}
++property_id {label: "Integer"}
++upload_id {label: "Integer"}
+
+time {label: "Timestamp"}
+value {label: "String"}
+
+
+Account 1--1 Building
+DeviceType +--* Property
+DeviceType *--1 Device
+Device ?--* Building
+Measurement 1--* Device
+Measurement 1--* Property
+Upload *--1 Measurement
