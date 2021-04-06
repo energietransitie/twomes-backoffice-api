@@ -6,7 +6,7 @@ entity {bgcolor: "#ececfc"}
 
 [Account]
 *id {label: "Integer"}
-pseudonym {label: "Integer"}
+pseudonym {label: "Integer, unique"}
 
 created_on {label: "Timestamp"}
 activated_on {label: "Timestamp, null"}
@@ -21,6 +21,31 @@ session_token {label: "String, null"}
 
 longitude {label: "Numeric(15, 10)"}
 latitude {label: "Numeric(15, 10)"}
+
+# Time zone name, being a value as specified in the TZ database name column in
+# https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
+tz_name {label: "String"}
+
+# Year built as defined in https://bag.basisregistraties.overheid.nl/datamodel#oorspronkelijkBouwjaar
+yr_built {label: "Integer, null"}
+
+# House type, see https://pico.geodan.nl/qgis/?url&map=gknWoningtype
+type {label: "String, null"}
+
+# Floor area ('gebruiksoppervlakte') as defined in section 3.53 of NTA8800, which refers to section
+# 4.5 of NEN 2580:2007; see also https://imbag.github.io/praktijkhandleiding/attributen/oppervlakte
+floor_area {label: "Integer, null"}
+
+# Heat loss area ('verliesoppervlakte') as defined in section 3.119 of NTA8800, for the entire
+# building; this property is typically derived and stored after processing various other data fields
+# obtained from public APIs, such as 3DBAG (https://docs.3dbag.nl/en/)
+heat_loss_area {label: "Integer, null"}
+
+# Energy label, e.g. obtained via https://www.ep-online.nl/ep-online/Energylabel/Search
+energy_label {label: "String, null"}
+
+# Energy index, e.g. obtained via https://www.ep-online.nl/ep-online/Energylabel/Search
+energy_index {label: "Float, null"}
 
 
 [DeviceType]
@@ -39,7 +64,7 @@ proof_of_presence_id {label: "String, unique"}
 session_token {label: "String, null"}
 
 created_on {label: "Timestamp"}
-coupled_on {label: "Timestamp, null"}
+activated_on {label: "Timestamp, null"}
 
 
 [Property]
