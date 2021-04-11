@@ -55,6 +55,9 @@ class Account(Base):
 class Building(Base):
     __tablename__ = 'building'
 
+    LOCATION_PRECISION = 10
+    LOCATION_SCALE = 15
+
     id = Column(
         Integer,
         primary_key=True,
@@ -66,11 +69,11 @@ class Building(Base):
     )
 
     longitude = Column(
-        Numeric(15, 10),
+        Numeric(LOCATION_PRECISION, LOCATION_SCALE),
         comment='Coarse-grained longitude, for approximate location indication'
     )
     latitude = Column(
-        Numeric(15, 10),
+        Numeric(LOCATION_PRECISION, LOCATION_SCALE),
         comment='Coarse-grained latitude, for approximate location indication'
     )
     tz_name = Column(
@@ -208,6 +211,10 @@ class Device(Base):
         back_populates='devices'
     )
 
+    uploads = relationship(
+        'Upload',
+        back_populates='device'
+    )
     measurements = relationship(
         'Measurement',
         back_populates='device'
@@ -272,6 +279,10 @@ class Upload(Base):
     device = relationship(
         'Device',
         back_populates='uploads'
+    )
+    measurements = relationship(
+        'Measurement',
+        back_populates='upload'
     )
 
 
