@@ -5,18 +5,26 @@ from pydantic import BaseModel, condecimal, conint, constr
 from model import Account, Building
 
 
-class BadRequest(BaseModel):
-    message: str
+class BadRequest(BaseModel):  # 400
+    msg: str
+
+
+class Unauthorized(BaseModel):  # 401
+    msg: str
+
+
+class NotFound(BaseModel):  # 404
+    msg: str
 
 
 class AccountLocation(BaseModel):
     longitude: condecimal(
-        max_digits=Building.LOCATION_SCALE,
-        decimal_places=Building.LOCATION_PRECISION
+        max_digits=Building.LOCATION_MAX_DIGITS,
+        decimal_places=Building.LOCATION_DECIMAL_PLACES
     )
     latitude: condecimal(
-        max_digits=Building.LOCATION_SCALE,
-        decimal_places=Building.LOCATION_PRECISION
+        max_digits=Building.LOCATION_MAX_DIGITS,
+        decimal_places=Building.LOCATION_DECIMAL_PLACES
     )
 
 
@@ -25,9 +33,18 @@ class AccountCreate(BaseModel):
     location: Optional[AccountLocation] = None
 
 
-class AccountInfo(BaseModel):
+class AccountItem(BaseModel):
+    id: int
     pseudonym: int
     firebase_url: str
+
+
+class AccountActivation(BaseModel):
+    activation_token: str
+
+
+class AccountSession(BaseModel):
+    session_token: str
 
 
 class DeviceCreate(BaseModel):
@@ -35,9 +52,16 @@ class DeviceCreate(BaseModel):
     proof_of_presence_id: constr(strip_whitespace=True, min_length=8, max_length=1024)
 
 
-class Device(BaseModel):
+class DeviceActivation(BaseModel):
+    proof_of_presence_id: constr(strip_whitespace=True, min_length=8, max_length=1024)
+
+
+class DeviceItem(BaseModel):
     id: int
     device_type: str
 
-    class Config:
-        orm_mode = True
+
+class DeviceTypeItem(BaseModel):
+    device_type: str
+    installation_manual_url: str
+

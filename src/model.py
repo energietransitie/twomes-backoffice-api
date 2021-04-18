@@ -39,10 +39,10 @@ class Account(Base):
         unique=True,
         comment='Unique, random token to identify the account during activation'
     )
-    session_token = Column(
+    session_token_hash = Column(
         Text,
         nullable=True,
-        comment='Random, long-lived token to identify the app session attached to this account'
+        comment='Hash of random, long-lived token to identify the app session for this account'
     )
 
     building = relationship(
@@ -55,8 +55,8 @@ class Account(Base):
 class Building(Base):
     __tablename__ = 'building'
 
-    LOCATION_PRECISION = 10
-    LOCATION_SCALE = 15
+    LOCATION_DECIMAL_PLACES = 10
+    LOCATION_MAX_DIGITS = 15
 
     id = Column(
         Integer,
@@ -69,11 +69,11 @@ class Building(Base):
     )
 
     longitude = Column(
-        Numeric(LOCATION_PRECISION, LOCATION_SCALE),
+        Numeric(LOCATION_MAX_DIGITS, LOCATION_DECIMAL_PLACES),
         comment='Coarse-grained longitude, for approximate location indication'
     )
     latitude = Column(
-        Numeric(LOCATION_PRECISION, LOCATION_SCALE),
+        Numeric(LOCATION_MAX_DIGITS, LOCATION_DECIMAL_PLACES),
         comment='Coarse-grained latitude, for approximate location indication'
     )
     tz_name = Column(
@@ -187,10 +187,10 @@ class Device(Base):
         unique=True,
         comment='Unique, random token to identify the device during activation'
     )
-    session_token = Column(
+    session_token_hash = Column(
         Text,
         nullable=True,
-        comment='Random, long-lived token to identify the device session, after activation'
+        comment='Hash of random, long-lived token to identify the device session, after activation'
     )
 
     created_on = Column(

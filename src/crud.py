@@ -1,9 +1,12 @@
+import logging
 from datetime import datetime, timezone
 from typing import Optional
 from secrets import token_urlsafe
 import random
 
-from db import Session
+from sqlalchemy.orm import Session
+
+from auth import session_token_generate, session_token_parts, session_token_verify
 from model import (
     Account,
     Building,
@@ -44,7 +47,10 @@ def account_create(db: Session, pseudonym: int) -> Account:
         created_on=created_on,
         activation_token=activation_token
     )
+
     db.add(account)
+    db.commit()
+    db.refresh(account)
 
     return account
 
@@ -63,6 +69,43 @@ def account_by_pseudonym(db: Session, pseudonym: int) -> Optional[Account]:
     return db.query(Account).filter(Account.pseudonym == pseudonym).one_or_none()
 
 
+def account_session_token(db: Session, account: Account) -> str:
+    """
+    Get session token for an account.
+
+    An account session token consists of two parts:
+        <base64_encoded account id>.<random token>
+
+    The hash of the session token is stored in the database.
+    """
+    session_token, session_token_hash = session_token_generate(account.id)
+
+    account.session_token_hash = session_token_hash
+    account.activated_on = datetime.now(timezone.utc)
+    db.commit()
+
+    return session_token
+
+
+def account_by_session(db: Session, session_token: str) -> Optional[Account]:
+    """
+    Get Account by an account session token
+    """
+    try:
+        account_id, _ = session_token_parts(session_token)
+        account: Account = db.get(Account, account_id)
+
+    except Exception as e:
+        logging.info(e)
+        return None
+
+    if not session_token_verify(session_token, account.session_token_hash):
+        logging.info('Invalid session token')
+        return None
+
+    return account
+
+
 def building_create(db: Session, account: Account, location: AccountLocation = None) -> Building:
     """
     Create a new Building
@@ -71,7 +114,10 @@ def building_create(db: Session, account: Account, location: AccountLocation = N
     if location:
         building.latitude = location.latitude
         building.longitude = location.longitude
+
     db.add(building)
+    db.commit()
+    db.refresh(building)
 
     return building
 
@@ -90,7 +136,28 @@ def device_create(db: Session, device_type: DeviceType, proof_of_presence_id: st
     device = Device(
         device_type=device_type,
         proof_of_presence_id=proof_of_presence_id,
+        created_on=datetime.now(timezone.utc),
     )
+
     db.add(device)
+    db.commit()
+    db.refresh(device)
 
     return device
+
+
+def device_by_pop(db: Session, proof_of_presence_id: str) -> Optional[Device]:
+    """
+    Get Device instance by proof-of-presence identifier
+    """
+    query = db.query(Device).filter(Device.proof_of_presence_id == proof_of_presence_id)
+    return query.one_or_none()
+
+
+def device_activate(db: Session, account: Account, device: Device):
+    """
+    Active the device by assigning it to the building of an account.
+    """
+    device.building = account.building
+    device.activated_on = datetime.now(timezone.utc)
+    db.commit()
