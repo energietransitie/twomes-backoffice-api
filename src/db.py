@@ -20,11 +20,6 @@ session_args = {
 Base = declarative_base()
 
 
-class AtomicSession(Session):
-
-    def __init__(self):
-        super().__init__(autocommit=False, autoflush=True, bind=engine)
-
 # Wrapper functions for SQLAlchemy Session, to follow session creation
 session_init = Session.__init__
 session_close = Session.close

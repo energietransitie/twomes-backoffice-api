@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, condecimal, conint, constr
@@ -36,10 +37,11 @@ class AccountCreate(BaseModel):
 class AccountItem(BaseModel):
     id: int
     pseudonym: int
+    activation_token: str
     firebase_url: str
 
 
-class AccountActivation(BaseModel):
+class AccountActivate(BaseModel):
     activation_token: str
 
 
@@ -52,16 +54,30 @@ class DeviceCreate(BaseModel):
     proof_of_presence_id: constr(strip_whitespace=True, min_length=8, max_length=1024)
 
 
-class DeviceActivation(BaseModel):
+class DeviceActivate(BaseModel):
     proof_of_presence_id: constr(strip_whitespace=True, min_length=8, max_length=1024)
+
+
+class DeviceTypeItem(BaseModel):
+    name: str
+    installation_manual_url: str
+
+    class Config:
+        orm_mode = True
 
 
 class DeviceItem(BaseModel):
     id: int
-    device_type: str
+    device_type: DeviceTypeItem
+    created_on: datetime
+    activated_on: Optional[datetime]
+
+    class Config:
+        orm_mode = True
 
 
-class DeviceTypeItem(BaseModel):
-    device_type: str
-    installation_manual_url: str
+class DeviceItemMeasurementTime(DeviceItem):
+    latest_measurement_timestamp: Optional[datetime]
 
+    class Config:
+        orm_mode = True

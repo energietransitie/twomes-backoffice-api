@@ -4,6 +4,7 @@ from typing import Optional
 from secrets import token_urlsafe
 import random
 
+from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 
 from auth import session_token_generate, session_token_parts, session_token_verify
@@ -12,6 +13,7 @@ from model import (
     Building,
     Device,
     DeviceType,
+    Measurement,
 )
 from schema import AccountLocation
 
@@ -161,3 +163,27 @@ def device_activate(db: Session, account: Account, device: Device):
     device.building = account.building
     device.activated_on = datetime.now(timezone.utc)
     db.commit()
+
+
+def device_by_account_and_id(db: Session, account: Account, device_id: int) -> Optional[Device]:
+    """
+    Get Device instance for an Account
+    """
+    query = select(Device).join(Device.building).filter(
+        Device.id == device_id,
+        Building.account_id == account.id
+    )
+    device = db.execute(query).scalars().one_or_none()
+
+    return device
+
+
+def device_latest_measurement_timestamp(db: Session, device_id: int) -> datetime:
+    """
+    Get the timestamp of the most recent Measurement for Device
+    """
+    measurements = select(Measurement).filter(Measurement.device_id == device_id)
+    measurements = measurements.order_by(desc(Measurement.timestamp))
+    measurement = db.execute(measurements).scalars().first()
+
+    return measurement.timestamp if measurement else None

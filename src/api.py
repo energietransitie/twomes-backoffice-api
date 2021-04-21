@@ -9,9 +9,9 @@ from fastapi_sqlalchemy import db
 from db import db_url, session_args
 from firebase import firebase_dynamic_link
 from schema import (
-    AccountActivation, AccountCreate, AccountItem, AccountSession,
-    BadRequest, DeviceActivation, DeviceCreate, DeviceItem, DeviceTypeItem,
-    NotFound, Unauthorized
+    AccountActivate, AccountCreate, AccountItem, AccountSession,
+    BadRequest, DeviceActivate, DeviceCreate, DeviceItem,
+    DeviceItemMeasurementTime, NotFound, Unauthorized
 )
 import crud
 
@@ -50,7 +50,12 @@ def account_create(account_input: AccountCreate):
 
     url = firebase_dynamic_link(account.activation_token)
 
-    return AccountItem(id=account.id, pseudonym=pseudonym, firebase_url=url)
+    return AccountItem(
+        id=account.id,
+        pseudonym=pseudonym,
+        activation_token=account.activation_token,
+        firebase_url=url
+    )
 
 
 @app.post(
@@ -60,7 +65,7 @@ def account_create(account_input: AccountCreate):
         404: {'model': NotFound}
     }
 )
-def account_activate(activation_token: AccountActivation):
+def account_activate(activation_token: AccountActivate):
     account = crud.account_by_token(db.session, activation_token.activation_token)
     if not account:
         return JSONResponse(
@@ -98,22 +103,20 @@ def device_create(device_input: DeviceCreate):
         )
 
     device = crud.device_create(db.session, device_type, proof_of_presence_id)
-
-    return DeviceItem(id=device.id, device_type=device_type_name)
+    return device
 
 
 @app.post(
     '/device/activate',
-    response_model=DeviceTypeItem,
+    response_model=DeviceItem,
     responses={
         400: {'model': BadRequest},
         401: {'model': Unauthorized},
         404: {'model': NotFound}
     }
 )
-def device_activate(
-        device_activation: DeviceActivation,
-        authorization: HTTPAuthorizationCredentials = Depends(auth)):
+def device_activate(device_activation: DeviceActivate,
+                    authorization: HTTPAuthorizationCredentials = Depends(auth)):
 
     proof_of_presence_id = device_activation.proof_of_presence_id
     account_session_token = authorization.credentials
@@ -134,11 +137,44 @@ def device_activate(
     if not account:
         return JSONResponse(
             status_code=401,
-            content={'msg': f'Invalid account session token'}
+            content={'msg': 'Invalid account session token'}
         )
 
     crud.device_activate(db.session, account, device)
 
-    name = device.device_type.name
-    url = device.device_type.installation_manual_url
-    return DeviceTypeItem(device_type=name, installation_manual_url=url)
+    return device
+
+
+@app.get(
+    '/device/{device_id}',
+    response_model=DeviceItemMeasurementTime,
+    responses={
+        400: {'model': BadRequest},
+        401: {'model': Unauthorized},
+        404: {'model': NotFound}
+    }
+)
+def device_read(device_id: int,
+                authorization: HTTPAuthorizationCredentials = Depends(auth)):
+
+    account_session_token = authorization.credentials
+
+    account = crud.account_by_session(db.session, account_session_token)
+    if not account:
+        return JSONResponse(
+            status_code=401,
+            content={'msg': 'Invalid account session token'}
+        )
+
+    device = crud.device_by_account_and_id(db.session, account, device_id)
+    if not device:
+        return JSONResponse(
+            status_code=404,
+            content={'msg': f'Device {device_id} not found'}
+        )
+    print(device, device.id)
+
+    timestamp = crud.device_latest_measurement_timestamp(db.session, device_id)
+    device.latest_measurement_timestamp = timestamp
+
+    return device
