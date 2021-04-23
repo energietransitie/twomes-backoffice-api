@@ -14,8 +14,9 @@ from model import (
     Device,
     DeviceType,
     Measurement,
+    Upload,
 )
-from schema import AccountLocation
+from schema import AccountLocation, MeasurementsUpload
 
 
 def generate_pseudonym(db: Session) -> int:
@@ -187,3 +188,76 @@ def device_latest_measurement_timestamp(db: Session, device_id: int) -> datetime
     measurement = db.execute(measurements).scalars().first()
 
     return measurement.timestamp if measurement else None
+
+
+def device_session_token(db: Session, device: Device) -> str:
+    """
+    Get session token for a device.
+
+    A device session token consists of two parts:
+        <base64_encoded device id>.<random token>
+
+    The hash of the session token is stored in the database.
+    """
+    session_token, session_token_hash = session_token_generate(device.id)
+
+    device.session_token_hash = session_token_hash
+    db.commit()
+
+    return session_token
+
+
+def device_by_session(db: Session, session_token: str) -> Optional[Device]:
+    """
+    Get Device by a device session token
+    """
+    try:
+        device_id, _ = session_token_parts(session_token)
+        device: Device = db.get(Device, device_id)
+
+    except Exception as e:
+        logging.info(e)
+        return None
+
+    if not session_token_verify(session_token, device.session_token_hash):
+        logging.info('Invalid session token')
+        return None
+
+    return device
+
+
+def device_upload(db: Session, device: Device, data: MeasurementsUpload) -> Upload:
+    """
+    Save measurements data from a single upload of a device.
+
+    Property identifiers in the upload data must be valid
+    """
+    server_time = datetime.now(timezone.utc)
+    size = sum([len(l.measurements) for l in data.items])
+
+    upload = Upload(
+        device=device,
+        server_time=server_time,
+        device_time=data.device_time,
+        size= size,
+    )
+
+    db.add(upload)
+    db.commit()
+    db.refresh(upload)
+
+    measurements = [
+        {
+            'device_id': device.id,
+            'property_id': item.property_id,
+            'upload_id': upload.id,
+            'timestamp': measurement.timestamp,
+            'value': measurement.value,
+        }
+        for item in data.items for measurement in item.measurements
+    ]
+
+    db.bulk_insert_mappings(Measurement, measurements)
+    db.commit()
+
+    return upload

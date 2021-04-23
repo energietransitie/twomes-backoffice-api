@@ -1,9 +1,10 @@
 from sqlalchemy import (
     CheckConstraint, Column, Float, ForeignKey,
-    Numeric, Integer, Table, Text, TIMESTAMP
+    Numeric, Integer, Table, Text
 )
 from sqlalchemy.orm import relationship
 
+from column import DateTime
 from db import Base
 
 
@@ -26,10 +27,10 @@ class Account(Base):
     )
 
     created_on = Column(
-        TIMESTAMP
+        DateTime
     )
     activated_on = Column(
-        TIMESTAMP,
+        DateTime,
         nullable=True,
         comment='Time at which the activation token is used to active the account'
     )
@@ -194,10 +195,10 @@ class Device(Base):
     )
 
     created_on = Column(
-        TIMESTAMP
+        DateTime
     )
     activated_on = Column(
-        TIMESTAMP,
+        DateTime,
         nullable=True,
         comment='Time at which the proof-of-presence id is used to active the device'
     )
@@ -264,11 +265,11 @@ class Upload(Base):
     )
 
     server_time = Column(
-        TIMESTAMP,
+        DateTime,
         comment='Upload time, as reported by the (receiving) server'
     )
     device_time = Column(
-        TIMESTAMP,
+        DateTime,
         comment='Upload time, as reported by the (sending) device'
     )
     size = Column(
@@ -308,7 +309,7 @@ class Measurement(Base):
     )
 
     timestamp = Column(
-        TIMESTAMP,
+        DateTime,
         comment='Time of measurement, as reported by the device'
     )
     value = Column(

@@ -1,16 +1,17 @@
 """Initial migration
 
-Revision ID: 6a851e940ed9
+Revision ID: 25659351606b
 Revises: 
-Create Date: 2021-04-18 21:06:31.261831
+Create Date: 2021-04-23 19:29:16.510076
 
 """
 from alembic import op
 import sqlalchemy as sa
 
+import column
 
 # revision identifiers, used by Alembic.
-revision = '6a851e940ed9'
+revision = '25659351606b'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,8 +22,8 @@ def upgrade():
     op.create_table('account',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('pseudonym', sa.Integer(), nullable=True, comment='Pseudonym identifier, for account reference by 3rd parties'),
-    sa.Column('created_on', sa.TIMESTAMP(), nullable=True),
-    sa.Column('activated_on', sa.TIMESTAMP(), nullable=True, comment='Time at which the activation token is used to active the account'),
+    sa.Column('created_on', column.DateTime(), nullable=True),
+    sa.Column('activated_on', column.DateTime(), nullable=True, comment='Time at which the activation token is used to active the account'),
     sa.Column('activation_token', sa.Text(), nullable=True, comment='Unique, random token to identify the account during activation'),
     sa.Column('session_token_hash', sa.Text(), nullable=True, comment='Hash of random, long-lived token to identify the app session for this account'),
     sa.PrimaryKeyConstraint('id'),
@@ -72,8 +73,8 @@ def upgrade():
     sa.Column('building_id', sa.Integer(), nullable=True),
     sa.Column('proof_of_presence_id', sa.Text(), nullable=True, comment='Unique, random token to identify the device during activation'),
     sa.Column('session_token_hash', sa.Text(), nullable=True, comment='Hash of random, long-lived token to identify the device session, after activation'),
-    sa.Column('created_on', sa.TIMESTAMP(), nullable=True),
-    sa.Column('activated_on', sa.TIMESTAMP(), nullable=True, comment='Time at which the proof-of-presence id is used to active the device'),
+    sa.Column('created_on', column.DateTime(), nullable=True),
+    sa.Column('activated_on', column.DateTime(), nullable=True, comment='Time at which the proof-of-presence id is used to active the device'),
     sa.ForeignKeyConstraint(['building_id'], ['building.id'], ),
     sa.ForeignKeyConstraint(['device_type_id'], ['device_type.id'], ),
     sa.PrimaryKeyConstraint('id'),
@@ -83,8 +84,8 @@ def upgrade():
     op.create_table('upload',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('device_id', sa.Integer(), nullable=True),
-    sa.Column('server_time', sa.TIMESTAMP(), nullable=True, comment='Upload time, as reported by the (receiving) server'),
-    sa.Column('device_time', sa.TIMESTAMP(), nullable=True, comment='Upload time, as reported by the (sending) device'),
+    sa.Column('server_time', column.DateTime(), nullable=True, comment='Upload time, as reported by the (receiving) server'),
+    sa.Column('device_time', column.DateTime(), nullable=True, comment='Upload time, as reported by the (sending) device'),
     sa.Column('size', sa.Integer(), nullable=True, comment='Size of upload payload, in bytes'),
     sa.ForeignKeyConstraint(['device_id'], ['device.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -95,7 +96,7 @@ def upgrade():
     sa.Column('device_id', sa.Integer(), nullable=True),
     sa.Column('property_id', sa.Integer(), nullable=True),
     sa.Column('upload_id', sa.Integer(), nullable=True),
-    sa.Column('timestamp', sa.TIMESTAMP(), nullable=True, comment='Time of measurement, as reported by the device'),
+    sa.Column('timestamp', column.DateTime(), nullable=True, comment='Time of measurement, as reported by the device'),
     sa.Column('value', sa.Text(), nullable=True),
     sa.ForeignKeyConstraint(['device_id'], ['device.id'], ),
     sa.ForeignKeyConstraint(['property_id'], ['property.id'], ),
