@@ -1,0 +1,102 @@
+#
+# Overview of Twomes API data model
+# Format as specified by https://github.com/BurntSushi/erd
+#
+entity {bgcolor: "#ececfc"}
+
+[Account]
+*id {label: "Integer"}
+pseudonym {label: "Integer, unique"}
+
+created_on {label: "Timestamp"}
+activated_on {label: "Timestamp, null"}
+
+activation_token {label: "String, unique"}
+session_token {label: "String, null"}
+
+
+[Building]
+*id {label: "Integer"}
++account_id {label: "Integer"}
+
+longitude {label: "Numeric(15, 10)"}
+latitude {label: "Numeric(15, 10)"}
+
+# Time zone name, being a value as specified in the TZ database name column in
+# https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
+tz_name {label: "String"}
+
+# Year built as defined in https://bag.basisregistraties.overheid.nl/datamodel#oorspronkelijkBouwjaar
+yr_built {label: "Integer, null"}
+
+# House type, see https://pico.geodan.nl/qgis/?url&map=gknWoningtype
+type {label: "String, null"}
+
+# Floor area ('gebruiksoppervlakte') as defined in section 3.53 of NTA8800, which refers to section
+# 4.5 of NEN 2580:2007; see also https://imbag.github.io/praktijkhandleiding/attributen/oppervlakte
+floor_area {label: "Integer, null"}
+
+# Heat loss area ('verliesoppervlakte') as defined in section 3.119 of NTA8800, for the entire
+# building; this property is typically derived and stored after processing various other data fields
+# obtained from public APIs, such as 3DBAG (https://docs.3dbag.nl/en/)
+heat_loss_area {label: "Integer, null"}
+
+# Energy label, e.g. obtained via https://www.ep-online.nl/ep-online/Energylabel/Search
+energy_label {label: "String, null"}
+
+# Energy index, e.g. obtained via https://www.ep-online.nl/ep-online/Energylabel/Search
+energy_index {label: "Float, null"}
+
+
+[DeviceType]
+*id {label: "Integer"}
+name {label: "String, unique"}
+
+installation_manual_url {label: "String"}
+
+
+[Device]
+*id {label: "Integer"}
++device_type_id {label: "Integer"}
++building_id {label: "Integer, null"}
+
+proof_of_presence_id {label: "String, unique"}
+session_token {label: "String, null"}
+
+created_on {label: "Timestamp"}
+activated_on {label: "Timestamp, null"}
+
+
+[Property]
+*id {label: "Integer"}
+name {label: "String"}
+
+unit {label: "String, null"}
+
+
+[Upload]
+*id {label: "Integer"}
++device_id {label: "Integer"}
+
+server_time {label: "Timestamp"}
+device_time {label: "Timestamp"}
+size {label: "Integer"}
+
+
+[Measurement]
+*id {label: "Integer"}
++device_id {label: "Integer"}
++property_id {label: "Integer"}
++upload_id {label: "Integer"}
+
+time {label: "Timestamp"}
+value {label: "String"}
+
+
+Account 1--1 Building
+DeviceType +--* Property
+DeviceType *--1 Device
+Device ?--* Building
+Measurement 1--* Device
+Measurement 1--* Property
+Upload *--1 Measurement
