@@ -1,6 +1,7 @@
 from typing import Tuple
 import secrets
 
+from fastapi.security.http import HTTPBearer
 from jwt.utils import base64url_decode, base64url_encode
 from passlib.context import CryptContext
 
@@ -39,3 +40,16 @@ def session_token_parts(session_token) -> Tuple[int, str]:
 
 def session_token_verify(session_token, session_token_hash) -> bool:
     return pwd_context.verify(session_token, session_token_hash)
+
+
+class AccountSessionTokenBearer(HTTPBearer):
+    pass
+
+
+class AdminSessionTokenBearer(HTTPBearer):
+    pass
+
+
+class DeviceSessionTokenBearer(HTTPBearer):
+    pass
+

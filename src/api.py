@@ -3,13 +3,15 @@ from typing import Type
 
 from fastapi import Depends, FastAPI
 from fastapi.responses import JSONResponse
-from fastapi.security.http import (
-    HTTPBearer,
-    HTTPAuthorizationCredentials,
-)
+from fastapi.security.http import HTTPAuthorizationCredentials
 from fastapi_sqlalchemy import DBSessionMiddleware
 from fastapi_sqlalchemy import db
 
+from auth import (
+    AccountSessionTokenBearer,
+    AdminSessionTokenBearer,
+    DeviceSessionTokenBearer,
+)
 from db import db_url, session_args
 from firebase import firebase_dynamic_link
 from schema import (
@@ -31,9 +33,10 @@ from schema import (
     NotFound,
     Unauthorized,
 )
+from user import get_admin
 import crud
 
-__version__ = '0.8'
+__version__ = '0.81'
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -41,7 +44,9 @@ app = FastAPI(title='Twomes API', version=__version__)
 
 app.add_middleware(DBSessionMiddleware, db_url=db_url, session_args=session_args)
 
-auth = HTTPBearer()
+admin_auth = AdminSessionTokenBearer()
+account_auth = AccountSessionTokenBearer()
+device_auth = DeviceSessionTokenBearer()
 
 
 def http_status(http_status_class: Type[HttpStatus], message: str) -> JSONResponse:
@@ -52,11 +57,18 @@ def http_status(http_status_class: Type[HttpStatus], message: str) -> JSONRespon
     '/account',
     response_model=AccountItem,
     responses={
-        BadRequest.code: {'model': BadRequest}
+        BadRequest.code: {'model': BadRequest},
+        Unauthorized.code: {'model': Unauthorized},
     }
 )
-def account_create(account_input: AccountCreate):
+def account_create(account_input: AccountCreate,
+                   authorization: HTTPAuthorizationCredentials = Depends(admin_auth)):
     pseudonym = account_input.pseudonym
+    admin_session_token = authorization.credentials
+
+    admin = get_admin(admin_session_token)
+    if not admin:
+        return http_status(Unauthorized, 'Invalid admin session token')
 
     if pseudonym:
         if crud.account_by_pseudonym(db.session, pseudonym):
@@ -100,12 +112,19 @@ def account_activate(activation_token: AccountActivate):
     '/device',
     response_model=DeviceItem,
     responses={
-        BadRequest.code: {'model': BadRequest}
+        BadRequest.code: {'model': BadRequest},
+        Unauthorized.code: {'model': Unauthorized},
     }
 )
-def device_create(device_input: DeviceCreate):
+def device_create(device_input: DeviceCreate,
+                  authorization: HTTPAuthorizationCredentials = Depends(admin_auth)):
     device_type_name = device_input.device_type
     proof_of_presence_id = device_input.proof_of_presence_id
+    admin_session_token = authorization.credentials
+
+    admin = get_admin(admin_session_token)
+    if not admin:
+        return http_status(Unauthorized, 'Invalid admin session token')
 
     device_type = crud.device_type_by_name(db.session, device_type_name)
     if not device_type:
@@ -128,7 +147,7 @@ def device_create(device_input: DeviceCreate):
     }
 )
 def device_activate(device_verify: DeviceVerify,
-                    authorization: HTTPAuthorizationCredentials = Depends(auth)):
+                    authorization: HTTPAuthorizationCredentials = Depends(account_auth)):
 
     proof_of_presence_id = device_verify.proof_of_presence_id
     account_session_token = authorization.credentials
@@ -158,7 +177,7 @@ def device_activate(device_verify: DeviceVerify,
     }
 )
 def device_read(device_id: int,
-                authorization: HTTPAuthorizationCredentials = Depends(auth)):
+                authorization: HTTPAuthorizationCredentials = Depends(account_auth)):
 
     account_session_token = authorization.credentials
 
@@ -208,7 +227,7 @@ def device_session(device_verify: DeviceVerify):
         NotFound.code: {'model': NotFound}
     }
 )
-def device_read_self(authorization: HTTPAuthorizationCredentials = Depends(auth)):
+def device_read_self(authorization: HTTPAuthorizationCredentials = Depends(device_auth)):
 
     device_session_token = authorization.credentials
 
@@ -232,7 +251,7 @@ def device_read_self(authorization: HTTPAuthorizationCredentials = Depends(auth)
     }
 )
 def device_upload(measurements_upload: MeasurementsUpload,
-                  authorization: HTTPAuthorizationCredentials = Depends(auth)):
+                  authorization: HTTPAuthorizationCredentials = Depends(device_auth)):
 
     device_session_token = authorization.credentials
 

@@ -34,11 +34,32 @@ to try it out via http://localhost:8000/docs . Note: the `device create` API
 end point takes a `device_type` parameter as input. This is the name of one
 of the device types defined in `src/test/fixture.py` - 'Gateway' for example.
 
-Some end points require a session token to be provided in an authorization
+Most end points require a session token to be provided in an authorization
 bearer HTTP header. These end points are marked with a 'lock' symbol. Click
-on the 'Authorize' button, and paste the session token in the value field.
+on the 'Authorize' button at the upper right of the page, or click on the 
+'lock' symbol at the end point, and paste the session token in the value field.
 Subsequent calls done through http://localhost:8000/docs will then use the
 session token.
+
+There are currently three types of session tokens:
+- Admin: for creating accounts and devices, used by Twomes admins
+- Account: for account activation, and attaching devices to accounts
+- Device: for uploading device measurements
+
+To add yourself, locally, as one of the administrator:
+```shell
+docker-compose run web python -c "import user; user.create_admin()"
+```
+Type your name, and add the admin tuple in `src/user.py`.
+
+Example output of running `create_admin()`, providing `piet` as admin name:
+```text
+Admin name: piet
+Update user.admins with this tuple:
+  (2, 'piet', '$2b$12$3wMWc1PK4OqCWuFZGF5XieCTOFBbP6uBTZHtkc9vCFRlYUZciXOuu')
+Authorisation bearer token for admin "piet":
+  Mg.u6Rcx2fHl-lydbEiKZILGtd9i1hzCES1uXkcPFT-tw0
+```
 
 When finished, type Ctrl-C in the first terminal. The container state is 
 preserved, and to restart, simply run `docker-compose up` again.
