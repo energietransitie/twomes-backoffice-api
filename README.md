@@ -2,6 +2,16 @@
 
 Twomes API based on FastAPI / SQLAlchemy / MariaDB 
 
+## Table of contents
+
+- [Prerequisites](#prerequisites)
+- [Local Service](#local-service)
+- [Deployment](#deployment)
+- [Development](#development)
+- [Status](#status)
+- [License](#license)
+- [Credits](#credits)
+
 
 ## Prerequisites
 
@@ -69,6 +79,16 @@ To completely remove all docker containers created above
 docker-compose rm
 ```
 
+## Deployment
+
+Deployment of the Twomes API is done using the Docker image created after
+every commit into the `master` branch. The image is pushed to the Github
+docker registry (part of Github Packages).
+
+The image is available at
+```text
+docker.pkg.github.com/energietransitie/twomes-backoffice-api/api:latest
+```
 
 ## Development
 
@@ -111,3 +131,18 @@ created revision file is correct, and commit to your development branch.
 Then run the `alembic upgrade` command again.
 
 
+## Status
+
+Project is: _work in progress_
+
+
+## License
+
+This software is available under the [Apache 2.0 license](./LICENSE), 
+Copyright 2021 [Research group Energy Transition, Windesheim University of 
+Applied Sciences](https://windesheim.nl/energietransitie) 
+
+
+## Credits
+
+To be done
