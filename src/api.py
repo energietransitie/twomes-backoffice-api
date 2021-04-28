@@ -28,7 +28,8 @@ from schema import (
     DeviceSession,
     Forbidden,
     HttpStatus,
-    MeasurementsUpload,
+    MeasurementsUploadFixed,
+    MeasurementsUploadVariable,
     MeasurementsUploadResult,
     NotFound,
     Unauthorized,
@@ -36,7 +37,7 @@ from schema import (
 from user import get_admin
 import crud
 
-__version__ = '0.81'
+__version__ = '0.82'
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -109,6 +110,36 @@ def account_activate(activation_token: AccountActivate):
 
 
 @app.post(
+    '/account/device/activate',
+    response_model=DeviceItem,
+    responses={
+        BadRequest.code: {'model': BadRequest},
+        Unauthorized.code: {'model': Unauthorized},
+        NotFound.code: {'model': NotFound}
+    }
+)
+def account_device_activate(device_verify: DeviceVerify,
+                            authorization: HTTPAuthorizationCredentials = Depends(account_auth)):
+
+    proof_of_presence_id = device_verify.proof_of_presence_id
+    account_session_token = authorization.credentials
+
+    device = crud.device_by_pop(db.session, proof_of_presence_id)
+    if not device:
+        return http_status(NotFound, 'No device found for provided proof-of-presence id')
+    if device.activated_on:
+        return http_status(BadRequest, 'Device already activated')
+
+    account = crud.account_by_session(db.session, account_session_token)
+    if not account:
+        return http_status(Unauthorized, 'Invalid account session token')
+
+    crud.device_activate(db.session, account, device)
+
+    return device
+
+
+@app.post(
     '/device',
     response_model=DeviceItem,
     responses={
@@ -134,36 +165,6 @@ def device_create(device_input: DeviceCreate,
         return http_status(BadRequest, 'Proof-of-presence identifier already in use')
 
     device = crud.device_create(db.session, device_type, proof_of_presence_id)
-    return device
-
-
-@app.post(
-    '/device/activate',
-    response_model=DeviceItem,
-    responses={
-        BadRequest.code: {'model': BadRequest},
-        Unauthorized.code: {'model': Unauthorized},
-        NotFound.code: {'model': NotFound}
-    }
-)
-def device_activate(device_verify: DeviceVerify,
-                    authorization: HTTPAuthorizationCredentials = Depends(account_auth)):
-
-    proof_of_presence_id = device_verify.proof_of_presence_id
-    account_session_token = authorization.credentials
-
-    device = crud.device_by_pop(db.session, proof_of_presence_id)
-    if not device:
-        return http_status(NotFound, 'No device found for provided proof-of-presence id')
-    if device.activated_on:
-        return http_status(BadRequest, 'Device already activated')
-
-    account = crud.account_by_session(db.session, account_session_token)
-    if not account:
-        return http_status(Unauthorized, 'Invalid account session token')
-
-    crud.device_activate(db.session, account, device)
-
     return device
 
 
@@ -196,14 +197,14 @@ def device_read(device_id: int,
 
 
 @app.post(
-    '/device/session',
+    '/device/activate',
     response_model=DeviceSession,
     responses={
         Forbidden.code: {'model': Forbidden},
         NotFound.code: {'model': NotFound}
     }
 )
-def device_session(device_verify: DeviceVerify):
+def device_activate(device_verify: DeviceVerify):
 
     proof_of_presence_id = device_verify.proof_of_presence_id
 
@@ -241,7 +242,7 @@ def device_read_self(authorization: HTTPAuthorizationCredentials = Depends(devic
 
 
 @app.post(
-    '/device/measurements',
+    '/device/measurements/fixed-interval',
     response_model=MeasurementsUploadResult,
     responses={
         BadRequest.code: {'model': BadRequest},
@@ -250,8 +251,8 @@ def device_read_self(authorization: HTTPAuthorizationCredentials = Depends(devic
         NotFound.code: {'model': NotFound}
     }
 )
-def device_upload(measurements_upload: MeasurementsUpload,
-                  authorization: HTTPAuthorizationCredentials = Depends(device_auth)):
+def device_upload_fixed(measurements_upload: MeasurementsUploadFixed,
+                        authorization: HTTPAuthorizationCredentials = Depends(device_auth)):
 
     device_session_token = authorization.credentials
 
@@ -261,13 +262,49 @@ def device_upload(measurements_upload: MeasurementsUpload,
     if not device.building_id:
         return http_status(Forbidden, 'Device not attached to account')
 
-    valid_property_ids = {p.id for p in device.device_type.properties}
-    property_ids = {item.property_id for item in measurements_upload.items}
+    properties = device.device_type.properties
+    valid_property_names = {p.name for p in properties}
+    property_names = {item.property_name for item in measurements_upload.property_measurements}
 
-    invalid_property_ids = property_ids - valid_property_ids
-    if invalid_property_ids:
-        return http_status(BadRequest, f'Invalid property identifier(s): {invalid_property_ids}')
+    invalid_property_names = property_names - valid_property_names
+    if invalid_property_names:
+        return http_status(BadRequest, f'Invalid property name(s): {invalid_property_names}')
 
-    upload = crud.device_upload(db.session, device, measurements_upload)
+    data = crud.upload_fixed_to_variable(measurements_upload)
+    upload = crud.device_upload_variable(db.session, device, properties, data)
+
+    return MeasurementsUploadResult(size=upload.size, server_time=upload.server_time)
+
+
+@app.post(
+    '/device/measurements/variable-interval',
+    response_model=MeasurementsUploadResult,
+    responses={
+        BadRequest.code: {'model': BadRequest},
+        Unauthorized.code: {'model': Unauthorized},
+        Forbidden.code: {'model': Forbidden},
+        NotFound.code: {'model': NotFound}
+    }
+)
+def device_upload_variable(measurements_upload: MeasurementsUploadVariable,
+                           authorization: HTTPAuthorizationCredentials = Depends(device_auth)):
+
+    device_session_token = authorization.credentials
+
+    device = crud.device_by_session(db.session, device_session_token)
+    if not device:
+        return http_status(Unauthorized, 'Invalid device session token')
+    if not device.building_id:
+        return http_status(Forbidden, 'Device not attached to account')
+
+    properties = device.device_type.properties
+    valid_property_names = {p.name for p in properties}
+    property_names = {item.property_name for item in measurements_upload.property_measurements}
+
+    invalid_property_names = property_names - valid_property_names
+    if invalid_property_names:
+        return http_status(BadRequest, f'Invalid property name(s): {invalid_property_names}')
+
+    upload = crud.device_upload_variable(db.session, device, properties, measurements_upload)
 
     return MeasurementsUploadResult(size=upload.size, server_time=upload.server_time)

@@ -1,3 +1,5 @@
+from datetime import timedelta
+from enum import Enum
 from typing import ClassVar, List, Optional
 
 from pydantic import BaseModel, condecimal, conint, constr
@@ -130,19 +132,37 @@ class DeviceCompleteItem(BaseModel):
         orm_mode = True
 
 
-class Measurement(BaseModel):
+class MeasurementValue(BaseModel):
     timestamp: Datetime
     value: str
 
 
-class PropertyMeasurements(BaseModel):
-    property_id: int
-    measurements: List[Measurement]
+class TimestampType(str, Enum):
+    start = 'start'
+    end = 'end'
 
 
-class MeasurementsUpload(BaseModel):
-    device_time: Datetime
-    items: List[PropertyMeasurements]
+class PropertyMeasurementsFixed(BaseModel):
+    property_name: str
+    timestamp: Datetime
+    timestamp_type: TimestampType
+    interval: timedelta
+    measurements: List[str]
+
+
+class PropertyMeasurementsVariable(BaseModel):
+    property_name: str
+    measurements: List[MeasurementValue]
+
+
+class MeasurementsUploadFixed(BaseModel):
+    upload_time: Datetime
+    property_measurements: List[PropertyMeasurementsFixed]
+
+
+class MeasurementsUploadVariable(BaseModel):
+    upload_time: Datetime
+    property_measurements: List[PropertyMeasurementsVariable]
 
 
 class MeasurementsUploadResult(BaseModel):

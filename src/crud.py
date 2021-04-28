@@ -1,22 +1,44 @@
 import logging
-from datetime import datetime, timezone
-from typing import Optional
-from secrets import token_urlsafe
 import random
+from datetime import (
+    datetime,
+    timezone,
+)
+from typing import (
+    List,
+    Optional,
+)
+from secrets import token_urlsafe
 
-from sqlalchemy import desc, select
+from sqlalchemy import (
+    desc,
+    select,
+)
 from sqlalchemy.orm import Session
 
-from auth import session_token_generate, session_token_parts, session_token_verify
+from auth import (
+    session_token_generate,
+    session_token_parts,
+    session_token_verify,
+)
 from model import (
     Account,
     Building,
     Device,
     DeviceType,
     Measurement,
+    Property,
     Upload,
 )
-from schema import AccountLocation, MeasurementsUpload
+from schema import (
+    AccountLocation,
+    MeasurementsUploadFixed,
+    MeasurementsUploadVariable,
+    MeasurementValue,
+    PropertyMeasurementsFixed,
+    PropertyMeasurementsVariable,
+    TimestampType,
+)
 
 
 def generate_pseudonym(db: Session) -> int:
@@ -226,35 +248,73 @@ def device_by_session(db: Session, session_token: str) -> Optional[Device]:
     return device
 
 
-def device_upload(db: Session, device: Device, data: MeasurementsUpload) -> Upload:
-    """
-    Save measurements data from a single upload of a device.
+def measurements_fixed_to_variable(data: PropertyMeasurementsFixed) -> PropertyMeasurementsVariable:
+    size = len(data.measurements)
+    delta = data.interval
 
-    Property identifiers in the upload data must be valid
+    if data.timestamp_type == TimestampType.start:
+        start = data.timestamp
+    elif data.timestamp_type == TimestampType.end:
+        start = data.timestamp - size * delta
+    else:
+        raise ValueError(f'Illegal timestamp type "{data.timestamp_type}"')
+
+    timestamps = [start + n * delta for n in range(size)]
+
+    result = PropertyMeasurementsVariable(
+        property_name=data.property_name,
+        measurements=[
+            MeasurementValue(timestamp=i[0], value=i[1])
+            for i in zip(timestamps, data.measurements)
+        ]
+    )
+    return result
+
+
+def upload_fixed_to_variable(data: MeasurementsUploadFixed) -> MeasurementsUploadVariable:
+    result = MeasurementsUploadVariable(
+        upload_time=data.upload_time,
+        property_measurements=[
+            measurements_fixed_to_variable(pm)
+            for pm in data.property_measurements
+        ]
+    )
+    return result
+
+
+def device_upload_variable(db: Session,
+                           device: Device,
+                           properties: List[Property],
+                           data: MeasurementsUploadVariable) -> Upload:
+    """
+    Save measurements data from a single upload of a device,  with variable
+    measurement timestamps. Property names in the upload data must be valid.
     """
     server_time = datetime.now(timezone.utc)
-    size = sum([len(l.measurements) for l in data.items])
+    size = sum([len(l.measurements) for l in data.property_measurements])
 
     upload = Upload(
         device=device,
         server_time=server_time,
-        device_time=data.device_time,
-        size= size,
+        device_time=data.upload_time,
+        size=size,
     )
 
     db.add(upload)
     db.commit()
     db.refresh(upload)
 
+    property_ids = {p.name: p.id for p in properties}
+
     measurements = [
         {
             'device_id': device.id,
-            'property_id': item.property_id,
+            'property_id': property_ids[item.property_name],
             'upload_id': upload.id,
             'timestamp': measurement.timestamp,
             'value': measurement.value,
         }
-        for item in data.items for measurement in item.measurements
+        for item in data.property_measurements for measurement in item.measurements
     ]
 
     db.bulk_insert_mappings(Measurement, measurements)
