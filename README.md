@@ -33,10 +33,11 @@ docker-compose up
 This generates log messages from both the `web` and the `db` component.
 Just keep this running in your terminal.
 
-Open another terminal, and fill the database with some initial data (e.g., 
-Property and DeviceType instances). See also `src/test/fixture.py`.
+Open another terminal, and fill the database with initial Property and 
+DeviceType instances. See also `src/data/loader.py`. This loads the data
+available in `src/data/sensors.csv`.
 ```shell
-docker-compose run web python -c "from test.fixture import base; base()"
+docker-compose run web python -c "from data.loader import csv_create_update; csv_create_update()"
 ```
 
 The API is now available on http://localhost:8000/ , but it is more convenient

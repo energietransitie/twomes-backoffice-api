@@ -146,7 +146,12 @@ class DeviceType(Base):
     )
     name = Column(
         Text,
-        unique=True
+        unique=True,
+        comment='Short name to uniquely identify the device type'
+    )
+    display_name = Column(
+        Text,
+        comment='Name to show in user interfaces'
     )
 
     installation_manual_url = Column(
