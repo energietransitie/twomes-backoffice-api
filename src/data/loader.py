@@ -37,7 +37,7 @@ def csv_create_update():
         db.add(heartbeat)
 
     with open(sensors_tools_csv, newline='') as f:
-        reader = csv.DictReader(f, delimiter=';')
+        reader = csv.DictReader(f)
 
         rows = [r for r in reader]
 

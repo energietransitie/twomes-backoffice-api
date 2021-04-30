@@ -1,52 +1,52 @@
-DeviceType.name;DeviceType.DisplayName;Property.name;Property.unit
-DSMR-P1-gateway-TinTsTr;Slimme meter monitor met temperatuursensoren;eMeterReadingSupplyLow;kWh
-DSMR-P1-gateway-TinTsTr;Slimme meter monitor met temperatuursensoren;eMeterReadingSupplyHigh;kWh
-DSMR-P1-gateway-TinTsTr;Slimme meter monitor met temperatuursensoren;eMeterReadingReturnLow;kWh
-DSMR-P1-gateway-TinTsTr;Slimme meter monitor met temperatuursensoren;eMeterReadingReturnHigh;kWh
-DSMR-P1-gateway-TinTsTr;Slimme meter monitor met temperatuursensoren;gMeterReadingSupply;m^3
-DSMR-P1-gateway-TinTsTr;Slimme meter monitor met temperatuursensoren;eMeterReadingTimestamp;
-DSMR-P1-gateway-TinTsTr;Slimme meter monitor met temperatuursensoren;roomTemp;°C
-DSMR-P1-gateway-TinTsTr;Slimme meter monitor met temperatuursensoren;boilerSupplyTemp;°C
-DSMR-P1-gateway-TinTsTr;Slimme meter monitor met temperatuursensoren;boilerReturnTemp;°C
-DSMR-P1-gateway;Slimme meter monitor;eMeterReadingSupplyLow;kWh
-DSMR-P1-gateway;Slimme meter monitor;eMeterReadingSupplyHigh;kWh
-DSMR-P1-gateway;Slimme meter monitor;eMeterReadingReturnLow;kWh
-DSMR-P1-gateway;Slimme meter monitor;eMeterReadingReturnHigh;kWh
-DSMR-P1-gateway;Slimme meter monitor;gMeterReadingSupply;m^3
-DSMR-P1-gateway;Slimme meter monitor;eMeterReadingTimestamp;
-OpenThermGW-Nodo;OpenTherm gateway Nodo;roomTemp;°C
-OpenThermGW-Nodo;OpenTherm gateway Nodo;boilerSupplyTemp;°C
-OpenThermGW-Nodo;OpenTherm gateway Nodo;isBoilerFlameOn;
-OpenThermGW-Nodo;OpenTherm gateway Nodo;maxBoilerCap;kW
-OpenThermGW-Nodo;OpenTherm gateway Nodo;maxModulationLevel;%
-OpenThermGW-Nodo;OpenTherm gateway Nodo;minModulationLevel;%
-OpenThermGW-Nodo;OpenTherm gateway Nodo;boilerReturnTemp;°C
-OpenThermGW-Nodo;OpenTherm gateway Nodo;relativeModulationLevel;%
-OpenThermGW-Nodo;OpenTherm gateway Nodo;isCentralHeatingModeOn;
-OpenThermGW-Nodo;OpenTherm gateway Nodo;isDomesticHotWaterModeOn;
-OpenThermGW-Nodo;OpenTherm gateway Nodo;roomSetpointTemp;°C
-OpenThermGW-DIYLESS;OpenTherm gateway DIYLESS;roomTemp;°C
-OpenThermGW-DIYLESS;OpenTherm gateway DIYLESS;boilerSupplyTemp;°C
-OpenThermGW-DIYLESS;OpenTherm gateway DIYLESS;isBoilerFlameOn;
-OpenThermGW-DIYLESS;OpenTherm gateway DIYLESS;maxBoilerCap;kW
-OpenThermGW-DIYLESS;OpenTherm gateway DIYLESS;maxModulationLevel;%
-OpenThermGW-DIYLESS;OpenTherm gateway DIYLESS;minModulationLevel;%
-OpenThermGW-DIYLESS;OpenTherm gateway DIYLESS;boilerReturnTemp;°C
-OpenThermGW-DIYLESS;OpenTherm gateway DIYLESS;relativeModulationLevel;%
-OpenThermGW-DIYLESS;OpenTherm gateway DIYLESS;isCentralHeatingModeOn;
-OpenThermGW-DIYLESS;OpenTherm gateway DIYLESS;isDomesticHotWaterModeOn;
-OpenThermGW-DIYLESS;OpenTherm gateway DIYLESS;roomSetpointTemp;°C
-OpenTherm-Monitor;OpenTherm monitor;roomTemp;°C
-OpenTherm-Monitor;OpenTherm monitor;boilerSupplyTemp;°C
-OpenTherm-Monitor;OpenTherm monitor;isBoilerFlameOn;
-OpenTherm-Monitor;OpenTherm monitor;maxBoilerCap;kW
-OpenTherm-Monitor;OpenTherm monitor;maxModulationLevel;%
-OpenTherm-Monitor;OpenTherm monitor;minModulationLevel;%
-OpenTherm-Monitor;OpenTherm monitor;boilerReturnTemp;°C
-OpenTherm-Monitor;OpenTherm monitor;relativeModulationLevel;%
-OpenTherm-Monitor;OpenTherm monitor;isCentralHeatingModeOn;
-OpenTherm-Monitor;OpenTherm monitor;isDomesticHotWaterModeOn;
-OpenTherm-Monitor;OpenTherm monitor;roomSetpointTemp;°C
-CO2-meter-SCD4x;CO2 meter;CO2concentration;ppm
-CO2-meter-SCD4x;CO2 meter;roomTemp;°C
-CO2-meter-SCD4x;CO2 meter;relativeHumidity;%RH
+DeviceType.name,DeviceType.DisplayName,Property.name,Property.unit
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,eMeterReadingSupplyLow,kWh
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,eMeterReadingSupplyHigh,kWh
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,eMeterReadingReturnLow,kWh
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,eMeterReadingReturnHigh,kWh
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,gMeterReadingSupply,m^3
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,eMeterReadingTimestamp,
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,roomTemp,°C
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,boilerSupplyTemp,°C
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,boilerReturnTemp,°C
+DSMR-P1-gateway,Slimme meter monitor,eMeterReadingSupplyLow,kWh
+DSMR-P1-gateway,Slimme meter monitor,eMeterReadingSupplyHigh,kWh
+DSMR-P1-gateway,Slimme meter monitor,eMeterReadingReturnLow,kWh
+DSMR-P1-gateway,Slimme meter monitor,eMeterReadingReturnHigh,kWh
+DSMR-P1-gateway,Slimme meter monitor,gMeterReadingSupply,m^3
+DSMR-P1-gateway,Slimme meter monitor,eMeterReadingTimestamp,
+OpenThermGW-Nodo,OpenTherm gateway Nodo,roomTemp,°C
+OpenThermGW-Nodo,OpenTherm gateway Nodo,boilerSupplyTemp,°C
+OpenThermGW-Nodo,OpenTherm gateway Nodo,isBoilerFlameOn,
+OpenThermGW-Nodo,OpenTherm gateway Nodo,maxBoilerCap,kW
+OpenThermGW-Nodo,OpenTherm gateway Nodo,maxModulationLevel,%
+OpenThermGW-Nodo,OpenTherm gateway Nodo,minModulationLevel,%
+OpenThermGW-Nodo,OpenTherm gateway Nodo,boilerReturnTemp,°C
+OpenThermGW-Nodo,OpenTherm gateway Nodo,relativeModulationLevel,%
+OpenThermGW-Nodo,OpenTherm gateway Nodo,isCentralHeatingModeOn,
+OpenThermGW-Nodo,OpenTherm gateway Nodo,isDomesticHotWaterModeOn,
+OpenThermGW-Nodo,OpenTherm gateway Nodo,roomSetpointTemp,°C
+OpenThermGW-DIYLESS,OpenTherm gateway DIYLESS,roomTemp,°C
+OpenThermGW-DIYLESS,OpenTherm gateway DIYLESS,boilerSupplyTemp,°C
+OpenThermGW-DIYLESS,OpenTherm gateway DIYLESS,isBoilerFlameOn,
+OpenThermGW-DIYLESS,OpenTherm gateway DIYLESS,maxBoilerCap,kW
+OpenThermGW-DIYLESS,OpenTherm gateway DIYLESS,maxModulationLevel,%
+OpenThermGW-DIYLESS,OpenTherm gateway DIYLESS,minModulationLevel,%
+OpenThermGW-DIYLESS,OpenTherm gateway DIYLESS,boilerReturnTemp,°C
+OpenThermGW-DIYLESS,OpenTherm gateway DIYLESS,relativeModulationLevel,%
+OpenThermGW-DIYLESS,OpenTherm gateway DIYLESS,isCentralHeatingModeOn,
+OpenThermGW-DIYLESS,OpenTherm gateway DIYLESS,isDomesticHotWaterModeOn,
+OpenThermGW-DIYLESS,OpenTherm gateway DIYLESS,roomSetpointTemp,°C
+OpenTherm-Monitor,OpenTherm monitor,roomTemp,°C
+OpenTherm-Monitor,OpenTherm monitor,boilerSupplyTemp,°C
+OpenTherm-Monitor,OpenTherm monitor,isBoilerFlameOn,
+OpenTherm-Monitor,OpenTherm monitor,maxBoilerCap,kW
+OpenTherm-Monitor,OpenTherm monitor,maxModulationLevel,%
+OpenTherm-Monitor,OpenTherm monitor,minModulationLevel,%
+OpenTherm-Monitor,OpenTherm monitor,boilerReturnTemp,°C
+OpenTherm-Monitor,OpenTherm monitor,relativeModulationLevel,%
+OpenTherm-Monitor,OpenTherm monitor,isCentralHeatingModeOn,
+OpenTherm-Monitor,OpenTherm monitor,isDomesticHotWaterModeOn,
+OpenTherm-Monitor,OpenTherm monitor,roomSetpointTemp,°C
+CO2-meter-SCD4x,CO2 meter,CO2concentration,ppm
+CO2-meter-SCD4x,CO2 meter,roomTemp,°C
+CO2-meter-SCD4x,CO2 meter,relativeHumidity,%RH
