@@ -6,8 +6,8 @@ DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,eMeterReadi
 DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,gMeterReadingSupply,m^3
 DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,eMeterReadingTimestamp,
 DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,roomTemp,°C
-DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,boilerSupplyTemp,°C
-DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,boilerReturnTemp,°C
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,boilerTemp1,°C
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,boilerTemp2,°C
 DSMR-P1-gateway,Slimme meter monitor,eMeterReadingSupplyLow,kWh
 DSMR-P1-gateway,Slimme meter monitor,eMeterReadingSupplyHigh,kWh
 DSMR-P1-gateway,Slimme meter monitor,eMeterReadingReturnLow,kWh
