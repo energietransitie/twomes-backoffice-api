@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 from fastapi.security.http import HTTPAuthorizationCredentials
 from fastapi_sqlalchemy import DBSessionMiddleware
 from fastapi_sqlalchemy import db
+from fastapi.middleware.cors import CORSMiddleware
 
 from auth import (
     AccountSessionTokenBearer,
@@ -44,6 +45,14 @@ logging.basicConfig(level=logging.DEBUG)
 app = FastAPI(title='Twomes API', version=__version__)
 
 app.add_middleware(DBSessionMiddleware, db_url=db_url, session_args=session_args)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 admin_auth = AdminSessionTokenBearer()
 account_auth = AccountSessionTokenBearer()

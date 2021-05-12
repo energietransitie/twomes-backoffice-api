@@ -5,8 +5,8 @@ from urllib.parse import urlencode, urlunsplit
 FIREBASE_APP = 'energietransitiewindesheim'
 FIREBASE_HOST = f'{FIREBASE_APP}.page.link/'
 
-FIREBASE_ANDROID_PACKAGE = 'nl.windesheim.androidapp'
-FIREBASE_IOS_BUNDLE = 'nl.windesheim.iosapp'
+FIREBASE_ANDROID_PACKAGE = 'nl.windesheim.energietransitie.warmtewachter'
+FIREBASE_IOS_BUNDLE = 'nl.windesheim.energietransitie.warmtewachter'
 
 API_URL = 'https://api.tst.energietransitiewindesheim.nl'
 APP_URL = 'etw://account/{activation_token}'
