@@ -43,7 +43,8 @@ docker-compose run web python -c "from data.loader import csv_create_update; csv
 The API is now available on http://localhost:8000/ , but it is more convenient
 to try it out via http://localhost:8000/docs . Note: the `device create` API
 end point takes a `device_type` parameter as input. This is the name of one
-of the device types defined in `src/test/fixture.py` - 'Gateway' for example.
+of the device types defined in `src/data/sensors.csv` - 'OpenTherm-Monitor' 
+for example.
 
 Most end points require a session token to be provided in an authorization
 bearer HTTP header. These end points are marked with a 'lock' symbol. Click
