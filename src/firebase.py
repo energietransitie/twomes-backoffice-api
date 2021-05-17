@@ -1,7 +1,5 @@
 from urllib.parse import urlencode, urlunsplit
 
-# Placeholder values, to construct the Firebase Dynamic Link
-# TODO: update with the final values
 FIREBASE_APP = 'energietransitiewindesheim'
 FIREBASE_HOST = f'{FIREBASE_APP}.page.link/'
 
