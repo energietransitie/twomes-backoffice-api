@@ -1,15 +1,15 @@
 from urllib.parse import urlencode, urlunsplit
 
-# Placeholder values, to construct the Firebase Dynamic Link
-# TODO: update with the final values
 FIREBASE_APP = 'energietransitiewindesheim'
 FIREBASE_HOST = f'{FIREBASE_APP}.page.link/'
 
 FIREBASE_ANDROID_PACKAGE = 'nl.windesheim.energietransitie.warmtewachter'
 FIREBASE_IOS_BUNDLE = 'nl.windesheim.energietransitie.warmtewachter'
+FIREBASE_IOS_STORE_ID = '1563201993'
+FIREBASE_IOS_SKIP_PREVIEW = '1'
 
 API_URL = 'https://api.tst.energietransitiewindesheim.nl'
-APP_URL = 'etw://account/{activation_token}'
+APP_URL = 'https://account/{activation_token}'
 
 
 def firebase_dynamic_link(activation_token: str) -> str:
@@ -19,7 +19,9 @@ def firebase_dynamic_link(activation_token: str) -> str:
     query_params = {
         'link': APP_URL.format(activation_token=activation_token),
         'apn': FIREBASE_ANDROID_PACKAGE,
-        'isi': FIREBASE_IOS_BUNDLE,
+        'ibi': FIREBASE_IOS_BUNDLE,
+        'isi': FIREBASE_IOS_STORE_ID,
+        'efr': FIREBASE_IOS_SKIP_PREVIEW
     }
     query_string = urlencode(query_params)
 

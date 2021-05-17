@@ -8,6 +8,7 @@ from auth import (
 
 admins = (
     (1, 'arjan', '$2b$12$BAkuzJVXNwgeiU2vBL5b0eBPDm777eI0bvnjqKmlpDNGBr/hdGnjq'),
+    (2, 'Marco', '$2b$12$mP7XyiffPKDGJM05xGPrBuaE8yoLVjabaXj1.UYaxFYdd3bpLzUwu')
     # Add extra admin tuples, created with 'create_admin()', here
 )
 admins_name = {a[0]: a[1] for a in admins}
