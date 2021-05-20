@@ -47,12 +47,15 @@ OpenTherm-Monitor,OpenTherm monitor,relativeModulationLevel,%
 OpenTherm-Monitor,OpenTherm monitor,isCentralHeatingModeOn,
 OpenTherm-Monitor,OpenTherm monitor,isDomesticHotWaterModeOn,
 OpenTherm-Monitor,OpenTherm monitor,roomSetpointTemp,°C
-OpenTherm-Monitor,Presence detection,RSSI, meters
-OpenTherm-Monitor,Presence detection,IsHome,bool
-OpenTherm-Monitor,Presence detection,BLE Address
+OpenTherm-Monitor,Presence detection,RSSI, dBm
+OpenTherm-Monitor,Presence detection,isHome,
+OpenTherm-Monitor,Presence detection,bleAdress
 CO2-meter-SCD4x,CO2 meter,CO2concentration,ppm
 CO2-meter-SCD4x,CO2 meter,roomTemp,°C
 CO2-meter-SCD4x,CO2 meter,relativeHumidity,%RH
-CO2-meter-SCD4x,Presence detection,RSSI, meters
-CO2-meter-SCD4x,Presence detection,IsHome,bool
-CO2-meter-SCD4x,Presence detection,BLE Address
+CO2-meter-SCD4x,Presence detection,RSSI, dBm
+CO2-meter-SCD4x,Presence detection,isHome,
+CO2-meter-SCD4x,Presence detection,bleAdress
+ESP32-Generic,Generic Test,RSSI, dBm
+ESP32-Generic,Generic Test,isHome,
+ESP32-Generic,Generic Test,bleAdress
