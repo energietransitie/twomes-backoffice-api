@@ -49,13 +49,14 @@ OpenTherm-Monitor,OpenTherm monitor,isDomesticHotWaterModeOn,
 OpenTherm-Monitor,OpenTherm monitor,roomSetpointTemp,°C
 OpenTherm-Monitor,Presence detection,RSSI, dBm
 OpenTherm-Monitor,Presence detection,isHome,
-OpenTherm-Monitor,Presence detection,bleAdress
+OpenTherm-Monitor,Presence detection,bleAddress,
 CO2-meter-SCD4x,CO2 meter,CO2concentration,ppm
 CO2-meter-SCD4x,CO2 meter,roomTemp,°C
 CO2-meter-SCD4x,CO2 meter,relativeHumidity,%RH
 CO2-meter-SCD4x,Presence detection,RSSI, dBm
 CO2-meter-SCD4x,Presence detection,isHome,
-CO2-meter-SCD4x,Presence detection,bleAdress
-ESP32-Generic,Generic Test,RSSI, dBm
-ESP32-Generic,Generic Test,isHome,
-ESP32-Generic,Generic Test,bleAdress
+CO2-meter-SCD4x,Presence detection,bleAddress,
+Presence-Detector,Aanwezigheidsdetector,RSSI, dBm
+Presence-Detector,Aanwezigheidsdetector,isHome,
+Presence-Detector,Aanwezigheidsdetector,bleAddress,
+Generic-Test, testapparaatje,,
