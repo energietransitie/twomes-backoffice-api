@@ -23,18 +23,10 @@ def csv_create_update():
     will never be deleted. If required, these should be removed manually
     (be careful: this may also remove Measurement instances).
 
-    A special Property, 'heartbeat', always exists, and is defined for
-    all DeviceType instances.
-
     This function is idempotent.
     """
     device_types: Dict[str, DeviceType] = {}
     properties: Dict[str, Property] = {}
-
-    heartbeat = db.query(Property).filter(Property.name == 'heartbeat').first()
-    if not heartbeat:
-        heartbeat = Property(name='heartbeat')
-        db.add(heartbeat)
 
     with open(sensors_tools_csv, newline='') as f:
         reader = csv.DictReader(f)
@@ -46,6 +38,9 @@ def csv_create_update():
         device_type_display_name = row['DeviceType.DisplayName']
         property_name = row['Property.name']
         property_unit = row['Property.unit']
+
+        if not device_type_name or not property_name:
+            continue
 
         assert ' ' not in device_type_name, 'DeviceType.name must not contain spaces'
 
@@ -67,8 +62,6 @@ def csv_create_update():
                 )
                 db.add(device_type)
 
-            # Every DeviceType has the heartbeat Property
-            device_type.properties.append(heartbeat)
             device_types[device_type_name] = device_type
 
         try:
