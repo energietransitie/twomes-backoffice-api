@@ -58,7 +58,7 @@ There are currently three types of session tokens:
 - Account: for account activation, and attaching devices to accounts
 - Device: for uploading device measurements
 
-To add yourself, locally, as one of the administrator:
+To add yourself, locally, as one of the administrator, first pull to make sure that your master branch is up do date and then:
 ```shell
 docker-compose run web python -c "import user; user.create_admin()"
 ```
@@ -91,6 +91,8 @@ The image is available at
 ```text
 docker.pkg.github.com/energietransitie/twomes-backoffice-api/api:latest
 ```
+
+If you need the ability to create user accounts for testing purposes, first follow the procedure to create an admin account as described under [Local Service](#local-service) and test it locally via http://localhost:8000/docs. Then commit and push changes in the master branch to origin and ask the admin(s) for the tst.api.energietransitiewindesheim.nl (currently @arpe and @henriterhofte) to activate your newly created admin account by recreating the container for tst.api.energietransitiewindesheim.nl while using the 'Pull latest image' option.
 
 ## Development
 
@@ -147,4 +149,22 @@ Applied Sciences](https://windesheim.nl/energietransitie)
 
 ## Credits
 
-To be done
+This software is a collaborative effort of:
+* Arjan peddemors  ·  [@arpe](https://github.com/arpe)
+* 
+
+Product owner:
+* Henri ter Hofte  ·  [@henriterhofte](https://github.com/henriterhofte)
+
+We use and gratefully aknowlegde the efforts of the makers of the following source code and libraries:
+
+* [alembic](https://alembic.sqlalchemy.org), by Mike Bayer, licensed under [MIT license](https://opensource.org/licenses/MIT)
+* [bcrypt](https://github.com/pyca/bcrypt/), by The Python Cryptographic Authority developers, licensed under [Apache-2.0 license](https://raw.githubusercontent.com/pyca/bcrypt/main/LICENSE)
+* [factory-boy](https://github.com/FactoryBoy/factory_boy), by The FactoryBoy project, licensed under [MIT license](https://raw.githubusercontent.com/FactoryBoy/factory_boy/master/LICENSE)
+* [fastapi](https://github.com/tiangolo/fastapi), by Sebastián Ramírez, licensed under [MIT license](https://raw.githubusercontent.com/tiangolo/fastapi/master/LICENSE)
+* [FastAPI-SQLAlchemy](https://github.com/mfreeborn/fastapi-sqlalchemy), by Michael Freeborn, licensed under [MIT licence](https://opensource.org/licenses/MIT)
+* [passlib](https://foss.heptapod.net/python-libs/passlib), by Assurance Technologies, licensed under [BSD license](https://foss.heptapod.net/python-libs/passlib/-/raw/branch/stable/LICENSE)
+* [PyJWT](https://github.com/jpadilla/pyjwt), by José Padilla, licensed under [MIT License](https://raw.githubusercontent.com/jpadilla/pyjwt/master/LICENSE)
+* [PyMySQL](https://github.com/PyMySQL/PyMySQL/), by PyMySQL contributors, licensed under [MIT License](https://raw.githubusercontent.com/PyMySQL/PyMySQL/master/LICENSE)
+* [SQLAlchemy](https://www.sqlalchemy.org/), by Mike Bayer, licensed under [MIT licence](https://opensource.org/licenses/MIT)
+* [uvicorn](https://github.com/encode/uvicorn), by  Encode OSS Ltd., licensed under [BSD-3-Clause License](https://raw.githubusercontent.com/encode/uvicorn/master/LICENSE.md)
