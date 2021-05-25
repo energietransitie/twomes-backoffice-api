@@ -58,7 +58,7 @@ def csv_create_update():
                 device_type = DeviceType(
                     name=device_type_name,
                     display_name=device_type_display_name,
-                    installation_manual_url=f'{manual_url}/{device_type_name}.pdf'
+                    installation_manual_url=f'{manual_url}/{device_type_name}.html'
                 )
                 db.add(device_type)
 
