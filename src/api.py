@@ -133,18 +133,19 @@ def account_device_activate(device_verify: DeviceVerify,
     proof_of_presence_id = device_verify.proof_of_presence_id
     account_session_token = authorization.credentials
 
-    device = crud.device_by_pop(db.session, proof_of_presence_id)
-    if not device:
-        return http_status(NotFound, 'No device found for provided proof-of-presence id')
-    if device.activated_on:
-        return http_status(BadRequest, 'Device already activated')
-
     account = crud.account_by_session(db.session, account_session_token)
     if not account:
         return http_status(Unauthorized, 'Invalid account session token')
 
-    crud.device_activate(db.session, account, device)
+    device = crud.device_by_pop(db.session, proof_of_presence_id)
+    if not device:
+        return http_status(NotFound, 'No device found for provided proof-of-presence id')
+    if device.activated_on:
+        if device.building_id != account.building.id:
+            return http_status(BadRequest, 'Device already activated')
+        return device
 
+    crud.device_activate(db.session, account, device)
     return device
 
 
@@ -248,7 +249,6 @@ def device_read_self(authorization: HTTPAuthorizationCredentials = Depends(devic
         return http_status(Forbidden, 'Device not attached to account')
 
     return device
-
 
 @app.post(
     '/device/measurements/fixed-interval',
