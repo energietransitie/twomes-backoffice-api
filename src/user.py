@@ -10,7 +10,8 @@ admins = (
     (1, 'arjan', '$2b$12$BAkuzJVXNwgeiU2vBL5b0eBPDm777eI0bvnjqKmlpDNGBr/hdGnjq'),
     (2, 'Marco', '$2b$12$mP7XyiffPKDGJM05xGPrBuaE8yoLVjabaXj1.UYaxFYdd3bpLzUwu'),
     (3, 'Kevin', '$2b$12$9iG1PXmGN9BJHyypW6rMgOT2wHx/zrJhg/rZT0/GgxTnwimnl1CBC'),
-    (4, 'henrith', '$2b$12$tKBneY7fbLY4aMocM6OdOuhSoccx5o0dL/hJr.9ZqzraX1QetqF2O')
+    (4, 'henrith', '$2b$12$tKBneY7fbLY4aMocM6OdOuhSoccx5o0dL/hJr.9ZqzraX1QetqF2O'),
+    (5, 'Tristan', '$2b$12$DdmloxiPuI3YDBM5YxmksO7JShR1KR8qc9WFUbLBVcPhAq/tNIeNO')
     # Add extra admin tuples, created with 'create_admin()', here
 )
 admins_name = {a[0]: a[1] for a in admins}
