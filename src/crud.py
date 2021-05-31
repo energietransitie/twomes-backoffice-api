@@ -120,25 +120,35 @@ def account_by_session(db: Session, session_token: str) -> Optional[Account]:
         account_id, _ = session_token_parts(session_token)
         account: Account = db.get(Account, account_id)
 
+        # account may be None, in case of invalid account_id
+
     except Exception as e:
         logging.info(e)
         return None
 
-    if not session_token_verify(session_token, account.session_token_hash):
+    if not account or not session_token_verify(session_token, account.session_token_hash):
         logging.info('Invalid session token')
         return None
+
+    if account.activation_token:
+        # Unset the activation token, at first usage of the session token
+        account.activation_token = None
+        db.commit()
 
     return account
 
 
-def building_create(db: Session, account: Account, location: AccountLocation = None) -> Building:
+def building_create(db: Session,
+                    account: Account,
+                    location: AccountLocation,
+                    tz_name: str) -> Building:
     """
     Create a new Building
     """
     building = Building(account=account)
-    if location:
-        building.latitude = location.latitude
-        building.longitude = location.longitude
+    building.latitude = location.latitude
+    building.longitude = location.longitude
+    building.tz_name = tz_name
 
     db.add(building)
     db.commit()
@@ -237,11 +247,13 @@ def device_by_session(db: Session, session_token: str) -> Optional[Device]:
         device_id, _ = session_token_parts(session_token)
         device: Device = db.get(Device, device_id)
 
+        # device may be None, in case of invalid device_id
+
     except Exception as e:
         logging.info(e)
         return None
 
-    if not session_token_verify(session_token, device.session_token_hash):
+    if not device or not session_token_verify(session_token, device.session_token_hash):
         logging.info('Invalid session token')
         return None
 

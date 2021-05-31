@@ -4,7 +4,7 @@ from typing import ClassVar, List, Optional
 
 from pydantic import BaseModel, condecimal, conint, constr
 
-from field import Datetime
+from field import Datetime, Timezone
 from model import Account, Building
 
 
@@ -42,7 +42,8 @@ class AccountLocation(BaseModel):
 
 class AccountCreate(BaseModel):
     pseudonym: Optional[conint(ge=Account.PSEUDONYM_MIN, le=Account.PSEUDONYM_MAX)] = None
-    location: Optional[AccountLocation] = None
+    location: AccountLocation
+    tz_name: Optional[Timezone] = 'Europe/Amsterdam'
 
 
 class AccountItem(BaseModel):
