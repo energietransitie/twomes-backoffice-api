@@ -188,7 +188,7 @@ class Device(Base):
         nullable=True
     )
 
-    proof_of_presence_id = Column(
+    device_activation_token = Column(
         Text,
         unique=True,
         comment='Unique, random token to identify the device during activation'

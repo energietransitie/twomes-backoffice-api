@@ -61,7 +61,7 @@ name {label: "String, unique"}
 +device_type_id {label: "Integer"}
 +building_id {label: "Integer, null"}
 
-proof_of_presence_id {label: "String, unique"}
+device_activation_token {label: "String, unique"}
 session_token {label: "String, null"}
 
 created_on {label: "Timestamp"}

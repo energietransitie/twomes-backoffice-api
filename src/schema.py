@@ -70,11 +70,11 @@ class DeviceSession(SessionToken):
 
 class DeviceCreate(BaseModel):
     device_type: str
-    proof_of_presence_id: constr(strip_whitespace=True, min_length=8, max_length=1024)
+    device_activation_token: constr(strip_whitespace=True, min_length=8, max_length=1024)
 
 
 class DeviceVerify(BaseModel):
-    proof_of_presence_id: constr(strip_whitespace=True, min_length=8, max_length=1024)
+    device_activation_token: constr(strip_whitespace=True, min_length=8, max_length=1024)
 
 
 class DeviceTypeItem(BaseModel):
@@ -124,7 +124,7 @@ class DeviceItemMeasurementTime(DeviceItem):
 class DeviceCompleteItem(BaseModel):
     id: int
     device_type: DeviceTypeCompleteItem
-    proof_of_presence_id: str
+    device_activation_token: str
     created_on: Datetime
     activated_on: Optional[Datetime]
 
