@@ -57,6 +57,7 @@ installation_manual_url {label: "String"}
 
 [Device]
 *id {label: "Integer"}
+name {label: "String, unique"}
 +device_type_id {label: "Integer"}
 +building_id {label: "Integer, null"}
 

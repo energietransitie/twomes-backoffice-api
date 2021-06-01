@@ -159,6 +159,7 @@ def account_device_activate(device_verify: DeviceVerify,
 )
 def device_create(device_input: DeviceCreate,
                   authorization: HTTPAuthorizationCredentials = Depends(admin_auth)):
+    name = device_input.name
     device_type_name = device_input.device_type
     proof_of_presence_id = device_input.proof_of_presence_id
     admin_session_token = authorization.credentials
@@ -179,7 +180,7 @@ def device_create(device_input: DeviceCreate,
 
 
 @app.get(
-    '/device/{device_id}',
+    '/device/{device_name}',
     response_model=DeviceItemMeasurementTime,
     responses={
         BadRequest.code: {'model': BadRequest},
@@ -187,7 +188,7 @@ def device_create(device_input: DeviceCreate,
         NotFound.code: {'model': NotFound}
     }
 )
-def device_read(device_id: int,
+def device_read(device_name: str,
                 authorization: HTTPAuthorizationCredentials = Depends(account_auth)):
 
     account_session_token = authorization.credentials
@@ -196,13 +197,16 @@ def device_read(device_id: int,
     if not account:
         return http_status(Unauthorized, 'Invalid account session token')
 
-    device = crud.device_by_account_and_id(db.session, account, device_id)
+    device = crud.device_by_account_and_name(db.session, account, device_name)
     if not device:
         return http_status(NotFound, f'Device {device_id} not found')
 
-    timestamp = crud.device_latest_measurement_timestamp(db.session, device_id)
+    timestamp = crud.device_latest_measurement_timestamp(db.session, device_name)
     device.latest_measurement_timestamp = timestamp
-
+    
+    display_name = crud.device_display_name(db.session, device_name)
+    device.display_name = display_name
+    
     return device
 
 
