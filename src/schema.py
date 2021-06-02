@@ -42,8 +42,8 @@ class AccountLocation(BaseModel):
 
 class AccountCreate(BaseModel):
     pseudonym: Optional[conint(ge=Account.PSEUDONYM_MIN, le=Account.PSEUDONYM_MAX)] = None
-    location: AccountLocation
-    tz_name: Optional[Timezone] = 'Europe/Amsterdam'
+    location: Optional[AccountLocation(longitude=Building.LOCATION_LON_DEFAULT, latitude=LOCATION_LAT_DEFAULT)]
+    tz_name: Optional[Timezone] = Building.TZ_DEFAULT
 
 
 class AccountItem(BaseModel):

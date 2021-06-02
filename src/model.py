@@ -61,6 +61,12 @@ class Building(Base):
 
     LOCATION_DECIMAL_PLACES = 10
     LOCATION_MAX_DIGITS = 15
+    
+    # Default location is the center of the Assendorperplein, Zwolle, according to Google maps
+    LOCATION_LAT_DEFAULT = 52.50655
+    LOCATION_LON_DEFAULT = 6.09961
+
+    TZ_DEFAULT = 'Europe/Amsterdam'
 
     id = Column(
         Integer,
