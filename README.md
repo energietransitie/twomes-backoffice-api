@@ -125,6 +125,16 @@ Set the MariaDB url in your environment:
 export TWOMES_DB_URL="root:twomes@localhost/twomes"
 ```
 
+### Running
+
+Run the API server on your local machine:
+```shell
+PYTHONPATH=src uvicorn api:app --reload
+```
+
+Open http://127.0.0.1:8000/docs in your browser, to see the API documentation.
+
+
 ### Database migrations
 
 Database migrations are managed with Alembic (see https://alembic.sqlalchemy.org).
@@ -142,6 +152,14 @@ PYTHONPATH=src alembic revision --autogenerate -m "<short description of migrati
 The new revision is stored in `alembic/versions`: check that the newly 
 created revision file is correct, and commit to your development branch.
 Then run the `alembic upgrade` command again.
+
+
+### Model diagram
+
+To re-generate the model diagram
+```shell
+docker run -i vranac/erd < doc/model.er > doc/model.pdf 
+```
 
 
 ## Status

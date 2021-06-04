@@ -1,10 +1,11 @@
 from datetime import timedelta
+from decimal import Decimal
 from enum import Enum
 from typing import ClassVar, List, Optional
 
 from pydantic import BaseModel, condecimal, conint, constr
 
-from field import Datetime
+from field import Datetime, Timezone
 from model import Account, Building
 
 
@@ -29,7 +30,7 @@ class NotFound(HttpStatus):
     code = 404
 
 
-class AccountLocation(BaseModel):
+class BuildingLocation(BaseModel):
     longitude: condecimal(
         max_digits=Building.LOCATION_MAX_DIGITS,
         decimal_places=Building.LOCATION_DECIMAL_PLACES
@@ -40,9 +41,22 @@ class AccountLocation(BaseModel):
     )
 
 
+class BuildingDefaults:
+    """
+    Building defaults for the 50 Tinten Groen Assendorp project. Using an approximate
+    location (center of Assendorperplein, Zwolle), to avoid pinpointing individual homes.
+    """
+    location = BuildingLocation(
+        latitude=Decimal('52.50655'),
+        longitude=Decimal('6.09961')
+    )
+    tz_name = 'Europe/Amsterdam'
+
+
 class AccountCreate(BaseModel):
     pseudonym: Optional[conint(ge=Account.PSEUDONYM_MIN, le=Account.PSEUDONYM_MAX)] = None
-    location: Optional[AccountLocation] = None
+    location: Optional[BuildingLocation] = BuildingDefaults.location
+    tz_name: Optional[Timezone] = BuildingDefaults.tz_name
 
 
 class AccountItem(BaseModel):
