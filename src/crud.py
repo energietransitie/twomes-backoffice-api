@@ -31,7 +31,7 @@ from model import (
     Upload,
 )
 from schema import (
-    AccountLocation,
+    BuildingLocation,
     MeasurementsUploadFixed,
     MeasurementsUploadVariable,
     MeasurementValue,
@@ -140,7 +140,7 @@ def account_by_session(db: Session, session_token: str) -> Optional[Account]:
 
 def building_create(db: Session,
                     account: Account,
-                    location: AccountLocation,
+                    location: BuildingLocation,
                     tz_name: str) -> Building:
     """
     Create a new Building
