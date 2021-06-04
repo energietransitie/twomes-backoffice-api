@@ -147,18 +147,19 @@ def building_create(db: Session, account: Account, location: AccountLocation = N
     return building
 
 
-def device_type_by_name(db: Session, name: str) -> Optional[DeviceType]:
+def device_type_by_name(db: Session, device_type_name: str) -> Optional[DeviceType]:
     """
     Get DeviceType instance by name
     """
-    return db.query(DeviceType).filter(DeviceType.name == name).one_or_none()
+    return db.query(DeviceType).filter(DeviceType.name == device_type_name).one_or_none()
 
 
-def device_create(db: Session, device_type: DeviceType, proof_of_presence_id: str) -> Device:
+def device_create(db: Session, device_name: str, device_type: DeviceType, proof_of_presence_id: str) -> Device:
     """
     Create a new Device
     """
     device = Device(
+        name=device_name,
         device_type=device_type,
         proof_of_presence_id=proof_of_presence_id,
         created_on=datetime.now(timezone.utc),
@@ -188,12 +189,12 @@ def device_activate(db: Session, account: Account, device: Device):
     db.commit()
 
 
-def device_by_account_and_id(db: Session, account: Account, device_id: int) -> Optional[Device]:
+def device_by_account_and_name(db: Session, account: Account, device_name: str) -> Optional[Device]:
     """
     Get Device instance for an Account
     """
     query = select(Device).join(Device.building).filter(
-        Device.id == device_id,
+        Device.name == device_name,
         Building.account_id == account.id
     )
     device = db.execute(query).scalars().one_or_none()

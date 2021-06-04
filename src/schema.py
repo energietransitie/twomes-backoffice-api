@@ -69,7 +69,8 @@ class DeviceSession(SessionToken):
 
 
 class DeviceCreate(BaseModel):
-    device_type: str
+    name: str
+    type: str
     proof_of_presence_id: constr(strip_whitespace=True, min_length=8, max_length=1024)
 
 
@@ -79,6 +80,7 @@ class DeviceVerify(BaseModel):
 
 class DeviceTypeItem(BaseModel):
     name: str
+    display_name: str
     installation_manual_url: str
 
     class Config:

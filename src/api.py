@@ -25,6 +25,7 @@ from schema import (
     DeviceCompleteItem,
     DeviceCreate,
     DeviceItem,
+    DeviceTypeItem,
     DeviceItemMeasurementTime,
     DeviceSession,
     Forbidden,
@@ -159,8 +160,8 @@ def account_device_activate(device_verify: DeviceVerify,
 )
 def device_create(device_input: DeviceCreate,
                   authorization: HTTPAuthorizationCredentials = Depends(admin_auth)):
-    name = device_input.name
-    device_type_name = device_input.device_type
+    device_name = device_input.name
+    device_type_name = device_input.type
     proof_of_presence_id = device_input.proof_of_presence_id
     admin_session_token = authorization.credentials
 
@@ -175,9 +176,34 @@ def device_create(device_input: DeviceCreate,
     if crud.device_by_pop(db.session, proof_of_presence_id):
         return http_status(BadRequest, 'Proof-of-presence identifier already in use')
 
-    device = crud.device_create(db.session, device_type, proof_of_presence_id)
+    device = crud.device_create(db.session, device_name, device_type_name, proof_of_presence_id)
+
     return device
 
+
+@app.get(
+    '/device_type/{device_type}',
+    response_model=DeviceTypeItem,
+    responses={
+        BadRequest.code: {'model': BadRequest},
+        Unauthorized.code: {'model': Unauthorized},
+        NotFound.code: {'model': NotFound}
+    }
+)
+def device_type(device_type_name: str,
+                authorization: HTTPAuthorizationCredentials = Depends(account_auth)):
+
+    account_session_token = authorization.credentials
+
+    account = crud.account_by_session(db.session, account_session_token)
+    if not account:
+        return http_status(Unauthorized, 'Invalid account session token')
+
+    device_type = crud.device_type_by_name(db.session, account, device_type_name)
+    if not device_type:
+        return http_status(NotFound, f'Device {device_type_name} not found')
+
+    return device_type
 
 @app.get(
     '/device/{device_name}',
@@ -199,13 +225,10 @@ def device_read(device_name: str,
 
     device = crud.device_by_account_and_name(db.session, account, device_name)
     if not device:
-        return http_status(NotFound, f'Device {device_id} not found')
+        return http_status(NotFound, f'Device {device_name} not found')
 
     timestamp = crud.device_latest_measurement_timestamp(db.session, device_name)
     device.latest_measurement_timestamp = timestamp
-    
-    display_name = crud.device_display_name(db.session, device_name)
-    device.display_name = display_name
     
     return device
 

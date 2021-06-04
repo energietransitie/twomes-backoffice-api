@@ -50,14 +50,14 @@ energy_index {label: "Float, null"}
 
 [DeviceType]
 *id {label: "Integer"}
-name {label: "String, unique"}
-
+name {label: "String, unique, non-null"}
+display_name {label: "String, unique, non-null"}
 installation_manual_url {label: "String"}
 
 
 [Device]
 *id {label: "Integer"}
-name {label: "String, unique"}
+name {label: "String, unique, non-null"}
 +device_type_id {label: "Integer"}
 +building_id {label: "Integer, null"}
 
