@@ -182,7 +182,7 @@ def device_create(device_input: DeviceCreate,
 
 
 @app.get(
-    '/device_type/{device_type}',
+    '/device_type/{device_name}',
     response_model=DeviceTypeItem,
     responses={
         BadRequest.code: {'model': BadRequest},
@@ -190,7 +190,7 @@ def device_create(device_input: DeviceCreate,
         NotFound.code: {'model': NotFound}
     }
 )
-def device_type(device_type_name: str,
+def device_type(device_name: str,
                 authorization: HTTPAuthorizationCredentials = Depends(account_auth)):
 
     account_session_token = authorization.credentials
@@ -199,9 +199,11 @@ def device_type(device_type_name: str,
     if not account:
         return http_status(Unauthorized, 'Invalid account session token')
 
-    device_type = crud.device_type_by_name(db.session, account, device_type_name)
-    if not device_type:
-        return http_status(NotFound, f'Device {device_type_name} not found')
+    device = crud.device_by_name(db.session, account, device_name)
+    if not device:
+        return http_status(NotFound, f'Device {device_name} not found')
+
+    device_type = device.type
 
     return device_type
 
