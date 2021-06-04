@@ -164,13 +164,13 @@ def device_type_by_name(db: Session, name: str) -> Optional[DeviceType]:
     return db.query(DeviceType).filter(DeviceType.name == name).one_or_none()
 
 
-def device_create(db: Session, device_type: DeviceType, proof_of_presence_id: str) -> Device:
+def device_create(db: Session, device_type: DeviceType, activation_token: str) -> Device:
     """
     Create a new Device
     """
     device = Device(
         device_type=device_type,
-        proof_of_presence_id=proof_of_presence_id,
+        activation_token=activation_token,
         created_on=datetime.now(timezone.utc),
     )
 
@@ -181,11 +181,11 @@ def device_create(db: Session, device_type: DeviceType, proof_of_presence_id: st
     return device
 
 
-def device_by_pop(db: Session, proof_of_presence_id: str) -> Optional[Device]:
+def device_by_activation_token(db: Session, activation_token: str) -> Optional[Device]:
     """
     Get Device instance by proof-of-presence identifier
     """
-    query = db.query(Device).filter(Device.proof_of_presence_id == proof_of_presence_id)
+    query = db.query(Device).filter(Device.activation_token == activation_token)
     return query.one_or_none()
 
 

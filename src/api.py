@@ -131,14 +131,14 @@ def account_activate(activation_token: AccountActivate):
 def account_device_activate(device_verify: DeviceVerify,
                             authorization: HTTPAuthorizationCredentials = Depends(account_auth)):
 
-    proof_of_presence_id = device_verify.proof_of_presence_id
+    activation_token = device_verify.activation_token
     account_session_token = authorization.credentials
 
     account = crud.account_by_session(db.session, account_session_token)
     if not account:
         return http_status(Unauthorized, 'Invalid account session token')
 
-    device = crud.device_by_pop(db.session, proof_of_presence_id)
+    device = crud.device_by_activation_token(db.session, activation_token)
     if not device:
         return http_status(NotFound, 'No device found for provided proof-of-presence id')
     if device.activated_on:
@@ -161,7 +161,7 @@ def account_device_activate(device_verify: DeviceVerify,
 def device_create(device_input: DeviceCreate,
                   authorization: HTTPAuthorizationCredentials = Depends(admin_auth)):
     device_type_name = device_input.device_type
-    proof_of_presence_id = device_input.proof_of_presence_id
+    activation_token = device_input.activation_token
     admin_session_token = authorization.credentials
 
     admin = get_admin(admin_session_token)
@@ -172,10 +172,10 @@ def device_create(device_input: DeviceCreate,
     if not device_type:
         return http_status(BadRequest, f'Unknown device type "{device_type_name}"')
 
-    if crud.device_by_pop(db.session, proof_of_presence_id):
+    if crud.device_by_activation_token(db.session, activation_token):
         return http_status(BadRequest, 'Proof-of-presence identifier already in use')
 
-    device = crud.device_create(db.session, device_type, proof_of_presence_id)
+    device = crud.device_create(db.session, device_type, activation_token)
     return device
 
 
@@ -217,9 +217,9 @@ def device_read(device_id: int,
 )
 def device_activate(device_verify: DeviceVerify):
 
-    proof_of_presence_id = device_verify.proof_of_presence_id
+    activation_token = device_verify.activation_token
 
-    device = crud.device_by_pop(db.session, proof_of_presence_id)
+    device = crud.device_by_activation_token(db.session, activation_token)
     if not device:
         return http_status(NotFound, 'No device found for provided proof-of-presence id')
     if not device.building_id:

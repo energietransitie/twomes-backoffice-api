@@ -195,7 +195,7 @@ class Device(Base):
         ForeignKey('building.id'),
     )
 
-    proof_of_presence_id = Column(
+    activation_token = Column(
         Text,
         nullable=False,
         unique=True,

@@ -61,7 +61,7 @@ installation_manual_url {label: "String, non-null"}
 +device_type_id {label: "Integer, non-null"}
 +building_id {label: "Integer"}
 
-proof_of_presence_id {label: "String, unique, non-null"}
+activation_token {label: "String, unique, non-null"}
 session_token {label: "String"}
 
 created_on {label: "Timestamp, non-null"}
