@@ -5,9 +5,8 @@ Twomes API based on FastAPI / SQLAlchemy / MariaDB
 ## Table of contents
 
 - [Prerequisites](#prerequisites)
-- [Local Service](#local-service)
-- [Deployment](#deployment)
-- [Development](#development)
+- [Deploying](#deploying)
+- [Developing](#developing)
 - [Status](#status)
 - [License](#license)
 - [Credits](#credits)
@@ -19,7 +18,11 @@ Running, and further developing, the API requires a recent Docker setup.
 See https://www.docker.com/products/docker-desktop for installation.
 
 
-## Local Service
+## Deploying 
+
+The Twomes API can be be deployed on a local test server or a server in the cloud.
+
+### Deploying to a local test server
 
 To try out the Twomes API, locally, on your machine, it is possible to run 
 the database and API server using Docker Compose. 
@@ -73,7 +76,7 @@ Authorisation bearer token for admin "piet":
   Mg.u6Rcx2fHl-lydbEiKZILGtd9i1hzCES1uXkcPFT-tw0
 ```
 
-When finished, type Ctrl-C in the first terminal. The container state is 
+When finished, type the `Ctrl + C` key in the first terminal. The container state is 
 preserved, and to restart, simply run `docker-compose up` again.
 
 To completely remove all docker containers created above
@@ -81,9 +84,9 @@ To completely remove all docker containers created above
 docker-compose rm
 ```
 
-## Deployment
+### Deploying to `tst.api.energietransitiewindesheim.nl`
 
-Deployment of the Twomes API is done using the Docker image created after
+Deployment of the Twomes API to `tst.api.energietransitiewindesheim.nl` is done automatically using the Docker image created after
 every commit into the `master` branch. The image is pushed to the Github
 docker registry (part of Github Packages).
 
@@ -91,10 +94,16 @@ The image is available at
 ```text
 docker.pkg.github.com/energietransitie/twomes-backoffice-api/api:latest
 ```
+### Deploying new user accounts to `tst.api.energietransitiewindesheim.nl`
+If you need the ability to create user accounts for testing purposes, first follow the procedure to create an admin account as described under [Deploying to a local test server](#deploying-to a-local-test-server) and test it locally via http://localhost:8000/docs. Then commit and push changes in the master branch to origin and ask the admin for the `tst.api.energietransitiewindesheim.nl` server (currently [@henriterhofte](https://github.com/henriterhofte)) to activate your newly created admin account. He will then recreate the container for `tst.api.energietransitiewindesheim.nl` while using the 'Pull latest image' option, which activates the new account.
 
-If you need the ability to create user accounts for testing purposes, first follow the procedure to create an admin account as described under [Local Service](#local-service) and test it locally via http://localhost:8000/docs. Then commit and push changes in the master branch to origin and ask the admin(s) for the tst.api.energietransitiewindesheim.nl (currently @arpe and @henriterhofte) to activate your newly created admin account by recreating the container for tst.api.energietransitiewindesheim.nl while using the 'Pull latest image' option.
+### Deploying new properties to `tst.api.energietransitiewindesheim.nl`
+If you need a new property at `tst.api.energietransitiewindesheim.nl`, first update it in `src/data/sensors.csv` and test it locally as described under [Deploying to a local test server](#deploying-to a-local-test-server) and test it locally via http://localhost:8000/docs. Then commit and push changes in the master branch to origin and ask the admin for the `tst.api.energietransitiewindesheim.nl` server (currently [@henriterhofte](https://github.com/henriterhofte)) to activate your newly created admin account. He will then load the data from [/src/data/loader.py](../blob/master/src/data/loader.py) using: 
+```shell
+python -c "from data.loader import csv_create_update; csv_create_update()"
+```
 
-## Development
+## Developing
 
 ### Setup
 
@@ -116,6 +125,16 @@ Set the MariaDB url in your environment:
 export TWOMES_DB_URL="root:twomes@localhost/twomes"
 ```
 
+### Running
+
+Run the API server on your local machine:
+```shell
+PYTHONPATH=src uvicorn api:app --reload
+```
+
+Open http://127.0.0.1:8000/docs in your browser, to see the API documentation.
+
+
 ### Database migrations
 
 Database migrations are managed with Alembic (see https://alembic.sqlalchemy.org).
@@ -133,6 +152,14 @@ PYTHONPATH=src alembic revision --autogenerate -m "<short description of migrati
 The new revision is stored in `alembic/versions`: check that the newly 
 created revision file is correct, and commit to your development branch.
 Then run the `alembic upgrade` command again.
+
+
+### Model diagram
+
+To re-generate the model diagram
+```shell
+docker run -i vranac/erd < doc/model.er > doc/model.pdf 
+```
 
 
 ## Status

@@ -6,92 +6,92 @@ entity {bgcolor: "#ececfc"}
 
 [Account]
 *id {label: "Integer"}
-pseudonym {label: "Integer, unique"}
+pseudonym {label: "Integer, unique, non-null"}
 
-created_on {label: "Timestamp"}
-activated_on {label: "Timestamp, null"}
+created_on {label: "Timestamp, non-null"}
+activated_on {label: "Timestamp"}
 
 activation_token {label: "String, unique"}
-session_token {label: "String, null"}
+session_token {label: "String"}
 
 
 [Building]
 *id {label: "Integer"}
-+account_id {label: "Integer"}
++account_id {label: "Integer, non-null"}
 
-longitude {label: "Numeric(15, 10)"}
-latitude {label: "Numeric(15, 10)"}
+longitude {label: "Numeric(15, 10), non-null"}
+latitude {label: "Numeric(15, 10), non-null"}
 
 # Time zone name, being a value as specified in the TZ database name column in
 # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
-tz_name {label: "String"}
+tz_name {label: "String, non-null"}
 
 # Year built as defined in https://bag.basisregistraties.overheid.nl/datamodel#oorspronkelijkBouwjaar
-yr_built {label: "Integer, null"}
+yr_built {label: "Integer"}
 
 # House type, see https://pico.geodan.nl/qgis/?url&map=gknWoningtype
-type {label: "String, null"}
+type {label: "String"}
 
 # Floor area ('gebruiksoppervlakte') as defined in section 3.53 of NTA8800, which refers to section
 # 4.5 of NEN 2580:2007; see also https://imbag.github.io/praktijkhandleiding/attributen/oppervlakte
-floor_area {label: "Integer, null"}
+floor_area {label: "Integer"}
 
 # Heat loss area ('verliesoppervlakte') as defined in section 3.119 of NTA8800, for the entire
 # building; this property is typically derived and stored after processing various other data fields
 # obtained from public APIs, such as 3DBAG (https://docs.3dbag.nl/en/)
-heat_loss_area {label: "Integer, null"}
+heat_loss_area {label: "Integer"}
 
 # Energy label, e.g. obtained via https://www.ep-online.nl/ep-online/Energylabel/Search
-energy_label {label: "String, null"}
+energy_label {label: "String"}
 
 # Energy index, e.g. obtained via https://www.ep-online.nl/ep-online/Energylabel/Search
-energy_index {label: "Float, null"}
+energy_index {label: "Float"}
 
 
 [DeviceType]
 *id {label: "Integer"}
 name {label: "String, unique, non-null"}
 display_name {label: "String, unique, non-null"}
-installation_manual_url {label: "String"}
+installation_manual_url {label: "String, non-null"}
 
 
 [Device]
 *id {label: "Integer"}
 name {label: "String, unique, non-null"}
-+device_type_id {label: "Integer"}
-+building_id {label: "Integer, null"}
++device_type_id {label: "Integer, non-null"}
++building_id {label: "Integer"}
 
-proof_of_presence_id {label: "String, unique"}
-session_token {label: "String, null"}
+proof_of_presence_id {label: "String, unique, non-null"}
+session_token {label: "String"}
 
-created_on {label: "Timestamp"}
-activated_on {label: "Timestamp, null"}
+created_on {label: "Timestamp, non-null"}
+activated_on {label: "Timestamp"}
 
 
 [Property]
 *id {label: "Integer"}
-name {label: "String"}
+name {label: "String, non-null"}
 
-unit {label: "String, null"}
+unit {label: "String"}
 
 
 [Upload]
 *id {label: "Integer"}
-+device_id {label: "Integer"}
++device_id {label: "Integer, non-null"}
 
-server_time {label: "Timestamp"}
-device_time {label: "Timestamp"}
-size {label: "Integer"}
+server_time {label: "Timestamp, non-null"}
+device_time {label: "Timestamp, non-null"}
+size {label: "Integer, non-null"}
 
 
 [Measurement]
 *id {label: "Integer"}
-+device_id {label: "Integer"}
-+property_id {label: "Integer"}
-+upload_id {label: "Integer"}
++device_id {label: "Integer, non-null"}
++property_id {label: "Integer, non-null"}
++upload_id {label: "Integer, non-null"}
 
-time {label: "Timestamp"}
-value {label: "String"}
+time {label: "Timestamp, non-null"}
+value {label: "String, non-null"}
 
 
 Account 1--1 Building

@@ -67,3 +67,5 @@ Presence-Detector,Aanwezigheidsdetector,RSSI, dBm
 Presence-Detector,Aanwezigheidsdetector,isHome,
 Presence-Detector,Aanwezigheidsdetector,bleAddress,
 Generic-Test,testapparaatje,heartbeat,
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,gMeterReadingTimestamp,
+DSMR-P1-gateway,Slimme meter monitor,gMeterReadingTimestamp,

@@ -23,26 +23,29 @@ class Account(Base):
         Integer,
         CheckConstraint(f'{PSEUDONYM_MIN} <= pseudonym <= {PSEUDONYM_MAX}'),
         unique=True,
+        nullable=False,
         comment='Pseudonym identifier, for account reference by 3rd parties'
     )
 
     created_on = Column(
-        DateTime
+        DateTime,
+        nullable=False,
     )
     activated_on = Column(
         DateTime,
-        nullable=True,
         comment='Time at which the activation token is used to active the account'
     )
 
     activation_token = Column(
         Text,
         unique=True,
-        comment='Unique, random token to identify the account during activation'
+        comment=(
+            'Unique, random token to identify the account during activation. '
+            'Set to None, after first usage of session token.'
+        )
     )
     session_token_hash = Column(
         Text,
-        nullable=True,
         comment='Hash of random, long-lived token to identify the app session for this account'
     )
 
@@ -66,19 +69,23 @@ class Building(Base):
     )
     account_id = Column(
         Integer,
-        ForeignKey('account.id')
+        ForeignKey('account.id'),
+        nullable=False,
     )
 
     longitude = Column(
         Numeric(LOCATION_MAX_DIGITS, LOCATION_DECIMAL_PLACES),
+        nullable=False,
         comment='Coarse-grained longitude, for approximate location indication'
     )
     latitude = Column(
         Numeric(LOCATION_MAX_DIGITS, LOCATION_DECIMAL_PLACES),
+        nullable=False,
         comment='Coarse-grained latitude, for approximate location indication'
     )
     tz_name = Column(
         Text,
+        nullable=False,
         comment='Time zone name, in the IANA timezone database format'
     )
     yr_built = Column(
@@ -87,27 +94,22 @@ class Building(Base):
     )
     type = Column(
         Text,
-        nullable=True,
         comment='House type ("woningtype")'
     )
     floor_area = Column(
         Integer,
-        nullable=True,
         comment='Floor area ("gebruiksoppervlakte"), as defined in NEN NTA 8800'
     )
     heat_loss_area = Column(
         Integer,
-        nullable=True,
         comment='Heat loss area ("verliesoppervlakte"), as defined in NEN NTA 8800'
     )
     energy_label = Column(
         Text,
-        nullable=True,
         comment='Energy label, as defined in NEN NTA 8800'
     )
     energy_index = Column(
         Float,
-        nullable=True,
         comment='Energy index, as defined in NEN NTA 8800'
     )
 
@@ -127,12 +129,14 @@ device_type_property = Table(
     Column(
         'device_type_id',
         Integer,
-        ForeignKey('device_type.id')
+        ForeignKey('device_type.id'),
+        nullable=False,
     ),
     Column(
         'property_id',
         Integer,
-        ForeignKey('property.id')
+        ForeignKey('property.id'),
+        nullable=False,
     ),
 )
 
@@ -147,15 +151,18 @@ class DeviceType(Base):
     name = Column(
         Text,
         unique=True,
+        nullable=False,
         comment='Short name to uniquely identify the device type'
     )
     display_name = Column(
         Text,
+        nullable=False,
         comment='Name to show in user interfaces'
     )
 
     installation_manual_url = Column(
         Text,
+        nullable=False,
         comment='URL to manual with installation instructions'
     )
 
@@ -180,31 +187,31 @@ class Device(Base):
     )
     device_type_id = Column(
         Integer,
-        ForeignKey('device_type.id')
+        ForeignKey('device_type.id'),
+        nullable=False,
     )
     building_id = Column(
         Integer,
         ForeignKey('building.id'),
-        nullable=True
     )
 
     proof_of_presence_id = Column(
         Text,
+        nullable=False,
         unique=True,
         comment='Unique, random token to identify the device during activation'
     )
     session_token_hash = Column(
         Text,
-        nullable=True,
         comment='Hash of random, long-lived token to identify the device session, after activation'
     )
 
     created_on = Column(
-        DateTime
+        DateTime,
+        nullable=False,
     )
     activated_on = Column(
         DateTime,
-        nullable=True,
         comment='Time at which the proof-of-presence id is used to active the device'
     )
 
@@ -236,11 +243,11 @@ class Property(Base):
         index=True
     )
     name = Column(
-        Text
+        Text,
+        nullable=False,
     )
     unit = Column(
         Text,
-        nullable=True,
         comment='Unit of property (if any), as defined by the International System of Units'
     )
 
@@ -266,19 +273,23 @@ class Upload(Base):
     )
     device_id = Column(
         Integer,
-        ForeignKey('device.id')
+        ForeignKey('device.id'),
+        nullable=False,
     )
 
     server_time = Column(
         DateTime,
+        nullable=False,
         comment='Upload time, as reported by the (receiving) server'
     )
     device_time = Column(
         DateTime,
+        nullable=False,
         comment='Upload time, as reported by the (sending) device'
     )
     size = Column(
         Integer,
+        nullable=False,
         comment='Size of upload payload, in bytes'
     )
 
@@ -302,23 +313,28 @@ class Measurement(Base):
     )
     device_id = Column(
         Integer,
-        ForeignKey('device.id')
+        ForeignKey('device.id'),
+        nullable=False,
     )
     property_id = Column(
         Integer,
-        ForeignKey('property.id')
+        ForeignKey('property.id'),
+        nullable=False,
     )
     upload_id = Column(
         Integer,
-        ForeignKey('upload.id')
+        ForeignKey('upload.id'),
+        nullable=False,
     )
 
     timestamp = Column(
         DateTime,
+        nullable=False,
         comment='Time of measurement, as reported by the device'
     )
     value = Column(
-        Text
+        Text,
+        nullable=False,
     )
 
     device = relationship(

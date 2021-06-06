@@ -39,7 +39,7 @@ from schema import (
 from user import get_admin
 import crud
 
-__version__ = '0.82'
+__version__ = '0.90'
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -89,8 +89,9 @@ def account_create(account_input: AccountCreate,
 
     account = crud.account_create(db.session, pseudonym)
 
-    location = account_input.location if account_input.location else None
-    crud.building_create(db.session, account, location)
+    location = account_input.location
+    tz_name = account_input.tz_name
+    crud.building_create(db.session, account, location, tz_name)
 
     url = firebase_dynamic_link(account.activation_token)
 
