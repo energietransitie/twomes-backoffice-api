@@ -139,7 +139,7 @@ def account_device_activate(device_verify: DeviceVerify,
     if not account:
         return http_status(Unauthorized, 'Invalid account session token')
 
-    device = crud.device_by_pop(db.session, activation_token)
+    device = crud.device_by_activation_token(db.session, activation_token)
     if not device:
         return http_status(NotFound, 'No device found for provided activation token')
     if device.activated_on:
@@ -203,12 +203,13 @@ def device_type(device_name: str,
         return http_status(Unauthorized, 'Invalid account session token')
 
     device = crud.device_by_name(db.session, device_name)
-    if not device or not device.building or device.building.account_id != account.id:
+    if not device:
         return http_status(NotFound, f'Device {device_name} not found')
 
     device_type = device.device_type
 
     return device_type
+
 
 @app.get(
     '/device/{device_name}',
