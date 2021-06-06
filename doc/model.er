@@ -51,13 +51,13 @@ energy_index {label: "Float"}
 [DeviceType]
 *id {label: "Integer"}
 name {label: "String, unique, non-null"}
-display_name {label: "String, non-null"}
-
+display_name {label: "String, unique, non-null"}
 installation_manual_url {label: "String, non-null"}
 
 
 [Device]
 *id {label: "Integer"}
+name {label: "String, unique, non-null"}
 +device_type_id {label: "Integer, non-null"}
 +building_id {label: "Integer"}
 

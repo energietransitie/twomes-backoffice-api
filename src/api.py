@@ -21,12 +21,13 @@ from schema import (
     AccountItem,
     AccountSession,
     BadRequest,
-    DeviceVerify,
     DeviceCompleteItem,
     DeviceCreate,
     DeviceItem,
     DeviceItemMeasurementTime,
     DeviceSession,
+    DeviceTypeItem,
+    DeviceVerify,
     Forbidden,
     HttpStatus,
     MeasurementsUploadFixed,
@@ -38,7 +39,7 @@ from schema import (
 from user import get_admin
 import crud
 
-__version__ = '0.90'
+__version__ = '0.95'
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -160,6 +161,7 @@ def account_device_activate(device_verify: DeviceVerify,
 )
 def device_create(device_input: DeviceCreate,
                   authorization: HTTPAuthorizationCredentials = Depends(admin_auth)):
+    device_name = device_input.name
     device_type_name = device_input.device_type
     proof_of_presence_id = device_input.proof_of_presence_id
     admin_session_token = authorization.credentials
@@ -168,6 +170,9 @@ def device_create(device_input: DeviceCreate,
     if not admin:
         return http_status(Unauthorized, 'Invalid admin session token')
 
+    if crud.device_by_name(db.session, device_name):
+        return http_status(BadRequest, 'Device name already in use')
+
     device_type = crud.device_type_by_name(db.session, device_type_name)
     if not device_type:
         return http_status(BadRequest, f'Unknown device type "{device_type_name}"')
@@ -175,20 +180,21 @@ def device_create(device_input: DeviceCreate,
     if crud.device_by_pop(db.session, proof_of_presence_id):
         return http_status(BadRequest, 'Proof-of-presence identifier already in use')
 
-    device = crud.device_create(db.session, device_type, proof_of_presence_id)
+    device = crud.device_create(db.session, device_name, device_type, proof_of_presence_id)
+
     return device
 
 
 @app.get(
-    '/device/{device_id}',
-    response_model=DeviceItemMeasurementTime,
+    '/device_type/{device_name}',
+    response_model=DeviceTypeItem,
     responses={
         BadRequest.code: {'model': BadRequest},
         Unauthorized.code: {'model': Unauthorized},
         NotFound.code: {'model': NotFound}
     }
 )
-def device_read(device_id: int,
+def device_type(device_name: str,
                 authorization: HTTPAuthorizationCredentials = Depends(account_auth)):
 
     account_session_token = authorization.credentials
@@ -197,13 +203,39 @@ def device_read(device_id: int,
     if not account:
         return http_status(Unauthorized, 'Invalid account session token')
 
-    device = crud.device_by_account_and_id(db.session, account, device_id)
-    if not device:
-        return http_status(NotFound, f'Device {device_id} not found')
+    device = crud.device_by_name(db.session, device_name)
+    if not device or not device.building or device.building.account_id != account.id:
+        return http_status(NotFound, f'Device {device_name} not found')
 
-    timestamp = crud.device_latest_measurement_timestamp(db.session, device_id)
+    device_type = device.device_type
+
+    return device_type
+
+@app.get(
+    '/device/{device_name}',
+    response_model=DeviceItemMeasurementTime,
+    responses={
+        BadRequest.code: {'model': BadRequest},
+        Unauthorized.code: {'model': Unauthorized},
+        NotFound.code: {'model': NotFound}
+    }
+)
+def device_read(device_name: str,
+                authorization: HTTPAuthorizationCredentials = Depends(account_auth)):
+
+    account_session_token = authorization.credentials
+
+    account = crud.account_by_session(db.session, account_session_token)
+    if not account:
+        return http_status(Unauthorized, 'Invalid account session token')
+
+    device = crud.device_by_name(db.session, device_name)
+    if not device or not device.building or device.building.account_id != account.id:
+        return http_status(NotFound, f'Device {device_name} not found')
+
+    timestamp = crud.device_latest_measurement_timestamp(db.session, device.id)
     device.latest_measurement_timestamp = timestamp
-
+    
     return device
 
 
