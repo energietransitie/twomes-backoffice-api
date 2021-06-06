@@ -83,6 +83,7 @@ class DeviceSession(SessionToken):
 
 
 class DeviceCreate(BaseModel):
+    name: constr(regex=r'TWOMES-[0-9]{6}')
     device_type: str
     activation_token: constr(strip_whitespace=True, min_length=8, max_length=1024)
 
@@ -93,6 +94,7 @@ class DeviceVerify(BaseModel):
 
 class DeviceTypeItem(BaseModel):
     name: str
+    display_name: str
     installation_manual_url: str
 
     class Config:
@@ -120,6 +122,7 @@ class DeviceTypeCompleteItem(BaseModel):
 
 class DeviceItem(BaseModel):
     id: int
+    name: str
     device_type: DeviceTypeItem
     created_on: Datetime
     activated_on: Optional[Datetime]
@@ -137,6 +140,7 @@ class DeviceItemMeasurementTime(DeviceItem):
 
 class DeviceCompleteItem(BaseModel):
     id: int
+    name: str
     device_type: DeviceTypeCompleteItem
     activation_token: str
     created_on: Datetime
