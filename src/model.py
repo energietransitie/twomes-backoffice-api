@@ -156,6 +156,7 @@ class DeviceType(Base):
     )
     display_name = Column(
         Text,
+        unique=True,
         nullable=False,
         comment='Name to show in user interfaces'
     )
@@ -184,6 +185,12 @@ class Device(Base):
         Integer,
         primary_key=True,
         index=True
+    )
+    name = Column(
+        Text,
+        unique=True,
+        nullable=False,
+        comment='Short name to uniquely identify the device'
     )
     device_type_id = Column(
         Integer,

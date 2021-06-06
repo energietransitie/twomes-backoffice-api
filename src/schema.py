@@ -83,8 +83,8 @@ class DeviceSession(SessionToken):
 
 
 class DeviceCreate(BaseModel):
-    name: str
-    type: str
+    name: constr(regex=r'TWOMES-[0-9]{6}')
+    device_type: str
     proof_of_presence_id: constr(strip_whitespace=True, min_length=8, max_length=1024)
 
 
@@ -122,6 +122,7 @@ class DeviceTypeCompleteItem(BaseModel):
 
 class DeviceItem(BaseModel):
     id: int
+    name: str
     device_type: DeviceTypeItem
     created_on: Datetime
     activated_on: Optional[Datetime]
@@ -139,6 +140,7 @@ class DeviceItemMeasurementTime(DeviceItem):
 
 class DeviceCompleteItem(BaseModel):
     id: int
+    name: str
     device_type: DeviceTypeCompleteItem
     proof_of_presence_id: str
     created_on: Datetime
