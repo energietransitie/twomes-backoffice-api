@@ -132,16 +132,16 @@ def account_activate(activation_token: AccountActivate):
 def account_device_activate(device_verify: DeviceVerify,
                             authorization: HTTPAuthorizationCredentials = Depends(account_auth)):
 
-    proof_of_presence_id = device_verify.proof_of_presence_id
+    activation_token = device_verify.activation_token
     account_session_token = authorization.credentials
 
     account = crud.account_by_session(db.session, account_session_token)
     if not account:
         return http_status(Unauthorized, 'Invalid account session token')
 
-    device = crud.device_by_pop(db.session, proof_of_presence_id)
+    device = crud.device_by_pop(db.session, activation_token)
     if not device:
-        return http_status(NotFound, 'No device found for provided proof-of-presence id')
+        return http_status(NotFound, 'No device found for provided activation token')
     if device.activated_on:
         if device.building_id != account.building.id:
             return http_status(BadRequest, 'Device already activated')
@@ -178,7 +178,7 @@ def device_create(device_input: DeviceCreate,
         return http_status(BadRequest, f'Unknown device type "{device_type_name}"')
 
     if crud.device_by_activation_token(db.session, activation_token):
-        return http_status(BadRequest, 'Proof-of-presence identifier already in use')
+        return http_status(BadRequest, 'Activation token already in use')
 
     device = crud.device_create(db.session, device_name, device_type, activation_token)
     return device
@@ -252,7 +252,7 @@ def device_activate(device_verify: DeviceVerify):
 
     device = crud.device_by_activation_token(db.session, activation_token)
     if not device:
-        return http_status(NotFound, 'No device found for provided proof-of-presence id')
+        return http_status(NotFound, 'No device found for provided activation token')
     if not device.building_id:
         return http_status(Forbidden, 'Device not attached to account')
 

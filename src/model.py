@@ -219,7 +219,7 @@ class Device(Base):
     )
     activated_on = Column(
         DateTime,
-        comment='Time at which the proof-of-presence id is used to active the device'
+        comment='Time at which the activation token is used to activate the device'
     )
 
     device_type = relationship(

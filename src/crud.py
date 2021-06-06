@@ -187,7 +187,7 @@ def device_create(db: Session,
 
 def device_by_activation_token(db: Session, activation_token: str) -> Optional[Device]:
     """
-    Get Device instance by proof-of-presence identifier
+    Get Device instance by activation token
     """
     query = db.query(Device).filter(Device.activation_token == activation_token)
     return query.one_or_none()
