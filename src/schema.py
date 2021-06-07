@@ -83,7 +83,7 @@ class DeviceSession(SessionToken):
 
 
 class DeviceCreate(BaseModel):
-    name: constr(regex=r'TWOMES-([0-9a-fA-F]){6}')
+    name: constr(regex=r'TWOMES-([0-9A-F]){6}')
     device_type: str
     activation_token: constr(strip_whitespace=True, min_length=8, max_length=1024)
 
