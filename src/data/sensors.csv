@@ -9,6 +9,7 @@ DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,eMeterReadi
 DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,roomTemp,°C
 DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,boilerTemp1,°C
 DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,boilerTemp2,°C
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,gMeterReadingTimestamp,
 DSMR-P1-gateway,Slimme meter monitor,heartbeat,
 DSMR-P1-gateway,Slimme meter monitor,eMeterReadingSupplyLow,kWh
 DSMR-P1-gateway,Slimme meter monitor,eMeterReadingSupplyHigh,kWh
@@ -16,6 +17,7 @@ DSMR-P1-gateway,Slimme meter monitor,eMeterReadingReturnLow,kWh
 DSMR-P1-gateway,Slimme meter monitor,eMeterReadingReturnHigh,kWh
 DSMR-P1-gateway,Slimme meter monitor,gMeterReadingSupply,m^3
 DSMR-P1-gateway,Slimme meter monitor,eMeterReadingTimestamp,
+DSMR-P1-gateway,Slimme meter monitor,gMeterReadingTimestamp,
 OpenThermGW-Nodo,OpenTherm gateway Nodo,heartbeat,
 OpenThermGW-Nodo,OpenTherm gateway Nodo,roomTemp,°C
 OpenThermGW-Nodo,OpenTherm gateway Nodo,boilerSupplyTemp,°C
@@ -52,20 +54,21 @@ OpenTherm-Monitor,OpenTherm monitor,relativeModulationLevel,%
 OpenTherm-Monitor,OpenTherm monitor,isCentralHeatingModeOn,
 OpenTherm-Monitor,OpenTherm monitor,isDomesticHotWaterModeOn,
 OpenTherm-Monitor,OpenTherm monitor,roomSetpointTemp,°C
-OpenTherm-Monitor,Presence detection,RSSI, dBm
-OpenTherm-Monitor,Presence detection,isHome,
-OpenTherm-Monitor,Presence detection,bleAddress,
-CO2-meter-SCD4x,CO2 meter,heartbeat,
-CO2-meter-SCD4x,CO2 meter,CO2concentration,ppm
-CO2-meter-SCD4x,CO2 meter,roomTemp,°C
-CO2-meter-SCD4x,CO2 meter,relativeHumidity,%RH
-CO2-meter-SCD4x,Presence detection,RSSI, dBm
-CO2-meter-SCD4x,Presence detection,isHome,
-CO2-meter-SCD4x,Presence detection,bleAddress,
+OpenTherm-Monitor,OpenTherm monitor,RSSI,dBm
+OpenTherm-Monitor,OpenTherm monitor,isHome,
+OpenTherm-Monitor,OpenTherm monitor,bleAddress,
+OpenTherm-Monitor,OpenTherm monitor,ListRSSI,dBm
+CO2-meter-SCD4x,CO₂-meter,heartbeat,
+CO2-meter-SCD4x,CO₂-meter,CO2concentration,ppm
+CO2-meter-SCD4x,CO₂-meter,roomTemp,°C
+CO2-meter-SCD4x,CO₂-meter,relativeHumidity,%RH
+CO2-meter-SCD4x,CO₂-meter,RSSI,dBm
+CO2-meter-SCD4x,CO₂-meter,isHome,
+CO2-meter-SCD4x,CO₂-meter,bleAddress,
+CO2-meter-SCD4x,CO₂-meter,ListRSSI,dBm
 Presence-Detector,heartbeat,
-Presence-Detector,Aanwezigheidsdetector,RSSI, dBm
+Presence-Detector,Aanwezigheidsdetector,RSSI,dBm
 Presence-Detector,Aanwezigheidsdetector,isHome,
 Presence-Detector,Aanwezigheidsdetector,bleAddress,
+Presence-Detector,Aanwezigheidsdetector,ListRSSI,dBm
 Generic-Test,testapparaatje,heartbeat,
-DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,gMeterReadingTimestamp,
-DSMR-P1-gateway,Slimme meter monitor,gMeterReadingTimestamp,
