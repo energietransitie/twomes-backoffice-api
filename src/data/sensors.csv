@@ -57,7 +57,7 @@ OpenTherm-Monitor,OpenTherm monitor,roomSetpointTemp,°C
 OpenTherm-Monitor,OpenTherm monitor,RSSI,dBm
 OpenTherm-Monitor,OpenTherm monitor,isHome,
 OpenTherm-Monitor,OpenTherm monitor,bleAddress,
-OpenTherm-Monitor,OpenTherm monitor,ListRSSI,dBm
+OpenTherm-Monitor,OpenTherm monitor,listRSSI,dBm
 CO2-meter-SCD4x,CO₂-meter,heartbeat,
 CO2-meter-SCD4x,CO₂-meter,CO2concentration,ppm
 CO2-meter-SCD4x,CO₂-meter,roomTemp,°C
@@ -65,10 +65,10 @@ CO2-meter-SCD4x,CO₂-meter,relativeHumidity,%RH
 CO2-meter-SCD4x,CO₂-meter,RSSI,dBm
 CO2-meter-SCD4x,CO₂-meter,isHome,
 CO2-meter-SCD4x,CO₂-meter,bleAddress,
-CO2-meter-SCD4x,CO₂-meter,ListRSSI,dBm
+CO2-meter-SCD4x,CO₂-meter,listRSSI,dBm
 Presence-Detector,heartbeat,
 Presence-Detector,Aanwezigheidsdetector,RSSI,dBm
 Presence-Detector,Aanwezigheidsdetector,isHome,
 Presence-Detector,Aanwezigheidsdetector,bleAddress,
-Presence-Detector,Aanwezigheidsdetector,ListRSSI,dBm
+Presence-Detector,Aanwezigheidsdetector,listRSSI,dBm
 Generic-Test,testapparaatje,heartbeat,
