@@ -266,7 +266,7 @@ def measurements_fixed_to_variable(data: PropertyMeasurementsFixed) -> PropertyM
     if data.timestamp_type == TimestampType.start:
         start = data.timestamp
     elif data.timestamp_type == TimestampType.end:
-        start = data.timestamp - size * delta
+        start = data.timestamp - (size-1) * delta
     else:
         raise ValueError(f'Illegal timestamp type "{data.timestamp_type}"')
 
