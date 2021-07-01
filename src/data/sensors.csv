@@ -34,8 +34,6 @@ OpenThermGW-Nodo,OpenTherm gateway Nodo,relativeModulationLevel,%
 OpenThermGW-Nodo,OpenTherm gateway Nodo,isCentralHeatingModeOn,
 OpenThermGW-Nodo,OpenTherm gateway Nodo,isDomesticHotWaterModeOn,
 OpenThermGW-Nodo,OpenTherm gateway Nodo,roomSetpointTemp,°C
-OpenThermGW-Nodo,OpenTherm gateway Nodo,listRSSI,[dBm]
-OpenThermGW-Nodo,OpenTherm gateway Nodo,listHomePresence,
 OpenThermGW-DIYLESS,OpenTherm gateway DIYLESS,heartbeat,
 OpenThermGW-DIYLESS,OpenTherm gateway DIYLESS,roomTemp,°C
 OpenThermGW-DIYLESS,OpenTherm gateway DIYLESS,boilerSupplyTemp,°C
