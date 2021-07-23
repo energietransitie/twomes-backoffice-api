@@ -72,4 +72,4 @@ Presence-Detector,Aanwezigheidsdetector,isHome,
 Presence-Detector,Aanwezigheidsdetector,bleAddress,
 Presence-Detector,Aanwezigheidsdetector,listRSSI,[dBm]
 Presence-Detector,Aanwezigheidsdetector,listHomePresence,
-Generic-Test,testapparaatje,heartbeat,
+Generic-Test,Testmeetapparaatje,heartbeat,
