@@ -61,7 +61,7 @@ There are currently three types of session tokens:
 - Account: for account activation, and attaching devices to accounts
 - Device: for uploading device measurements
 
-To add yourself, locally, as one of the administrator, first pull to make sure that your master branch is up do date and then:
+To add yourself, locally, as one of the administrator, first pull to make sure that your main branch is up do date and then:
 ```shell
 docker-compose run web python -c "import user; user.create_admin()"
 ```
@@ -87,7 +87,7 @@ docker-compose rm
 ### Deploying to `tst.api.energietransitiewindesheim.nl`
 
 Deployment of the Twomes API to `tst.api.energietransitiewindesheim.nl` is done automatically using the Docker image created after
-every commit into the `master` branch. The image is pushed to the Github
+every commit into the `main` branch. The image is pushed to the Github
 docker registry (part of Github Packages).
 
 The image is available at
@@ -97,10 +97,10 @@ docker.pkg.github.com/energietransitie/twomes-backoffice-api/api:latest
 To deploy, recreate the container for `tst.api.energietransitiewindesheim.nl` while using the 'Pull latest image' option.
 
 ### Deploying new user accounts to `tst.api.energietransitiewindesheim.nl`
-If you need the ability to create user accounts for testing purposes, first follow the procedure to create an admin account as described under [Deploying to a local test server](#deploying-to a-local-test-server) and test it locally via http://localhost:8000/docs. Then commit and push changes in the master branch to origin and ask the admin for the `tst.api.energietransitiewindesheim.nl` server (currently [@henriterhofte](https://github.com/henriterhofte)) to activate your newly created admin account. He will then recreate the container for `tst.api.energietransitiewindesheim.nl` while using the 'Pull latest image' option, which activates the new account.
+If you need the ability to create user accounts for testing purposes, first follow the procedure to create an admin account as described under [Deploying to a local test server](#deploying-to a-local-test-server) and test it locally via http://localhost:8000/docs. Then commit and push changes in the main branch to origin and ask the admin for the `tst.api.energietransitiewindesheim.nl` server (currently [@henriterhofte](https://github.com/henriterhofte)) to activate your newly created admin account. He will then recreate the container for `tst.api.energietransitiewindesheim.nl` while using the 'Pull latest image' option, which activates the new account.
 
 ### Deploying new properties to `tst.api.energietransitiewindesheim.nl`
-If you need a new property at `tst.api.energietransitiewindesheim.nl`, first update it in `src/data/sensors.csv` and test it locally as described under [Deploying to a local test server](#deploying-to a-local-test-server) and test it locally via http://localhost:8000/docs. Then commit and push changes in the master branch to origin and ask the admin for the `tst.api.energietransitiewindesheim.nl` server (currently [@henriterhofte](https://github.com/henriterhofte)) to activate your newly created admin account. He will then load the data from [/src/data/loader.py](../blob/master/src/data/loader.py) using: 
+If you need a new property at `tst.api.energietransitiewindesheim.nl`, first update it in `src/data/sensors.csv` and test it locally as described under [Deploying to a local test server](#deploying-to a-local-test-server) and test it locally via http://localhost:8000/docs. Then commit and push changes in the main branch to origin and ask the admin for the `tst.api.energietransitiewindesheim.nl` server (currently [@henriterhofte](https://github.com/henriterhofte)) to activate your newly created admin account. He will then load the data from [/src/data/loader.py](../blob/main/src/data/loader.py) using: 
 ```shell
 python -c "from data.loader import csv_create_update; csv_create_update()"
 ```
