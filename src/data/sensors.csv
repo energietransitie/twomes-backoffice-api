@@ -10,6 +10,8 @@ DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,roomTemp,°
 DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,boilerTemp1,°C
 DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,boilerTemp2,°C
 DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,gMeterReadingTimestamp,
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,listRSSI,[dBm]
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,listHomePresence,
 DSMR-P1-gateway,Slimme meter monitor,heartbeat,
 DSMR-P1-gateway,Slimme meter monitor,eMeterReadingSupplyLow,kWh
 DSMR-P1-gateway,Slimme meter monitor,eMeterReadingSupplyHigh,kWh
@@ -18,6 +20,8 @@ DSMR-P1-gateway,Slimme meter monitor,eMeterReadingReturnHigh,kWh
 DSMR-P1-gateway,Slimme meter monitor,gMeterReadingSupply,m^3
 DSMR-P1-gateway,Slimme meter monitor,eMeterReadingTimestamp,
 DSMR-P1-gateway,Slimme meter monitor,gMeterReadingTimestamp,
+DSMR-P1-gateway,Slimme meter monitor,listRSSI,[dBm]
+DSMR-P1-gateway,Slimme meter monitor,listHomePresence,
 OpenThermGW-Nodo,OpenTherm gateway Nodo,heartbeat,
 OpenThermGW-Nodo,OpenTherm gateway Nodo,roomTemp,°C
 OpenThermGW-Nodo,OpenTherm gateway Nodo,boilerSupplyTemp,°C
@@ -30,6 +34,8 @@ OpenThermGW-Nodo,OpenTherm gateway Nodo,relativeModulationLevel,%
 OpenThermGW-Nodo,OpenTherm gateway Nodo,isCentralHeatingModeOn,
 OpenThermGW-Nodo,OpenTherm gateway Nodo,isDomesticHotWaterModeOn,
 OpenThermGW-Nodo,OpenTherm gateway Nodo,roomSetpointTemp,°C
+OpenThermGW-Nodo,OpenTherm gateway Nodo,listRSSI,[dBm]
+OpenThermGW-Nodo,OpenTherm gateway Nodo,listHomePresence,
 OpenThermGW-DIYLESS,OpenTherm gateway DIYLESS,heartbeat,
 OpenThermGW-DIYLESS,OpenTherm gateway DIYLESS,roomTemp,°C
 OpenThermGW-DIYLESS,OpenTherm gateway DIYLESS,boilerSupplyTemp,°C
@@ -42,6 +48,8 @@ OpenThermGW-DIYLESS,OpenTherm gateway DIYLESS,relativeModulationLevel,%
 OpenThermGW-DIYLESS,OpenTherm gateway DIYLESS,isCentralHeatingModeOn,
 OpenThermGW-DIYLESS,OpenTherm gateway DIYLESS,isDomesticHotWaterModeOn,
 OpenThermGW-DIYLESS,OpenTherm gateway DIYLESS,roomSetpointTemp,°C
+OpenThermGW-DIYLESS,OpenTherm gateway DIYLESS,listRSSI,[dBm]
+OpenThermGW-DIYLESS,OpenTherm gateway DIYLESS,listHomePresence,
 OpenTherm-Monitor,OpenTherm monitor,heartbeat,
 OpenTherm-Monitor,OpenTherm monitor,roomTemp,°C
 OpenTherm-Monitor,OpenTherm monitor,boilerSupplyTemp,°C
@@ -54,13 +62,13 @@ OpenTherm-Monitor,OpenTherm monitor,relativeModulationLevel,%
 OpenTherm-Monitor,OpenTherm monitor,isCentralHeatingModeOn,
 OpenTherm-Monitor,OpenTherm monitor,isDomesticHotWaterModeOn,
 OpenTherm-Monitor,OpenTherm monitor,roomSetpointTemp,°C
-OpenTherm-Monitor,OpenTherm monitor,listRSSI,dBm
+OpenTherm-Monitor,OpenTherm monitor,listRSSI,[dBm]
 OpenTherm-Monitor,OpenTherm monitor,listHomePresence,
 CO2-meter-SCD4x,CO₂-meter,heartbeat,
 CO2-meter-SCD4x,CO₂-meter,CO2concentration,ppm
 CO2-meter-SCD4x,CO₂-meter,roomTemp,°C
 CO2-meter-SCD4x,CO₂-meter,relativeHumidity,%RH
-CO2-meter-SCD4x,CO₂-meter,listRSSI,dBm
+CO2-meter-SCD4x,CO₂-meter,listRSSI,[dBm]
 CO2-meter-SCD4x,CO₂-meter,listHomePresence,
 Presence-Detector,Aanwezigheidsdetector,heartbeat,
 Presence-Detector,Aanwezigheidsdetector,listRSSI,[dBm]
@@ -80,6 +88,8 @@ DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensor
 DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,CO2concentration,ppm
 DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,roomTemp,°C
 DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,relativeHumidity,%RH
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,listRSSI,[dBm]
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,listHomePresence,
 DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,heartbeat,
 DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,eMeterReadingSupplyLow,kWh
 DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,eMeterReadingSupplyHigh,kWh
@@ -91,3 +101,5 @@ DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,gMeterReadingTimestamp
 DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,CO2concentration,ppm
 DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,roomTemp,°C
 DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,relativeHumidity,%RH
+DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,listRSSI,[dBm]
+DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,listHomePresence,
