@@ -66,3 +66,28 @@ Presence-Detector,Aanwezigheidsdetector,heartbeat,
 Presence-Detector,Aanwezigheidsdetector,listRSSI,[dBm]
 Presence-Detector,Aanwezigheidsdetector,listHomePresence,
 Generic-Test,Testmeetapparaatje,heartbeat,
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,heartbeat,
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,eMeterReadingSupplyLow,kWh
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,eMeterReadingSupplyHigh,kWh
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,eMeterReadingReturnLow,kWh
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,eMeterReadingReturnHigh,kWh
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,gMeterReadingSupply,m^3
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,eMeterReadingTimestamp,
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,roomTemp,°C
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,boilerTemp1,°C
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,boilerTemp2,°C
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,gMeterReadingTimestamp,
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,CO2concentration,ppm
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,roomTemp,°C
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,relativeHumidity,%RH
+DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,heartbeat,
+DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,eMeterReadingSupplyLow,kWh
+DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,eMeterReadingSupplyHigh,kWh
+DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,eMeterReadingReturnLow,kWh
+DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,eMeterReadingReturnHigh,kWh
+DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,gMeterReadingSupply,m^3
+DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,eMeterReadingTimestamp,
+DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,gMeterReadingTimestamp,
+DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,CO2concentration,ppm
+DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,roomTemp,°C
+DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,relativeHumidity,%RH
