@@ -54,22 +54,15 @@ OpenTherm-Monitor,OpenTherm monitor,relativeModulationLevel,%
 OpenTherm-Monitor,OpenTherm monitor,isCentralHeatingModeOn,
 OpenTherm-Monitor,OpenTherm monitor,isDomesticHotWaterModeOn,
 OpenTherm-Monitor,OpenTherm monitor,roomSetpointTemp,°C
-OpenTherm-Monitor,OpenTherm monitor,RSSI,dBm
-OpenTherm-Monitor,OpenTherm monitor,isHome,
-OpenTherm-Monitor,OpenTherm monitor,bleAddress,
 OpenTherm-Monitor,OpenTherm monitor,listRSSI,dBm
+OpenTherm-Monitor,OpenTherm monitor,listHomePresence,
 CO2-meter-SCD4x,CO₂-meter,heartbeat,
 CO2-meter-SCD4x,CO₂-meter,CO2concentration,ppm
 CO2-meter-SCD4x,CO₂-meter,roomTemp,°C
 CO2-meter-SCD4x,CO₂-meter,relativeHumidity,%RH
-CO2-meter-SCD4x,CO₂-meter,RSSI,dBm
-CO2-meter-SCD4x,CO₂-meter,isHome,
-CO2-meter-SCD4x,CO₂-meter,bleAddress,
 CO2-meter-SCD4x,CO₂-meter,listRSSI,dBm
+CO2-meter-SCD4x,CO₂-meter,listHomePresence,
 Presence-Detector,Aanwezigheidsdetector,heartbeat,
-Presence-Detector,Aanwezigheidsdetector,RSSI,dBm
-Presence-Detector,Aanwezigheidsdetector,isHome,
-Presence-Detector,Aanwezigheidsdetector,bleAddress,
 Presence-Detector,Aanwezigheidsdetector,listRSSI,[dBm]
 Presence-Detector,Aanwezigheidsdetector,listHomePresence,
 Generic-Test,Testmeetapparaatje,heartbeat,
