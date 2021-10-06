@@ -7,7 +7,14 @@ from auth import (
 )
 
 admins = (
-    (1, 'henrith', '$2b$12$tKBneY7fbLY4aMocM6OdOuhSoccx5o0dL/hJr.9ZqzraX1QetqF2O'),
+    (1, 'invalid1', '$2b$12$BAkuzJVXNwgeiU2vBL5b0eBPDm777eI0bvnjqKmlpDNGB00000000'),
+    (2, 'Marco', '$2b$12$mP7XyiffPKDGJM05xGPrBuaE8yoLVjabaXj1.UYaxFYdd3bpLzUwu'),
+    (3, 'invalid2', '$2b$12$9iG1PXmGN9BJHyypW6rMgOT2wHx/zrJhg/rZT0/GgxTnw00000000'),
+    (4, 'henrith', '$2b$12$tKBneY7fbLY4aMocM6OdOuhSoccx5o0dL/hJr.9ZqzraX1QetqF2O'),
+    (5, 'invalid3', '$2b$12$DdmloxiPuI3YDBM5YxmksO7JShR1KR8qc9WFUbLBVcPhA00000000'),
+    (6, 'invalid4', '$2b$12$WW3OcYnfqE.Xc6d1v/8sceduMPr3LENkKIBPWR46JfJ9s00000000'),
+    (7, 'SjorsS', '$2b$12$hQs67BBAYczDwVki37WuPOwOkwxmFeXFcWk7/dupTkkHJG5ypZoZW'),
+    (8, 'DerkJanW', '$2b$12$FHCDDpOc5ZMrIEM8T3b7.eQZRxu0XmtUcoN/wO7vZauzqkLtq4kdm')
     # Add extra admin tuples, created with 'create_admin()', here
 )
 admins_name = {a[0]: a[1] for a in admins}
