@@ -22,12 +22,12 @@ See https://www.docker.com/products/docker-desktop for installation.
 
 The Twomes API can be be deployed on a local test server or a server in the cloud.
 
-### Deploying to a local test server
+### Deploying on your local machine
 
 To try out the Twomes API, locally, on your machine, it is possible to run 
 the database and API server using Docker Compose. 
 
-Start the service from the command line, from the root directory 
+Make sure Docker is running on your local machine, then start the service from a command line terminal, from the root directory 
 of this project.
 ```shell
 docker-compose up
@@ -100,7 +100,7 @@ To deploy, recreate the container for `api.tst.energietransitiewindesheim.nl` wh
 If you need the ability to create user accounts for testing purposes, first follow the procedure to create an admin account as described under [Deploying to a local test server](#deploying-to a-local-test-server) and test it locally via http://localhost:8000/docs. Then commit and push changes in the main branch to origin and ask the admin for the `api.tst.energietransitiewindesheim.nl` server (currently [@henriterhofte](https://github.com/henriterhofte)) to activate your newly created admin account. He will then recreate the container for `api.tst.energietransitiewindesheim.nl` while using the 'Pull latest image' option, which activates the new account.
 
 ### Deploying new properties to `api.tst.energietransitiewindesheim.nl`
-If you need a new property at `api.tst.energietransitiewindesheim.nl`, first update it in `src/data/sensors.csv` and test it locally as described under [Deploying to a local test server](#deploying-to a-local-test-server) and test it locally via http://localhost:8000/docs. Then commit and push changes in the main branch to origin and ask the admin for the `api.tst.energietransitiewindesheim.nl` server (currently [@henriterhofte](https://github.com/henriterhofte)) to activate your newly created admin account. He will then load the data from [/src/data/loader.py](../blob/main/src/data/loader.py) using: 
+If you need a new property at `api.tst.energietransitiewindesheim.nl`, first update it in `src/data/sensors.csv` and test it locally as described under [Deploying on your local machine](#deploying-on-yourlocal-machine) and test it locally via http://localhost:8000/docs. Then commit and push changes in the main branch to origin and ask the admin for the `api.tst.energietransitiewindesheim.nl` server (currently [@henriterhofte](https://github.com/henriterhofte)) to activate the new definitions of devices and properties in sensors.csv. He will then load the data from [/src/data/loader.py](../blob/main/src/data/loader.py) using: 
 ```shell
 python -c "from data.loader import csv_create_update; csv_create_update()"
 ```
