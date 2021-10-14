@@ -1,17 +1,17 @@
 DeviceType.name,DeviceType.DisplayName,Property.name,Property.unit
-DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,heartbeat,
-DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,eMeterReadingSupplyLow,kWh
-DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,eMeterReadingSupplyHigh,kWh
-DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,eMeterReadingReturnLow,kWh
-DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,eMeterReadingReturnHigh,kWh
-DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,gMeterReadingSupply,m^3
-DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,eMeterReadingTimestamp,
-DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,roomTemp,°C
-DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,boilerTemp1,°C
-DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,boilerTemp2,°C
-DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,gMeterReadingTimestamp,
-DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,listRSSI,[dBm]
-DSMR-P1-gateway-TinTsTr,Slimme meter monitor met temperatuursensoren,listHomePresence,
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met kamermodule en cv-ketelmodule,heartbeat,
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met kamermodule en cv-ketelmodule,eMeterReadingSupplyLow,kWh
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met kamermodule en cv-ketelmodule,eMeterReadingSupplyHigh,kWh
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met kamermodule en cv-ketelmodule,eMeterReadingReturnLow,kWh
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met kamermodule en cv-ketelmodule,eMeterReadingReturnHigh,kWh
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met kamermodule en cv-ketelmodule,gMeterReadingSupply,m^3
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met kamermodule en cv-ketelmodule,eMeterReadingTimestamp,
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met kamermodule en cv-ketelmodule,roomTemp,°C
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met kamermodule en cv-ketelmodule,boilerTemp1,°C
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met kamermodule en cv-ketelmodule,boilerTemp2,°C
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met kamermodule en cv-ketelmodule,gMeterReadingTimestamp,
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met kamermodule en cv-ketelmodule,listRSSI,[dBm]
+DSMR-P1-gateway-TinTsTr,Slimme meter monitor met kamermodule en cv-ketelmodule,listHomePresence,
 DSMR-P1-gateway,Slimme meter monitor,heartbeat,
 DSMR-P1-gateway,Slimme meter monitor,eMeterReadingSupplyLow,kWh
 DSMR-P1-gateway,Slimme meter monitor,eMeterReadingSupplyHigh,kWh
@@ -74,32 +74,33 @@ Presence-Detector,Aanwezigheidsdetector,heartbeat,
 Presence-Detector,Aanwezigheidsdetector,listRSSI,[dBm]
 Presence-Detector,Aanwezigheidsdetector,listHomePresence,
 Generic-Test,Testmeetapparaatje,heartbeat,
-DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,heartbeat,
-DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,eMeterReadingSupplyLow,kWh
-DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,eMeterReadingSupplyHigh,kWh
-DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,eMeterReadingReturnLow,kWh
-DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,eMeterReadingReturnHigh,kWh
-DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,gMeterReadingSupply,m^3
-DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,eMeterReadingTimestamp,
-DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,roomTemp,°C
-DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,boilerTemp1,°C
-DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,boilerTemp2,°C
-DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,gMeterReadingTimestamp,
-DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,CO2concentration,ppm
-DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,roomTemp,°C
-DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,relativeHumidity,%RH
-DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,listRSSI,[dBm]
-DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met temperatuur- en CO₂-sensoren,listHomePresence,
-DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,heartbeat,
-DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,eMeterReadingSupplyLow,kWh
-DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,eMeterReadingSupplyHigh,kWh
-DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,eMeterReadingReturnLow,kWh
-DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,eMeterReadingReturnHigh,kWh
-DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,gMeterReadingSupply,m^3
-DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,eMeterReadingTimestamp,
-DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,gMeterReadingTimestamp,
-DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,CO2concentration,ppm
-DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,roomTemp,°C
-DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,relativeHumidity,%RH
-DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,listRSSI,[dBm]
-DSMR-P1-gateway-CO2,Slimme meter monitor met CO₂-sensor,listHomePresence,
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met kamermodule en cv-ketelmodule,heartbeat,
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met kamermodule en cv-ketelmodule,eMeterReadingSupplyLow,kWh
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met kamermodule en cv-ketelmodule,eMeterReadingSupplyHigh,kWh
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met kamermodule en cv-ketelmodule,eMeterReadingReturnLow,kWh
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met kamermodule en cv-ketelmodule,eMeterReadingReturnHigh,kWh
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met kamermodule en cv-ketelmodule,gMeterReadingSupply,m^3
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met kamermodule en cv-ketelmodule,eMeterReadingTimestamp,
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met kamermodule en cv-ketelmodule,roomTemp,°C
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met kamermodule en cv-ketelmodule,boilerTemp1,°C
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met kamermodule en cv-ketelmodule,boilerTemp2,°C
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met kamermodule en cv-ketelmodule,gMeterReadingTimestamp,
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met kamermodule en cv-ketelmodule,CO2concentration,ppm
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met kamermodule en cv-ketelmodule,roomTempCO2,°C
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met kamermodule en cv-ketelmodule,relativeHumidity,%RH
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met kamermodule en cv-ketelmodule,listRSSI,[dBm]
+DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met kamermodule en cv-ketelmodule,listHomePresence,
+DSMR-P1-gateway-TinCO2,Slimme meter monitor met kamermodule,heartbeat,
+DSMR-P1-gateway-TinCO2,Slimme meter monitor met kamermodule,eMeterReadingSupplyLow,kWh
+DSMR-P1-gateway-TinCO2,Slimme meter monitor met kamermodule,eMeterReadingSupplyHigh,kWh
+DSMR-P1-gateway-TinCO2,Slimme meter monitor met kamermodule,eMeterReadingReturnLow,kWh
+DSMR-P1-gateway-TinCO2,Slimme meter monitor met kamermodule,eMeterReadingReturnHigh,kWh
+DSMR-P1-gateway-TinCO2,Slimme meter monitor met kamermodule,gMeterReadingSupply,m^3
+DSMR-P1-gateway-TinCO2,Slimme meter monitor met kamermodule,eMeterReadingTimestamp,
+DSMR-P1-gateway-TinCO2,Slimme meter monitor met kamermodule,gMeterReadingTimestamp,
+DSMR-P1-gateway-TinCO2,Slimme meter monitor met kamermodule,roomTemp,°C
+DSMR-P1-gateway-TinCO2,Slimme meter monitor met kamermodule,CO2concentration,ppm
+DSMR-P1-gateway-TinCO2,Slimme meter monitor met kamermodule,roomTempCO2,°C
+DSMR-P1-gateway-TinCO2,Slimme meter monitor met kamermodule,relativeHumidity,%RH
+DSMR-P1-gateway-TinCO2,Slimme meter monitor met kamermodule,listRSSI,[dBm]
+DSMR-P1-gateway-TinCO2,Slimme meter monitor met kamermodule,listHomePresence,
