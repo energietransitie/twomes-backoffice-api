@@ -96,7 +96,7 @@ docker.pkg.github.com/energietransitie/twomes-backoffice-api/api:latest
 ```
 To deploy, recreate the container for `api.tst.energietransitiewindesheim.nl` while using the 'Pull latest image' option.
 
-### Deploying new user accounts to `api.tst.energietransitiewindesheim.nl`
+### Deploying new admin accounts to `api.tst.energietransitiewindesheim.nl`
 If you need the ability to create user accounts for testing purposes, first follow the procedure to create an admin account as described under [Deploying to a local test server](#deploying-to a-local-test-server) and test it locally via http://localhost:8000/docs. Then commit and push changes in the main branch to origin and ask the admin for the `api.tst.energietransitiewindesheim.nl` server (currently [@henriterhofte](https://github.com/henriterhofte)) to activate your newly created admin account. He will then recreate the container for `api.tst.energietransitiewindesheim.nl` while using the 'Pull latest image' option, which activates the new account.
 
 ### Deploying new properties to `api.tst.energietransitiewindesheim.nl`
