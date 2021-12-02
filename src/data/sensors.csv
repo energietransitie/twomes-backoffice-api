@@ -104,3 +104,4 @@ DSMR-P1-gateway-TinCO2,Slimme meter monitor met kamermodule met CO₂-sensor,roo
 DSMR-P1-gateway-TinCO2,Slimme meter monitor met kamermodule met CO₂-sensor,relativeHumidity,%RH
 DSMR-P1-gateway-TinCO2,Slimme meter monitor met kamermodule met CO₂-sensor,listRSSI,[dBm]
 DSMR-P1-gateway-TinCO2,Slimme meter monitor met kamermodule met CO₂-sensor,listHomePresence,
+OpenTherm-Monitor,OpenTherm monitor,boilerMaxSupplyTemp,°C
