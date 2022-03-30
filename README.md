@@ -84,9 +84,9 @@ To completely remove all docker containers created above
 docker-compose rm
 ```
 
-### Deploying to `api.tst.energietransitiewindesheim.nl`
+### Deploying to `api.tst.energybehaviour.net`
 
-Deployment of the Twomes API to `api.tst.energietransitiewindesheim.nl` is done automatically using the Docker image created after
+Deployment of the Twomes API to `api.tst.energybehaviour.net` is done automatically using the Docker image created after
 every commit into the `main` branch. The image is pushed to the Github
 docker registry (part of Github Packages).
 
@@ -94,13 +94,13 @@ The image is available at
 ```text
 docker.pkg.github.com/energietransitie/twomes-backoffice-api/api:latest
 ```
-To deploy, recreate the container for `api.tst.energietransitiewindesheim.nl` while using the 'Pull latest image' option.
+To deploy, recreate the container for `api.tst.energybehaviour.net` while using the 'Pull latest image' option.
 
-### Deploying new admin accounts to `api.tst.energietransitiewindesheim.nl`
-If you need the ability to create user accounts for testing purposes, first follow the procedure to create an admin account as described under [Deploying to a local test server](#deploying-to a-local-test-server) and test it locally via http://localhost:8000/docs. Then commit and push changes in the main branch to origin and ask the admin for the `api.tst.energietransitiewindesheim.nl` server (currently [@henriterhofte](https://github.com/henriterhofte)) to activate your newly created admin account. He will then recreate the container for `api.tst.energietransitiewindesheim.nl` while using the 'Pull latest image' option, which activates the new account.
+### Deploying new admin accounts to `api.tst.energybehaviour.net`
+If you need the ability to create user accounts for testing purposes, first follow the procedure to create an admin account as described under [Deploying to a local test server](#deploying-to a-local-test-server) and test it locally via http://localhost:8000/docs. Then commit and push changes in the main branch to origin and ask the admin for the `api.tst.energybehaviour.net` server (currently [@henriterhofte](https://github.com/henriterhofte)) to activate your newly created admin account. He will then recreate the container for `api.tst.energybehaviour.net` while using the 'Pull latest image' option, which activates the new account.
 
-### Deploying new properties to `api.tst.energietransitiewindesheim.nl`
-If you need a new property at `api.tst.energietransitiewindesheim.nl`, first update it in `src/data/sensors.csv` and test it locally as described under [Deploying on your local machine](#deploying-on-yourlocal-machine) and test it locally via http://localhost:8000/docs. Then commit and push changes in the main branch to origin and ask the admin for the `api.tst.energietransitiewindesheim.nl` server (currently [@henriterhofte](https://github.com/henriterhofte)) to activate the new definitions of devices and properties in sensors.csv. He will then recreate the container for api.tst.energietransitiewindesheim.nl while using the 'Pull latest image' option and he will then load the data from [/src/data/loader.py](../blob/main/src/data/loader.py) using: 
+### Deploying new properties to `api.tst.energybehaviour.net`
+If you need a new property at `api.tst.energybehaviour.net`, first update it in `src/data/sensors.csv` and test it locally as described under [Deploying on your local machine](#deploying-on-yourlocal-machine) and test it locally via http://localhost:8000/docs. Then commit and push changes in the main branch to origin and ask the admin for the `api.tst.energybehaviour.net` server (currently [@henriterhofte](https://github.com/henriterhofte)) to activate the new definitions of devices and properties in sensors.csv. He will then recreate the container for api.tst.energybehaviour.net while using the 'Pull latest image' option and he will then load the data from [/src/data/loader.py](../blob/main/src/data/loader.py) using: 
 ```shell
 python -c "from data.loader import csv_create_update; csv_create_update()"
 ```

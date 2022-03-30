@@ -11,7 +11,7 @@ from test.common import session as db
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sensors_tools_csv = os.path.join(script_dir, 'sensors.csv')
 
-manual_url = 'https://energietransitiewindesheim.nl/manuals'
+manual_url = 'https://energybehaviour.net/manuals'
 
 
 def csv_create_update():
