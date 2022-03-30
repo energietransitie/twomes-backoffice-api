@@ -2,7 +2,7 @@ from test.factor import DeviceTypeFactory, PropertyFactory, session
 
 
 def base():
-    manual_url = 'https://energybehaviour.net/manuals/'
+    manual_url = 'https://energiebeveiliging.nl/manuals/'
 
     heartbeat = PropertyFactory.create(
         name='heartbeat',

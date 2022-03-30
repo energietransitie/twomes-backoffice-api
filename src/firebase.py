@@ -8,7 +8,7 @@ FIREBASE_IOS_BUNDLE = 'nl.windesheim.energietransitie.warmtewachter'
 FIREBASE_IOS_STORE_ID = '1563201993'
 FIREBASE_IOS_SKIP_PREVIEW = '1'
 
-API_URL = 'https://api.tst.energybehaviour.net'
+API_URL = 'https://api.tst.energiebeveiliging.nl'
 APP_URL = 'https://account/{activation_token}'
 
 
