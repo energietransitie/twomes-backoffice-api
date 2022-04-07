@@ -16,6 +16,7 @@ from auth import (
 from db import db_url, session_args
 from firebase import firebase_dynamic_link
 from schema import (
+    ReleaseItem,
     AccountActivate,
     AccountCreate,
     AccountItem,
