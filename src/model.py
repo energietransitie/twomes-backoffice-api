@@ -7,7 +7,6 @@ from sqlalchemy.orm import relationship
 from column import DateTime
 from db import Base
 
-
 class Account(Base):
     __tablename__ = 'account'
 

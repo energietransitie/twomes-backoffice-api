@@ -30,6 +30,11 @@ class NotFound(HttpStatus):
     code = 404
 
 
+class ReleaseItem(BaseModel):
+    repository: str
+    link: str
+
+
 class BuildingLocation(BaseModel):
     longitude: condecimal(
         max_digits=Building.LOCATION_MAX_DIGITS,

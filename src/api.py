@@ -63,6 +63,16 @@ device_auth = DeviceSessionTokenBearer()
 def http_status(http_status_class: Type[HttpStatus], message: str) -> JSONResponse:
     return JSONResponse(status_code=http_status_class.code, content={'detail': message})
 
+@app.post(
+    '/release',
+    response_model=ReleaseItem,
+    responses={
+        BadRequest.code: {'model': BadRequest},
+        NotFound.code: {'model': NotFound}
+    }
+)
+def release(release_input: ReleaseItem):
+    return release_input
 
 @app.post(
     '/account',
