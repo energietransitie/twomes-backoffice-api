@@ -35,9 +35,11 @@ from schema import (
     MeasurementsUploadResult,
     NotFound,
     Unauthorized,
+    ReleaseItem,
 )
 from user import get_admin
 import crud
+from data.loader import csv_create_update; 
 
 __version__ = '0.95'
 
@@ -59,6 +61,10 @@ admin_auth = AdminSessionTokenBearer()
 account_auth = AccountSessionTokenBearer()
 device_auth = DeviceSessionTokenBearer()
 
+@app.on_event("startup")
+async def startup_event():
+    csv_create_update()
+    
 
 def http_status(http_status_class: Type[HttpStatus], message: str) -> JSONResponse:
     return JSONResponse(status_code=http_status_class.code, content={'detail': message})
