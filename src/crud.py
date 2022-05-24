@@ -1,5 +1,5 @@
 import logging
-import random
+import secrets
 from datetime import (
     datetime,
     timezone,
@@ -56,7 +56,7 @@ def generate_pseudonym(db: Session) -> int:
     free = set(range(Account.PSEUDONYM_MIN, Account.PSEUDONYM_MAX + 1)) - taken
     assert free, 'No more pseudonyms left'
 
-    pseudonym = random.choice(list(free))
+    pseudonym = secrets.choice(list(free))
     return pseudonym
 
 
