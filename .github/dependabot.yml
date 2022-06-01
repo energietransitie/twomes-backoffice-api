@@ -10,5 +10,5 @@ updates:
     schedule:
       interval: "weekly"
       day: "friday"
-      time: "9:00"
+      time: "09:00"
       timezone: "Europe/Amsterdam"
