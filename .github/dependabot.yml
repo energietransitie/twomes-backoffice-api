@@ -12,3 +12,4 @@ updates:
       day: "friday"
       time: "09:00"
       timezone: "Europe/Amsterdam"
+    target-branch: "develop"
