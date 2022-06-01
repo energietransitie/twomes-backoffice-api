@@ -30,11 +30,6 @@ class NotFound(HttpStatus):
     code = 404
 
 
-class ReleaseItem(BaseModel):
-    repository: str
-    link: str
-
-
 class BuildingLocation(BaseModel):
     longitude: condecimal(
         max_digits=Building.LOCATION_MAX_DIGITS,
@@ -59,7 +54,8 @@ class BuildingDefaults:
 
 
 class AccountCreate(BaseModel):
-    pseudonym: Optional[conint(ge=Account.PSEUDONYM_MIN, le=Account.PSEUDONYM_MAX)] = None
+    pseudonym: Optional[conint(
+        ge=Account.PSEUDONYM_MIN, le=Account.PSEUDONYM_MAX)] = None
     location: Optional[BuildingLocation] = BuildingDefaults.location
     tz_name: Optional[Timezone] = BuildingDefaults.tz_name
 
@@ -90,11 +86,6 @@ class DeviceSession(SessionToken):
 class DeviceCreate(BaseModel):
     name: constr(regex=r'TWOMES-([0-9A-F]){6}/')
     device_type: str
-    activation_token: constr(strip_whitespace=True, min_length=8, max_length=1024)
-
-
-class DeviceVerify(BaseModel):
-    activation_token: constr(strip_whitespace=True, min_length=8, max_length=1024)
 
 
 class DeviceTypeItem(BaseModel):
@@ -126,9 +117,18 @@ class DeviceTypeCompleteItem(BaseModel):
 
 
 class DeviceItem(BaseModel):
+    name: str
+    device_type_name: str
+
+    class Config:
+        orm_mode = True
+
+
+class DeviceCompleteItem(BaseModel):
     id: int
     name: str
     device_type: DeviceTypeItem
+    session_token: str
     created_on: Datetime
     activated_on: Optional[Datetime]
 
@@ -138,18 +138,6 @@ class DeviceItem(BaseModel):
 
 class DeviceItemMeasurementTime(DeviceItem):
     latest_measurement_timestamp: Optional[Datetime]
-
-    class Config:
-        orm_mode = True
-
-
-class DeviceCompleteItem(BaseModel):
-    id: int
-    name: str
-    device_type: DeviceTypeCompleteItem
-    activation_token: str
-    created_on: Datetime
-    activated_on: Optional[Datetime]
 
     class Config:
         orm_mode = True

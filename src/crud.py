@@ -166,15 +166,13 @@ def device_type_by_name(db: Session, name: str) -> Optional[DeviceType]:
 
 def device_create(db: Session,
                   name: str,
-                  device_type: DeviceType,
-                  activation_token: str) -> Device:
+                  device_type: DeviceType) -> Device:
     """
     Create a new Device
     """
     device = Device(
         name=name,
         device_type=device_type,
-        activation_token=activation_token,
         created_on=datetime.now(timezone.utc),
     )
 
@@ -183,14 +181,6 @@ def device_create(db: Session,
     db.refresh(device)
 
     return device
-
-
-def device_by_activation_token(db: Session, activation_token: str) -> Optional[Device]:
-    """
-    Get Device instance by activation token
-    """
-    query = db.query(Device).filter(Device.activation_token == activation_token)
-    return query.one_or_none()
 
 
 def device_activate(db: Session, account: Account, device: Device):
@@ -214,7 +204,8 @@ def device_latest_measurement_timestamp(db: Session, device_id: int) -> datetime
     """
     Get the timestamp of the most recent Measurement for Device
     """
-    measurements = select(Measurement).filter(Measurement.device_id == device_id)
+    measurements = select(Measurement).filter(
+        Measurement.device_id == device_id)
     measurements = measurements.order_by(desc(Measurement.timestamp))
     measurement = db.execute(measurements).scalars().first()
 
@@ -266,7 +257,7 @@ def measurements_fixed_to_variable(data: PropertyMeasurementsFixed) -> PropertyM
     if data.timestamp_type == TimestampType.start:
         start = data.timestamp
     elif data.timestamp_type == TimestampType.end:
-        start = data.timestamp - (size-1) * delta
+        start = data.timestamp - (size - 1) * delta
     else:
         raise ValueError(f'Illegal timestamp type "{data.timestamp_type}"')
 

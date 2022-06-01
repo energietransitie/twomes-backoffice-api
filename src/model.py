@@ -7,6 +7,7 @@ from sqlalchemy.orm import relationship
 from column import DateTime
 from db import Base
 
+
 class Account(Base):
     __tablename__ = 'account'
 
@@ -199,13 +200,6 @@ class Device(Base):
     building_id = Column(
         Integer,
         ForeignKey('building.id'),
-    )
-
-    activation_token = Column(
-        Text,
-        nullable=False,
-        unique=True,
-        comment='Unique, random token to identify the device during activation'
     )
     session_token_hash = Column(
         Text,

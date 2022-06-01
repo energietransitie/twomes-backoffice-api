@@ -16,19 +16,15 @@ from auth import (
 from db import db_url, session_args
 from firebase import firebase_dynamic_link
 from schema import (
-    ReleaseItem,
     AccountActivate,
     AccountCreate,
     AccountItem,
     AccountSession,
     BadRequest,
     DeviceCompleteItem,
-    DeviceCreate,
     DeviceItem,
     DeviceItemMeasurementTime,
-    DeviceSession,
     DeviceTypeItem,
-    DeviceVerify,
     Forbidden,
     HttpStatus,
     MeasurementsUploadFixed,
@@ -36,11 +32,10 @@ from schema import (
     MeasurementsUploadResult,
     NotFound,
     Unauthorized,
-    ReleaseItem,
 )
 from user import get_admin
 import crud
-from data.loader import csv_create_update; 
+from data.loader import csv_create_update
 
 __version__ = '0.95'
 
@@ -48,7 +43,8 @@ logging.basicConfig(level=logging.DEBUG)
 
 app = FastAPI(title='Twomes API', version=__version__)
 
-app.add_middleware(DBSessionMiddleware, db_url=db_url, session_args=session_args)
+app.add_middleware(DBSessionMiddleware, db_url=db_url,
+                   session_args=session_args)
 
 app.add_middleware(
     CORSMiddleware,
@@ -62,24 +58,16 @@ admin_auth = AdminSessionTokenBearer()
 account_auth = AccountSessionTokenBearer()
 device_auth = DeviceSessionTokenBearer()
 
+
 @app.on_event("startup")
+# Fill DeviceType and Property values on API startup.
 async def startup_event():
     csv_create_update()
-    
+
 
 def http_status(http_status_class: Type[HttpStatus], message: str) -> JSONResponse:
     return JSONResponse(status_code=http_status_class.code, content={'detail': message})
 
-@app.post(
-    '/release',
-    response_model=ReleaseItem,
-    responses={
-        BadRequest.code: {'model': BadRequest},
-        NotFound.code: {'model': NotFound}
-    }
-)
-def release(release_input: ReleaseItem):
-    return release_input
 
 @app.post(
     '/account',
@@ -128,7 +116,8 @@ def account_create(account_input: AccountCreate,
     }
 )
 def account_activate(activation_token: AccountActivate):
-    account = crud.account_by_token(db.session, activation_token.activation_token)
+    account = crud.account_by_token(
+        db.session, activation_token.activation_token)
     if not account:
         return http_status(NotFound, 'No account found for provided activation token')
 
@@ -138,67 +127,45 @@ def account_activate(activation_token: AccountActivate):
 
 
 @app.post(
-    '/account/device/activate',
-    response_model=DeviceItem,
+    '/account/device/provision',
+    response_model=DeviceCompleteItem,
     responses={
         BadRequest.code: {'model': BadRequest},
         Unauthorized.code: {'model': Unauthorized},
         NotFound.code: {'model': NotFound}
     }
 )
-def account_device_activate(device_verify: DeviceVerify,
-                            authorization: HTTPAuthorizationCredentials = Depends(account_auth)):
-
-    activation_token = device_verify.activation_token
+def account_device_provision(device_input: DeviceItem,
+                             authorization: HTTPAuthorizationCredentials = Depends(account_auth)):
+    device_name = device_input.name
     account_session_token = authorization.credentials
 
     account = crud.account_by_session(db.session, account_session_token)
+    device_type = crud.device_type_by_name(
+        db.session, device_input.device_type_name)
+
     if not account:
         return http_status(Unauthorized, 'Invalid account session token')
-
-    device = crud.device_by_activation_token(db.session, activation_token)
-    if not device:
-        return http_status(NotFound, 'No device found for provided activation token')
-    if device.activated_on:
-        if device.building_id != account.building.id:
-            return http_status(BadRequest, 'Device already activated')
-        return device
-
-    crud.device_activate(db.session, account, device)
-    return device
-
-
-@app.post(
-    '/device',
-    response_model=DeviceItem,
-    responses={
-        BadRequest.code: {'model': BadRequest},
-        Unauthorized.code: {'model': Unauthorized},
-    }
-)
-def device_create(device_input: DeviceCreate,
-                  authorization: HTTPAuthorizationCredentials = Depends(admin_auth)):
-    device_name = device_input.name
-    device_type_name = device_input.device_type
-    activation_token = device_input.activation_token
-    admin_session_token = authorization.credentials
-
-    admin = get_admin(admin_session_token)
-    if not admin:
-        return http_status(Unauthorized, 'Invalid admin session token')
 
     if crud.device_by_name(db.session, device_name):
         return http_status(BadRequest, 'Device name already in use')
 
-    device_type = crud.device_type_by_name(db.session, device_type_name)
-    if not device_type:
-        return http_status(BadRequest, f'Unknown device type "{device_type_name}"')
+    if not crud.device_type_by_name(db.session, device_type.name):
+        return http_status(BadRequest, f'Unknown device type "{device_type.name}"')
 
-    if crud.device_by_activation_token(db.session, activation_token):
-        return http_status(BadRequest, 'Activation token already in use')
+    created_device = crud.device_create(db.session, device_name, device_type)
+    crud.device_activate(db.session, account, created_device)
+    session_token = crud.device_session_token(db.session, created_device)
 
-    device = crud.device_create(db.session, device_name, device_type, activation_token)
-    return device
+    complete_device: DeviceCompleteItem = {
+        "id": created_device.id,
+        "name": created_device.name,
+        "device_type": created_device.device_type,
+        "session_token": session_token,
+        "created_on": created_device.created_on,
+        "activated_on": created_device.activated_on,
+    }
+    return DeviceCompleteItem(**complete_device)
 
 
 @app.get(
@@ -256,29 +223,6 @@ def device_read(device_name: str,
     return device
 
 
-@app.post(
-    '/device/activate',
-    response_model=DeviceSession,
-    responses={
-        Forbidden.code: {'model': Forbidden},
-        NotFound.code: {'model': NotFound}
-    }
-)
-def device_activate(device_verify: DeviceVerify):
-
-    activation_token = device_verify.activation_token
-
-    device = crud.device_by_activation_token(db.session, activation_token)
-    if not device:
-        return http_status(NotFound, 'No device found for provided activation token')
-    if not device.building_id:
-        return http_status(Forbidden, 'Device not attached to account')
-
-    session_token = crud.device_session_token(db.session, device)
-
-    return DeviceSession(session_token=session_token)
-
-
 @app.get(
     '/device',
     response_model=DeviceCompleteItem,
@@ -299,6 +243,7 @@ def device_read_self(authorization: HTTPAuthorizationCredentials = Depends(devic
         return http_status(Forbidden, 'Device not attached to account')
 
     return device
+
 
 @app.post(
     '/device/measurements/fixed-interval',
@@ -323,7 +268,8 @@ def device_upload_fixed(measurements_upload: MeasurementsUploadFixed,
 
     properties = device.device_type.properties
     valid_property_names = {p.name for p in properties}
-    property_names = {item.property_name for item in measurements_upload.property_measurements}
+    property_names = {
+        item.property_name for item in measurements_upload.property_measurements}
 
     invalid_property_names = property_names - valid_property_names
     if invalid_property_names:
@@ -358,12 +304,14 @@ def device_upload_variable(measurements_upload: MeasurementsUploadVariable,
 
     properties = device.device_type.properties
     valid_property_names = {p.name for p in properties}
-    property_names = {item.property_name for item in measurements_upload.property_measurements}
+    property_names = {
+        item.property_name for item in measurements_upload.property_measurements}
 
     invalid_property_names = property_names - valid_property_names
     if invalid_property_names:
         return http_status(BadRequest, f'Invalid property name(s): {invalid_property_names}')
 
-    upload = crud.device_upload_variable(db.session, device, properties, measurements_upload)
+    upload = crud.device_upload_variable(
+        db.session, device, properties, measurements_upload)
 
     return MeasurementsUploadResult(size=upload.size, server_time=upload.server_time)

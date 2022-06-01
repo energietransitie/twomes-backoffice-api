@@ -5,7 +5,7 @@ services:
     command: |
       bash -c 'while !</dev/tcp/db/3306; do sleep 1; done; (cd /app; alembic upgrade head); uvicorn api:app --reload --host 0.0.0.0 --port 80'
     ports:
-      - 8000:80
+      - 8888:80
     volumes:
       - ./src:/app/src
       - ./alembic:/app/alembic
@@ -15,8 +15,8 @@ services:
       - db
   db:
     image: mariadb:10.5.9
-    expose:
-      - 3306
+    ports:
+      - 3333:3306
     environment:
       - MYSQL_DATABASE=twomes
       - MYSQL_ROOT_PASSWORD=twomes
