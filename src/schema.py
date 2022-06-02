@@ -119,6 +119,7 @@ class DeviceTypeCompleteItem(BaseModel):
 class DeviceItem(BaseModel):
     name: str
     device_type_name: str
+    activation_token: str
 
     class Config:
         orm_mode = True
@@ -128,13 +129,15 @@ class DeviceCompleteItem(BaseModel):
     id: int
     name: str
     device_type: DeviceTypeItem
-    session_token: str
+    activation_token: str
     created_on: Datetime
     activated_on: Optional[Datetime]
 
     class Config:
         orm_mode = True
 
+class DeviceVerify(BaseModel):
+    activation_token: constr(strip_whitespace=True, min_length=8, max_length=1024)
 
 class DeviceItemMeasurementTime(DeviceItem):
     latest_measurement_timestamp: Optional[Datetime]

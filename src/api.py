@@ -21,6 +21,8 @@ from schema import (
     AccountItem,
     AccountSession,
     BadRequest,
+    DeviceSession,
+    DeviceVerify,
     DeviceCompleteItem,
     DeviceItem,
     DeviceItemMeasurementTime,
@@ -154,19 +156,36 @@ def account_device_provision(device_input: DeviceItem,
         return http_status(BadRequest, f'Unknown device type "{device_type.name}"')
 
     created_device = crud.device_create(db.session, device_name, device_type)
-    crud.device_activate(db.session, account, created_device)
-    session_token = crud.device_session_token(db.session, created_device)
 
     complete_device: DeviceCompleteItem = {
         "id": created_device.id,
         "name": created_device.name,
         "device_type": created_device.device_type,
-        "session_token": session_token,
         "created_on": created_device.created_on,
-        "activated_on": created_device.activated_on,
     }
     return DeviceCompleteItem(**complete_device)
 
+@app.post(
+    '/device/activate',
+    response_model=DeviceSession,
+    responses={
+        Forbidden.code: {'model': Forbidden},
+        NotFound.code: {'model': NotFound},
+    }
+)
+def device_activate(device_verify: DeviceVerify):
+
+    activation_token = device_verify.activation_token
+
+    device = crud.device_by_activation_token(db.session, activation_token)
+    if not device:
+        return http_status(NotFound, 'No device found for provided activation token')
+    if not device.building_id:
+        return http_status(Forbidden, 'Device not attached to account')
+
+    session_token = crud.device_session_token(db.session, device)
+
+    return DeviceSession(session_token=session_token)
 
 @app.get(
     '/device_type/{device_name}',

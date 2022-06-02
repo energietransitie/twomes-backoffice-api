@@ -189,6 +189,7 @@ def device_activate(db: Session, account: Account, device: Device):
     """
     device.building = account.building
     device.activated_on = datetime.now(timezone.utc)
+    device.activation_token = None
     db.commit()
 
 

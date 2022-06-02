@@ -201,6 +201,12 @@ class Device(Base):
         Integer,
         ForeignKey('building.id'),
     )
+    activation_token = Column(
+        Text,
+        nullable=False,
+        unique=True,
+        comment='Unique, random token to identify the device during activation'
+    )
     session_token_hash = Column(
         Text,
         comment='Hash of random, long-lived token to identify the device session, after activation'
