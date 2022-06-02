@@ -74,6 +74,8 @@ Presence-Detector,Aanwezigheidsdetector,heartbeat,
 Presence-Detector,Aanwezigheidsdetector,listRSSI,[dBm]
 Presence-Detector,Aanwezigheidsdetector,listHomePresence,
 Generic-Test,Testmeetapparaatje,heartbeat,
+Generic-Test,Testmeetapparaatje,new_fw,
+Generic-Test,Testmeetapparaatje,booted_fw,
 DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met cv-ketelmodule en kamermodule met CO₂-sensor,heartbeat,
 DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met cv-ketelmodule en kamermodule met CO₂-sensor,eMeterReadingSupplyLow,kWh
 DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met cv-ketelmodule en kamermodule met CO₂-sensor,eMeterReadingSupplyHigh,kWh
