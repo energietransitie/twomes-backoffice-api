@@ -40,7 +40,7 @@ from schema import (
 )
 from user import get_admin
 import crud
-from data.loader import csv_create_update; 
+from data.loader import csv_create_update
 
 __version__ = '0.95'
 
@@ -48,7 +48,8 @@ logging.basicConfig(level=logging.DEBUG)
 
 app = FastAPI(title='Twomes API', version=__version__)
 
-app.add_middleware(DBSessionMiddleware, db_url=db_url, session_args=session_args)
+app.add_middleware(DBSessionMiddleware, db_url=db_url,
+                   session_args=session_args)
 
 app.add_middleware(
     CORSMiddleware,
@@ -62,13 +63,15 @@ admin_auth = AdminSessionTokenBearer()
 account_auth = AccountSessionTokenBearer()
 device_auth = DeviceSessionTokenBearer()
 
+
 @app.on_event("startup")
 async def startup_event():
     csv_create_update()
-    
+
 
 def http_status(http_status_class: Type[HttpStatus], message: str) -> JSONResponse:
     return JSONResponse(status_code=http_status_class.code, content={'detail': message})
+
 
 @app.post(
     '/release',
@@ -80,6 +83,7 @@ def http_status(http_status_class: Type[HttpStatus], message: str) -> JSONRespon
 )
 def release(release_input: ReleaseItem):
     return release_input
+
 
 @app.post(
     '/account',
@@ -128,7 +132,8 @@ def account_create(account_input: AccountCreate,
     }
 )
 def account_activate(activation_token: AccountActivate):
-    account = crud.account_by_token(db.session, activation_token.activation_token)
+    account = crud.account_by_token(
+        db.session, activation_token.activation_token)
     if not account:
         return http_status(NotFound, 'No account found for provided activation token')
 
@@ -197,12 +202,13 @@ def device_create(device_input: DeviceCreate,
     if crud.device_by_activation_token(db.session, activation_token):
         return http_status(BadRequest, 'Activation token already in use')
 
-    device = crud.device_create(db.session, device_name, device_type, activation_token)
+    device = crud.device_create(
+        db.session, device_name, device_type, activation_token)
     return device
 
 
 @app.get(
-    '/device_type/{device_name}',
+    '/device_type/{device_type}',
     response_model=DeviceTypeItem,
     responses={
         BadRequest.code: {'model': BadRequest},
@@ -210,7 +216,7 @@ def device_create(device_input: DeviceCreate,
         NotFound.code: {'model': NotFound}
     }
 )
-def device_type(device_name: str,
+def device_type(device_type_name: str,
                 authorization: HTTPAuthorizationCredentials = Depends(account_auth)):
 
     account_session_token = authorization.credentials
@@ -219,11 +225,9 @@ def device_type(device_name: str,
     if not account:
         return http_status(Unauthorized, 'Invalid account session token')
 
-    device = crud.device_by_name(db.session, device_name)
-    if not device:
-        return http_status(NotFound, f'Device {device_name} not found')
-
-    device_type = device.device_type
+    device_type = crud.device_type_by_name(db.session, device_type_name)
+    if not device_type:
+        return http_status(NotFound, f'Device Type {device_type_name} not found')
 
     return device_type
 
@@ -300,6 +304,7 @@ def device_read_self(authorization: HTTPAuthorizationCredentials = Depends(devic
 
     return device
 
+
 @app.post(
     '/device/measurements/fixed-interval',
     response_model=MeasurementsUploadResult,
@@ -323,7 +328,8 @@ def device_upload_fixed(measurements_upload: MeasurementsUploadFixed,
 
     properties = device.device_type.properties
     valid_property_names = {p.name for p in properties}
-    property_names = {item.property_name for item in measurements_upload.property_measurements}
+    property_names = {
+        item.property_name for item in measurements_upload.property_measurements}
 
     invalid_property_names = property_names - valid_property_names
     if invalid_property_names:
@@ -358,12 +364,14 @@ def device_upload_variable(measurements_upload: MeasurementsUploadVariable,
 
     properties = device.device_type.properties
     valid_property_names = {p.name for p in properties}
-    property_names = {item.property_name for item in measurements_upload.property_measurements}
+    property_names = {
+        item.property_name for item in measurements_upload.property_measurements}
 
     invalid_property_names = property_names - valid_property_names
     if invalid_property_names:
         return http_status(BadRequest, f'Invalid property name(s): {invalid_property_names}')
 
-    upload = crud.device_upload_variable(db.session, device, properties, measurements_upload)
+    upload = crud.device_upload_variable(
+        db.session, device, properties, measurements_upload)
 
     return MeasurementsUploadResult(size=upload.size, server_time=upload.server_time)
