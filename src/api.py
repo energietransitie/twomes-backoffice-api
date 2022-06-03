@@ -190,7 +190,7 @@ def device_activate(device_verify: DeviceVerify):
 
 
 @app.get(
-    '/device_type/{device_type}',
+    '/device_type/{device_type_name}',
     response_model=DeviceTypeItem,
     responses={
         BadRequest.code: {'model': BadRequest},
@@ -198,8 +198,8 @@ def device_activate(device_verify: DeviceVerify):
         NotFound.code: {'model': NotFound}
     }
 )
-def device_type(device_type_name: str,
-                authorization: HTTPAuthorizationCredentials = Depends(account_auth)):
+def device_type_read(device_type_name: str,
+                     authorization: HTTPAuthorizationCredentials = Depends(account_auth)):
 
     account_session_token = authorization.credentials
 
