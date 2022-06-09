@@ -203,7 +203,7 @@ class Device(Base):
     )
     activation_token = Column(
         Text,
-        nullable=False,
+        nullable=True,
         unique=True,
         comment='Unique, random token to identify the device during activation'
     )
