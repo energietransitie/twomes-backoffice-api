@@ -198,7 +198,7 @@ def device_reprovision(db: Session,
     device.activation_token = activation_token
     device.activated_on = datetime.now(timezone.utc)
     device.session_token_hash = None
-
+    
     db.commit()
     db.refresh(device)
 

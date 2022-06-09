@@ -143,14 +143,9 @@ def account_device_provision(device_input: DeviceItem,
     account_session_token = authorization.credentials
 
     account = crud.account_by_session(db.session, account_session_token)
-    device_type = crud.device_type_by_name(
-        db.session, device_input.device_type_name)
 
     if not account:
         return http_status(Unauthorized, 'Invalid account session token')
-
-    if not crud.device_type_by_name(db.session, device_type.name):
-        return http_status(BadRequest, f'Unknown device type "{device_type.name}"')
 
     existing_device = crud.device_by_name(db.session, device_name)
 
@@ -161,11 +156,16 @@ def account_device_provision(device_input: DeviceItem,
         if existing_device.account != account:
             return http_status(BadRequest, 'Cannot reprovision device to different account.')
 
-        else: 
-            created_device = crud.device_reprovision(
-            db.session, existing_device, device_input.activation_token)
+        created_device = crud.device_reprovision(
+        db.session, existing_device, device_input.activation_token)
 
     else:
+        device_type = crud.device_type_by_name(
+        db.session, device_input.device_type_name)
+
+        if not crud.device_type_by_name(db.session, device_type.name):
+            return http_status(BadRequest, f'Unknown device type "{device_type.name}"')
+
         created_device = crud.device_provision(
         db.session, device_name, device_type, account, device_input.activation_token)
 
