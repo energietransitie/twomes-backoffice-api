@@ -184,6 +184,20 @@ def device_create(db: Session,
 
     return device
 
+def device_reprovision(db: Session,
+                  device: Device,
+                  activation_token: str) -> Device:
+    """
+    Reprovision a Device
+    """
+    device.activation_token = activation_token
+    device.session_token_hash = None
+
+    db.commit()
+    db.refresh(device)
+
+    return device
+
 
 def device_activate(db: Session, account: Account, device: Device):
     """
@@ -191,7 +205,6 @@ def device_activate(db: Session, account: Account, device: Device):
     """
     device.building = account.building
     device.activated_on = datetime.now(timezone.utc)
-    device.activation_token = None
     db.commit()
 
 def device_by_activation_token(db: Session, activation_token: str) -> Optional[Device]:
@@ -232,6 +245,7 @@ def device_session_token(db: Session, device: Device) -> str:
     """
     session_token, session_token_hash = session_token_generate(device.id)
 
+    device.activation_token = None
     device.session_token_hash = session_token_hash
     db.commit()
 

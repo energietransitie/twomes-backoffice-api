@@ -149,17 +149,21 @@ def account_device_provision(device_input: DeviceItem,
     if not account:
         return http_status(Unauthorized, 'Invalid account session token')
 
-    if crud.device_by_name(db.session, device_name):
-        return http_status(BadRequest, 'Device name already in use')
-
     if not crud.device_type_by_name(db.session, device_type.name):
         return http_status(BadRequest, f'Unknown device type "{device_type.name}"')
 
-    created_device = crud.device_create(
+    existing_device = crud.device_by_name(db.session, device_name)
+
+    if existing_device:
+        print("Device name already in use. Reprovisioning device.")
+        if existing_device.device_type_name != device_input.device_type_name
+            return http_status(BadRequest, 'Cannot change device_type_name when reprovisioning.')
+        created_device = crud.device_reprovision(
+            db.session, existing_device, device_input.activation_token)
+    else:
+        created_device = crud.device_create(
         db.session, device_name, device_type, device_input.activation_token)
 
-
-    account = crud.account_by_session(db.session, account_session_token)
     crud.device_activate(db.session, account, created_device)
 
     complete_device: DeviceCompleteItem = {
