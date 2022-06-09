@@ -255,7 +255,7 @@ def device_read(device_name: str,
 
     result: DeviceItemMeasurementTime = {
         "name": device.name,
-        "device_type": device.device_type.name,
+        "device_type_name": device.device_type.name,
         "latest_measurement_timestamp": device.latest_measurement_timestamp
     }
 
