@@ -119,7 +119,7 @@ class DeviceTypeCompleteItem(BaseModel):
 class DeviceItem(BaseModel):
     name: str
     device_type_name: str
-    activation_token: str
+    activation_token: Optional[str]
 
     class Config:
         orm_mode = True

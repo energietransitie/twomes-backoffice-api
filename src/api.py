@@ -251,10 +251,15 @@ def device_read(device_name: str,
     if not device or not device.building or device.building.account_id != account.id:
         return http_status(NotFound, f'Device {device_name} not found')
 
-    timestamp = crud.device_latest_measurement_timestamp(db.session, device.id)
-    device.latest_measurement_timestamp = timestamp
+    device.latest_measurement_timestamp = crud.device_latest_measurement_timestamp(db.session, device.id)
 
-    return device
+    result: DeviceItemMeasurementTime = {
+        "name": device.name,
+        "device_type": device.device_type.name,
+        "latest_measurement_timestamp": device.latest_measurement_timestamp
+    }
+
+    return result
 
 
 @app.get(
