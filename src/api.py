@@ -156,7 +156,6 @@ def account_device_provision(device_input: DeviceItem,
         return http_status(BadRequest, f'Unknown device type "{device_type.name}"')
 
     created_device = crud.device_create(db.session, device_name, device_type)
-
     complete_device: DeviceCompleteItem = {
         "id": created_device.id,
         "name": created_device.name,

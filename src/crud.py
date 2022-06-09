@@ -192,7 +192,13 @@ def device_activate(db: Session, account: Account, device: Device):
     device.activation_token = None
     db.commit()
 
-
+def device_by_activation_token(db: Session, activation_token: str) -> Optional[Device]:
+    """
+    Get Device instance by activation token
+    """
+    query = db.query(Device).filter(Device.activation_token == activation_token)
+    return query.one_or_none()
+    
 def device_by_name(db: Session, name: str) -> Optional[Device]:
     """
     Get Device instance by name
