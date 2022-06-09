@@ -153,12 +153,10 @@ def account_device_provision(device_input: DeviceItem,
 
     if existing_device:
         print("reprovisioning")
-        if existing_device.device_type != device_input.device_type_name:
-            print("device type kapot")
+        if existing_device.device_type.name != device_input.device_type_name:
             return http_status(BadRequest, 'Cannot change device_type_name when reprovisioning.')
 
         if existing_device.account != account:
-            print("account kapot")
             return http_status(BadRequest, 'Cannot reprovision device to different account.')
 
         created_device = crud.device_reprovision(
