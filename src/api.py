@@ -148,9 +148,12 @@ def account_device_provision(device_input: DeviceItem,
         return http_status(Unauthorized, 'Invalid account session token')
 
     existing_device = crud.device_by_name(db.session, device_name)
+    print(f"this log! Existing device: {existing_device}")
+    print(f"device_name: {device_name}")
 
     if existing_device:
-        if existing_device.device_type_name != device_input.device_type_name:
+        print("reprovisioning")
+        if existing_device.device_type != device_input.device_type_name:
             return http_status(BadRequest, 'Cannot change device_type_name when reprovisioning.')
 
         if existing_device.account != account:
