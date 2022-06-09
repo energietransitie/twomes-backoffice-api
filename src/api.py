@@ -158,8 +158,6 @@ def account_device_provision(device_input: DeviceItem,
     created_device = crud.device_create(
         db.session, device_name, device_type, device_input.activation_token)
 
-
-    account = crud.account_by_session(db.session, account_session_token)
     crud.device_activate(db.session, account, created_device)
 
     complete_device: DeviceCompleteItem = {
