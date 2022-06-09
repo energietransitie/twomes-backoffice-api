@@ -1,6 +1,7 @@
 import logging
 import secrets
 from datetime import (
+    date,
     datetime,
     timezone,
 )
@@ -164,18 +165,21 @@ def device_type_by_name(db: Session, name: str) -> Optional[DeviceType]:
     return db.query(DeviceType).filter(DeviceType.name == name).one_or_none()
 
 
-def device_create(db: Session,
+def device_provision(db: Session,
                   name: str,
                   device_type: DeviceType,
-                  activation_token: str) -> Device:
+                  activation_token: str,
+                  account: Account) -> Device:
     """
-    Create a new Device
+    Add and provision a new device
     """
     device = Device(
         name=name,
         device_type=device_type,
         activation_token=activation_token,
         created_on=datetime.now(timezone.utc),
+        building = account.building,
+        activated_on = datetime.now(timezone.utc),
     )
 
     db.add(device)
@@ -190,22 +194,15 @@ def device_reprovision(db: Session,
     """
     Reprovision a Device
     """
+
     device.activation_token = activation_token
+    device.activated_on = datetime.now(timezone.utc)
     device.session_token_hash = None
 
     db.commit()
     db.refresh(device)
 
     return device
-
-
-def device_activate(db: Session, account: Account, device: Device):
-    """
-    Active the device by assigning it to the building of an account.
-    """
-    device.building = account.building
-    device.activated_on = datetime.now(timezone.utc)
-    db.commit()
 
 def device_by_activation_token(db: Session, activation_token: str) -> Optional[Device]:
     """
