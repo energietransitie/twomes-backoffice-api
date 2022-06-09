@@ -156,9 +156,10 @@ def account_device_provision(device_input: DeviceItem,
 
     if existing_device:
         print("Device name already in use. Reprovisioning device.")
-        if existing_device.device_type_name != device_input.device_type_name
+        if existing_device.device_type_name != device_input.device_type_name:
             return http_status(BadRequest, 'Cannot change device_type_name when reprovisioning.')
-        created_device = crud.device_reprovision(
+        else: 
+            created_device = crud.device_reprovision(
             db.session, existing_device, device_input.activation_token)
     else:
         created_device = crud.device_create(
