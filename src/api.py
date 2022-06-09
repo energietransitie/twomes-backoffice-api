@@ -156,7 +156,7 @@ def account_device_provision(device_input: DeviceItem,
         if existing_device.device_type.name != device_input.device_type_name:
             return http_status(BadRequest, 'Cannot change device_type_name when reprovisioning.')
 
-        if existing_device.account != account:
+        if existing_device.building != account.building:
             return http_status(BadRequest, 'Cannot reprovision device to different account.')
 
         created_device = crud.device_reprovision(
