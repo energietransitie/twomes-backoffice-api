@@ -155,7 +155,9 @@ def account_device_provision(device_input: DeviceItem,
     if not crud.device_type_by_name(db.session, device_type.name):
         return http_status(BadRequest, f'Unknown device type "{device_type.name}"')
 
-    created_device = crud.device_create(db.session, device_name, device_type)
+    created_device = crud.device_create(
+        db.session, device_name, device_type, device_input.activation_token)
+
     complete_device: DeviceCompleteItem = {
         "id": created_device.id,
         "name": created_device.name,
@@ -163,6 +165,7 @@ def account_device_provision(device_input: DeviceItem,
         "created_on": created_device.created_on,
     }
     return DeviceCompleteItem(**complete_device)
+
 
 @app.post(
     '/device/activate',
@@ -186,8 +189,9 @@ def device_activate(device_verify: DeviceVerify):
 
     return DeviceSession(session_token=session_token)
 
+
 @app.get(
-    '/device_type/{device_name}',
+    '/device_type/{device_type_name}',
     response_model=DeviceTypeItem,
     responses={
         BadRequest.code: {'model': BadRequest},
@@ -195,8 +199,8 @@ def device_activate(device_verify: DeviceVerify):
         NotFound.code: {'model': NotFound}
     }
 )
-def device_type(device_name: str,
-                authorization: HTTPAuthorizationCredentials = Depends(account_auth)):
+def device_type_read(device_type_name: str,
+                     authorization: HTTPAuthorizationCredentials = Depends(account_auth)):
 
     account_session_token = authorization.credentials
 
@@ -204,11 +208,9 @@ def device_type(device_name: str,
     if not account:
         return http_status(Unauthorized, 'Invalid account session token')
 
-    device = crud.device_by_name(db.session, device_name)
-    if not device:
-        return http_status(NotFound, f'Device {device_name} not found')
-
-    device_type = device.device_type
+    device_type = crud.device_type_by_name(db.session, device_type_name)
+    if not device_type:
+        return http_status(NotFound, f'Device Type {device_type_name} not found')
 
     return device_type
 

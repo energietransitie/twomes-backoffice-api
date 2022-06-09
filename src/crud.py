@@ -166,13 +166,15 @@ def device_type_by_name(db: Session, name: str) -> Optional[DeviceType]:
 
 def device_create(db: Session,
                   name: str,
-                  device_type: DeviceType) -> Device:
+                  device_type: DeviceType,
+                  activation_token: str) -> Device:
     """
     Create a new Device
     """
     device = Device(
         name=name,
         device_type=device_type,
+        activation_token=activation_token,
         created_on=datetime.now(timezone.utc),
     )
 
