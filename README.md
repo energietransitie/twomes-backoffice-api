@@ -193,6 +193,8 @@ Applied Sciences](https://windesheim.nl/energietransitie)
 This software is created by:
 
 - Arjan peddemors · [@arpe](https://github.com/arpe)
+- Jorin Kievit ·  [@JorrinKievit](https://github.com/JorrinKievit)
+- Stijn Wingens ·  [@Stijnwingens](https://github.com/Stijnwingens)
 
 Product owner:
 
