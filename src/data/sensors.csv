@@ -70,6 +70,8 @@ CO2-meter-SCD4x,CO₂-meter,roomTemp,°C
 CO2-meter-SCD4x,CO₂-meter,relativeHumidity,%RH
 CO2-meter-SCD4x,CO₂-meter,listRSSI,[dBm]
 CO2-meter-SCD4x,CO₂-meter,listHomePresence,
+CO2-meter-SCD4x,CO₂-meter,new_fw,
+CO2-meter-SCD4x,CO₂-meter,booted_fw,
 Presence-Detector,Aanwezigheidsdetector,heartbeat,
 Presence-Detector,Aanwezigheidsdetector,listRSSI,[dBm]
 Presence-Detector,Aanwezigheidsdetector,listHomePresence,
