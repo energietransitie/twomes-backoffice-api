@@ -8,8 +8,11 @@ from auth import (
 
 admins = (
     (1, 'henrith', '$2b$12$tKBneY7fbLY4aMocM6OdOuhSoccx5o0dL/hJr.9ZqzraX1QetqF2O'),
+    (2, 'seceng', '$2b$12$Cz1pcfw470GO7aUv/C/Ly.P0Ru7fGLcUBTj.1zSZdE0IwPy2ZSwz6'),
+    (3, 'nick', '$2b$12$f8iLYhz0Vt4n0TKpG.bw2.MERr5uBlFShzzUztLZjb.TfQBmP2vLy'),
     # Add extra admin tuples, created with 'create_admin()', here
 )
+
 admins_name = {a[0]: a[1] for a in admins}
 admins_session_token_hash = {a[0]: a[2] for a in admins}
 
