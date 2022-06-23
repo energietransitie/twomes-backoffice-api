@@ -7,11 +7,7 @@ from auth import (
 )
 
 admins = (
-    (2, 'Marco', '$2b$12$mP7XyiffPKDGJM05xGPrBuaE8yoLVjabaXj1.UYaxFYdd3bpLzUwu'),
     (4, 'henrith', '$2b$12$tKBneY7fbLY4aMocM6OdOuhSoccx5o0dL/hJr.9ZqzraX1QetqF2O'),
-    (7, 'SjorsS', '$2b$12$hQs67BBAYczDwVki37WuPOwOkwxmFeXFcWk7/dupTkkHJG5ypZoZW'),
-    (8, 'DerkJanW', '$2b$12$FHCDDpOc5ZMrIEM8T3b7.eQZRxu0XmtUcoN/wO7vZauzqkLtq4kdm'),
-    (9, 'MarcoW', '$2b$12$BoZ6BFEJJtg.283VyqA5OefaRfscYPRy1OjHciJo3GQDaGmoECWLG'),
     (10, 'seceng', '$2b$12$Cz1pcfw470GO7aUv/C/Ly.P0Ru7fGLcUBTj.1zSZdE0IwPy2ZSwz6'),
     (11, 'nick', '$2b$12$f8iLYhz0Vt4n0TKpG.bw2.MERr5uBlFShzzUztLZjb.TfQBmP2vLy')
     # Add extra admin tuples, created with 'create_admin()', here
