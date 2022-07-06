@@ -72,12 +72,17 @@ CO2-meter-SCD4x,CO₂-meter,listRSSI,[dBm]
 CO2-meter-SCD4x,CO₂-meter,listHomePresence,
 CO2-meter-SCD4x,CO₂-meter,new_fw,
 CO2-meter-SCD4x,CO₂-meter,booted_fw,
+CO2-meter-SCD4x,CO₂-meter,batteryVoltage,
 Presence-Detector,Aanwezigheidsdetector,heartbeat,
 Presence-Detector,Aanwezigheidsdetector,listRSSI,[dBm]
 Presence-Detector,Aanwezigheidsdetector,listHomePresence,
+Presence-Detector,Testmeetapparaatje,new_fw,
+Presence-Detector,Testmeetapparaatje,booted_fw,
+Presence-Detector,Testmeetapparaatje,batteryVoltage,
 Generic-Test,Testmeetapparaatje,heartbeat,
 Generic-Test,Testmeetapparaatje,new_fw,
 Generic-Test,Testmeetapparaatje,booted_fw,
+Generic-Test,Testmeetapparaatje,batteryVoltage,
 DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met cv-ketelmodule en kamermodule met CO₂-sensor,heartbeat,
 DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met cv-ketelmodule en kamermodule met CO₂-sensor,eMeterReadingSupplyLow,kWh
 DSMR-P1-gateway-TinTsTrCO2,Slimme meter monitor met cv-ketelmodule en kamermodule met CO₂-sensor,eMeterReadingSupplyHigh,kWh
