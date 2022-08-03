@@ -70,6 +70,8 @@ CO2-meter-SCD4x,CO₂-meter,roomTemp,°C
 CO2-meter-SCD4x,CO₂-meter,relativeHumidity,%RH
 CO2-meter-SCD4x,CO₂-meter,listRSSI,[dBm]
 CO2-meter-SCD4x,CO₂-meter,listHomePresence,
+CO2-meter-SCD4x,CO₂-meter,listRSSI,[dBm]
+CO2-meter-SCD4x,CO₂-meter,countPresence,
 CO2-meter-SCD4x,CO₂-meter,new_fw,
 CO2-meter-SCD4x,CO₂-meter,booted_fw,
 CO2-meter-SCD4x,CO₂-meter,batteryVoltage,V
@@ -79,6 +81,7 @@ Presence-Detector,Aanwezigheidsdetector,listHomePresence,
 Presence-Detector,Aanwezigheidsdetector,new_fw,
 Presence-Detector,Aanwezigheidsdetector,booted_fw,
 Presence-Detector,Aanwezigheidsdetector,batteryVoltage,V
+Presence-Detector,Aanwezigheidsdetector,countPresence,
 Generic-Test,Testmeetapparaatje,heartbeat,
 Generic-Test,Testmeetapparaatje,new_fw,
 Generic-Test,Testmeetapparaatje,booted_fw,
