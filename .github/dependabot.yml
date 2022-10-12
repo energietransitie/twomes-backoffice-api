@@ -5,12 +5,13 @@
 
 version: 2
 updates:
-  - package-ecosystem: "pip" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: "pip"
+    directory: "/"
     schedule:
       interval: "weekly"
-      day: "friday"
+      day: "monday"
       time: "09:00"
       timezone: "Europe/Amsterdam"
-    target-branch: "develop"
+    labels:
+      - "dependencies"
     open-pull-requests-limit: 10
