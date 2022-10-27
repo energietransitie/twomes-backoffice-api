@@ -117,3 +117,21 @@ DSMR-P1-gateway-TinCO2,Slimme meter monitor met kamermodule met CO₂-sensor,rel
 DSMR-P1-gateway-TinCO2,Slimme meter monitor met kamermodule met CO₂-sensor,listRSSI,[dBm]
 DSMR-P1-gateway-TinCO2,Slimme meter monitor met kamermodule met CO₂-sensor,listHomePresence,
 OpenTherm-Monitor,OpenTherm monitor,boilerMaxSupplyTemp,°C
+twomes-boiler-base-firmware,cv-ketelmodule,heartbeat,
+twomes-boiler-base-firmware,cv-ketelmodule,roomTemp,°C
+twomes-boiler-base-firmware,cv-ketelmodule,roomSetpointTemp,°C
+twomes-boiler-base-firmware,cv-ketelmodule,boilerReturnTemp,°C
+twomes-boiler-base-firmware,cv-ketelmodule,boilerSupplyTemp,°C
+twomes-boiler-base-firmware,cv-ketelmodule,boilerMaxSupplyTemp,°C
+twomes-boiler-base-firmware,cv-ketelmodule,isBoilerFlameOn,
+twomes-boiler-base-firmware,cv-ketelmodule,isCentralHeatingModeOn,
+twomes-boiler-base-firmware,cv-ketelmodule,isDomesticHotWaterModeOn,
+twomes-boiler-base-firmware,cv-ketelmodule,maxBoilerCap,kW
+twomes-boiler-base-firmware,cv-ketelmodule,maxModulationLevel,%
+twomes-boiler-base-firmware,cv-ketelmodule,minModulationLevel,%
+twomes-boiler-base-firmware,cv-ketelmodule,relativeModulationLevel,%
+twomes-boiler-base-firmware,cv-ketelmodule,boilerTemp1,°C
+twomes-boiler-base-firmware,cv-ketelmodule,boilerTemp2,°C
+twomes-boiler-base-firmware,cv-ketelmodule,booted_fw,
+twomes-boiler-base-firmware,cv-ketelmodule,new_fw,
+twomes-boiler-base-firmware,cv-ketelmodule,batteryVoltage,
