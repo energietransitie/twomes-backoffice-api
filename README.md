@@ -100,9 +100,14 @@ To deploy, recreate the container for `api.tst.energietransitiewindesheim.nl` wh
 If you need the ability to create user accounts for testing purposes, first follow the procedure to create an admin account as described under [Deploying to a local test server](#deploying-to a-local-test-server) and test it locally via http://localhost:8000/docs. Then commit and push changes in the main branch to origin and ask the admin for the `api.tst.energietransitiewindesheim.nl` server (currently [@henriterhofte](https://github.com/henriterhofte)) to activate your newly created admin account. He will then recreate the container for `api.tst.energietransitiewindesheim.nl` while using the 'Pull latest image' option, which activates the new account.
 
 ### Registering new properties to `api.tst.energietransitiewindesheim.nl`
-If you need a new property at `api.tst.energietransitiewindesheim.nl`, first update it in `src/data/sensors.csv` and test it locally as described under [Deploying on your local machine](#deploying-on-yourlocal-machine) and test it locally via http://localhost:8000/docs. Commit changes in a separate branch, push and create a Pull Request; ask admin for the `api.tst.energietransitiewindesheim.nl` server (currently [@henriterhofte](https://github.com/henriterhofte)) to review, merge and activate the new definitions of devices and properties in sensors.csv. He will then recreate the container for api.tst.energietransitiewindesheim.nl via https://docker.energietransitiewindesheim.nl while using the 'Pull latest image' option and he will then load the data from the csv file using the tool [/src/data/loader.py](../blob/main/src/data/loader.py) by issuing this command on the command line of the docker container for api.tst.energietransitiewindesheim.nl: 
+If you need a new property at `api.tst.energietransitiewindesheim.nl`, first update it in `src/data/sensors.csv` and test it locally as described under [Deploying on your local machine](#deploying-on-yourlocal-machine) and test it locally via http://localhost:8000/docs. Commit changes in a separate branch, push and create a Pull Request; ask admin for the `api.tst.energietransitiewindesheim.nl` server (currently [@henriterhofte](https://github.com/henriterhofte)) to review, merge and activate the new definitions of devices and properties in sensors.csv. 
+
+He will then log in via SSH to the [Twomes backoffice server](https://github.com/energietransitie/twomes-backoffice-configuration) at energietransitiewindesheim.nl  and execute the following command:
 ```shell
-python -c "from data.loader import csv_create_update; csv_create_update()"
+docker pull ghcr.io/energietransitie/twomes_api:latest && \
+cd /root/api/tst && \
+docker-compose up -d && \
+docker exec twomes-api-tst python3 -c "from data.loader import csv_create_update; csv_create_update()"
 ```
 
 ## Developing
