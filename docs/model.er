@@ -14,6 +14,8 @@ activated_on {label: "Timestamp"}
 activation_token {label: "String, unique"}
 session_token {label: "String"}
 
++campaign_id {label: "Integer, non-null"}
+
 
 [Building]
 *id {label: "Integer"}
@@ -51,8 +53,8 @@ energy_index {label: "Float"}
 [DeviceType]
 *id {label: "Integer"}
 name {label: "String, unique, non-null"}
-display_name {label: "String, unique, non-null"}
 installation_manual_url {label: "String, non-null"}
+info_url {label: "String"}
 
 
 [Device]
@@ -94,6 +96,18 @@ time {label: "Timestamp, non-null"}
 value {label: "String, non-null"}
 
 
+[Campaign]
+*id {label: "Integer"}
+name {label: "String, non-null"}
+app_id {label: "Integer, non-null"}
+info_url {label: "String"}
+
+[App]
+*id {label: "Integer"}
+name {label: "String, non-null"}
+provisioning_url_template {label: "String, non-null"}
+
+
 Account 1--1 Building
 DeviceType +--* Property
 DeviceType *--1 Device
@@ -101,3 +115,5 @@ Device ?--* Building
 Measurement 1--* Device
 Measurement 1--* Property
 Upload *--1 Measurement
+Account *--1 Campaign
+Campaign *--1 App
