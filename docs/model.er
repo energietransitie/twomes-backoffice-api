@@ -28,27 +28,6 @@ latitude {label: "Numeric(15, 10), non-null"}
 # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
 tz_name {label: "String, non-null"}
 
-# Year built as defined in https://bag.basisregistraties.overheid.nl/datamodel#oorspronkelijkBouwjaar
-yr_built {label: "Integer"}
-
-# House type, see https://pico.geodan.nl/qgis/?url&map=gknWoningtype
-type {label: "String"}
-
-# Floor area ('gebruiksoppervlakte') as defined in section 3.53 of NTA8800, which refers to section
-# 4.5 of NEN 2580:2007; see also https://imbag.github.io/praktijkhandleiding/attributen/oppervlakte
-floor_area {label: "Integer"}
-
-# Heat loss area ('verliesoppervlakte') as defined in section 3.119 of NTA8800, for the entire
-# building; this property is typically derived and stored after processing various other data fields
-# obtained from public APIs, such as 3DBAG (https://docs.3dbag.nl/en/)
-heat_loss_area {label: "Integer"}
-
-# Energy label, e.g. obtained via https://www.ep-online.nl/ep-online/Energylabel/Search
-energy_label {label: "String"}
-
-# Energy index, e.g. obtained via https://www.ep-online.nl/ep-online/Energylabel/Search
-energy_index {label: "Float"}
-
 
 [DeviceType]
 *id {label: "Integer"}
