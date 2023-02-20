@@ -78,7 +78,7 @@ value {label: "String, non-null"}
 [Campaign]
 *id {label: "Integer"}
 name {label: "String, non-null"}
-app_id {label: "Integer, non-null"}
++app_id {label: "Integer, non-null"}
 info_url {label: "String"}
 
 [App]
