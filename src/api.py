@@ -64,6 +64,24 @@ def http_status(http_status_class: Type[HttpStatus], message: str) -> JSONRespon
     return JSONResponse(status_code=http_status_class.code, content={'detail': message})
 
 
+@app.get(
+    '/account/me',
+    response_model=AccountSession,
+    responses={
+        Unauthorized.code: {'model': Unauthorized},
+    }
+)
+def me(authorization: HTTPAuthorizationCredentials = Depends(account_auth)):
+    account_session_token = authorization.credentials
+    account = crud.account_by_session(db.session, account_session_token)
+
+    if not account:
+        return http_status(Unauthorized, 'Invalid account session token')
+
+    return AccountSession(
+        session_token=account_session_token,
+    )
+
 @app.post(
     '/account',
     response_model=AccountItem,
