@@ -184,6 +184,9 @@ Applied Sciences](https://windesheim.nl/energietransitie)
 ## Credits
 
 This software is created by:
+* Nick van Ravenzwaaij  ·  [@n-vr](https://github.com/n-vr)
+
+Thanks also go to:
 * Arjan peddemors  ·  [@arpe](https://github.com/arpe)
 
 Product owner:
@@ -191,13 +194,8 @@ Product owner:
 
 We use and gratefully aknowlegde the efforts of the makers of the following source code and libraries:
 
-* [alembic](https://alembic.sqlalchemy.org), by Mike Bayer, licensed under [MIT license](https://opensource.org/licenses/MIT)
-* [bcrypt](https://github.com/pyca/bcrypt/), by The Python Cryptographic Authority developers, licensed under [Apache-2.0 license](https://raw.githubusercontent.com/pyca/bcrypt/main/LICENSE)
-* [factory-boy](https://github.com/FactoryBoy/factory_boy), by The FactoryBoy project, licensed under [MIT license](https://raw.githubusercontent.com/FactoryBoy/factory_boy/master/LICENSE)
-* [fastapi](https://github.com/tiangolo/fastapi), by Sebastián Ramírez, licensed under [MIT license](https://raw.githubusercontent.com/tiangolo/fastapi/master/LICENSE)
-* [FastAPI-SQLAlchemy](https://github.com/mfreeborn/fastapi-sqlalchemy), by Michael Freeborn, licensed under [MIT licence](https://opensource.org/licenses/MIT)
-* [passlib](https://foss.heptapod.net/python-libs/passlib), by Assurance Technologies, licensed under [BSD license](https://foss.heptapod.net/python-libs/passlib/-/raw/branch/stable/LICENSE)
-* [PyJWT](https://github.com/jpadilla/pyjwt), by José Padilla, licensed under [MIT License](https://raw.githubusercontent.com/jpadilla/pyjwt/master/LICENSE)
-* [PyMySQL](https://github.com/PyMySQL/PyMySQL/), by PyMySQL contributors, licensed under [MIT License](https://raw.githubusercontent.com/PyMySQL/PyMySQL/master/LICENSE)
-* [SQLAlchemy](https://www.sqlalchemy.org/), by Mike Bayer, licensed under [MIT licence](https://opensource.org/licenses/MIT)
-* [uvicorn](https://github.com/encode/uvicorn), by  Encode OSS Ltd., licensed under [BSD-3-Clause License](https://raw.githubusercontent.com/encode/uvicorn/master/LICENSE.md)
+* [chi](https://github.com/go-chi/chi), by Peter Kieltyka, Google Inc, licensed under [MIT license](https://github.com/go-chi/chi/blob/master/LICENSE)
+* [gorm](https://gorm.io), by Jinzhu, licensed under [MIT license](https://github.com/go-gorm/gorm/blob/master/License)
+* [go-sql-driver/mysql](https://github.com/go-sql-driver/mysql), by go-sql-driver, licensed under [Mozilla Public License 2.0](https://github.com/go-sql-driver/mysql/blob/master/LICENSE)
+* [logrus](https://github.com/sirupsen/logrus), by Simon Eskildsen, licensed under [MIT license](https://github.com/sirupsen/logrus/blob/master/LICENSE)
+* [golang-jwt/jwt](https://github.com/golang-jwt/jwt), by Dave Grijalva, licensed under [MIT license](https://github.com/golang-jwt/jwt/blob/main/LICENSE)

@@ -1,1 +1,2 @@
-**/__pycache__
+# Ignore data folder. Used while debugging.
+/data/
