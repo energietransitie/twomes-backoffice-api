@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/energietransitie/twomes-api/pkg/ports"
+	"github.com/energietransitie/twomes-api/pkg/services"
 	"github.com/energietransitie/twomes-api/pkg/twomes"
 	"github.com/sirupsen/logrus"
 )
@@ -45,6 +47,11 @@ func (h *UploadHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	upload, err := h.service.Create(auth.ID, request.DeviceTime, request.Measurements)
 	if err != nil {
+		if errors.Is(err, services.ErrEmptyUpload) {
+			http.Error(w, "empty upload", http.StatusBadRequest)
+			return
+		}
+
 		logrus.Info(err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return

@@ -1,10 +1,15 @@
 package services
 
 import (
+	"errors"
 	"time"
 
 	"github.com/energietransitie/twomes-api/pkg/ports"
 	"github.com/energietransitie/twomes-api/pkg/twomes"
+)
+
+var (
+	ErrEmptyUpload = errors.New("no measurements in upload")
 )
 
 type UploadService struct {
@@ -31,6 +36,10 @@ func (s *UploadService) Create(deviceID uint, deviceTime time.Time, measurements
 		if err == nil {
 			filteredMeasurements = append(filteredMeasurements, measurement)
 		}
+	}
+
+	if len(filteredMeasurements) <= 0 {
+		return twomes.Upload{}, ErrEmptyUpload
 	}
 
 	upload := twomes.MakeUpload(deviceID, deviceTime, filteredMeasurements)
