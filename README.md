@@ -165,7 +165,7 @@ Then run the `alembic upgrade` command again.
 
 To re-generate the model diagram
 ```shell
-docker run -i vranac/erd < doc/model.er > doc/model.pdf 
+docker run -i --rm vranac/erd < docs/model.er > docs/model.pdf 
 ```
 
 
