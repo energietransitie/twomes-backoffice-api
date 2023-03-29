@@ -23,38 +23,29 @@ func NewUploadHandler(service ports.UploadService) *UploadHandler {
 }
 
 // Handle API endpoint for creating a new upload.
-func (h *UploadHandler) Create(w http.ResponseWriter, r *http.Request) {
+func (h *UploadHandler) Create(w http.ResponseWriter, r *http.Request) error {
 	var request twomes.Upload
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		logrus.Error(err)
-		http.Error(w, "bad request", http.StatusBadRequest)
-		return
+		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
 	}
 
 	auth, ok := r.Context().Value(AuthorizationCtxKey).(*twomes.Authorization)
 	if !ok {
-		logrus.Error("failed when getting authentication context value")
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
+		return NewHandlerError(err, "unauthorized", http.StatusUnauthorized).WithMessage("failed when getting authentication context value")
 	}
 
 	if !auth.IsKind(twomes.DeviceToken) {
-		logrus.Infof("%s token was used while %s was required", auth.Kind, twomes.DeviceToken)
-		http.Error(w, "wrong token kind", http.StatusForbidden)
-		return
+		return NewHandlerError(err, "wrong token kind", http.StatusForbidden).WithMessage("wrong token kind was used")
 	}
 
 	upload, err := h.service.Create(auth.ID, request.DeviceTime, request.Measurements)
 	if err != nil {
 		if errors.Is(err, services.ErrEmptyUpload) {
-			http.Error(w, "empty upload", http.StatusBadRequest)
-			return
+			return NewHandlerError(err, "empty upload", http.StatusBadRequest)
 		}
 
-		logrus.Info(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError)
 	}
 
 	// We don't need to return all measurements in the upload response.
@@ -62,8 +53,8 @@ func (h *UploadHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	err = json.NewEncoder(w).Encode(&upload)
 	if err != nil {
-		logrus.Error(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
 	}
+
+	return nil
 }

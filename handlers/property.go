@@ -22,31 +22,26 @@ func NewPropertyHandler(service ports.PropertyService) *PropertyHandler {
 }
 
 // Handle API endpoint for creating a new property.
-func (h *PropertyHandler) Create(w http.ResponseWriter, r *http.Request) {
+func (h *PropertyHandler) Create(w http.ResponseWriter, r *http.Request) error {
 	var request twomes.Property
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		logrus.Error(err)
-		http.Error(w, "bad request", http.StatusBadRequest)
-		return
+		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
 	}
 
 	property, err := h.service.Create(request.Name, request.Unit)
 	if err != nil {
 		if helpers.IsMySQLDuplicateError(err) {
-			http.Error(w, "duplicate", http.StatusBadRequest)
-			return
+			return NewHandlerError(err, "duplicate", http.StatusBadRequest)
 		}
 
-		logrus.Info(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError)
 	}
 
 	err = json.NewEncoder(w).Encode(&property)
 	if err != nil {
-		logrus.Error(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
 	}
+
+	return nil
 }

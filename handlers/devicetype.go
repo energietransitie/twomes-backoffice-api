@@ -22,31 +22,26 @@ func NewDeviceTypeHandler(service ports.DeviceTypeService) *DeviceTypeHandler {
 }
 
 // Handle API endpoint for creating a new device type.
-func (h *DeviceTypeHandler) Create(w http.ResponseWriter, r *http.Request) {
+func (h *DeviceTypeHandler) Create(w http.ResponseWriter, r *http.Request) error {
 	var request twomes.DeviceType
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		logrus.Error(err)
-		http.Error(w, "bad request", http.StatusBadRequest)
-		return
+		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
 	}
 
 	deviceType, err := h.service.Create(request.Name, request.InstallationManualURL, request.InfoURL, request.Properties, request.UploadInterval)
 	if err != nil {
 		if helpers.IsMySQLDuplicateError(err) {
-			http.Error(w, "duplicate", http.StatusBadRequest)
-			return
+			return NewHandlerError(err, "duplicate", http.StatusBadRequest)
 		}
 
-		logrus.Info(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError)
 	}
 
 	err = json.NewEncoder(w).Encode(&deviceType)
 	if err != nil {
-		logrus.Error(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
 	}
+
+	return nil
 }

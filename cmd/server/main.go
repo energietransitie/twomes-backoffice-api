@@ -97,26 +97,27 @@ func main() {
 	r.Use(middleware.RequestLogger(&middleware.DefaultLogFormatter{Logger: logrus.StandardLogger()}))
 	r.Use(middleware.Timeout(time.Second * 30))
 
-	r.Post("/app", adminAuth(appHandler.Create)) // POST on /app.
+	r.Method("POST", "/app", adminAuth(appHandler.Create)) // POST on /app.
 
-	r.Post("/campaign", adminAuth(campaignHandler.Create)) // POST on /campaign.
+	r.Method("POST", "/campaign", adminAuth(campaignHandler.Create)) // POST on /campaign.
 
 	r.Route("/account", func(r chi.Router) {
-		r.Post("/", accountHandler.Create)                                  // POST on /account.
-		r.Post("/activate", accountActivationAuth(accountHandler.Activate)) // POST on /account/activate.
+		r.Method("POST", "/", adminAuth(accountHandler.Create))                       // POST on /account.
+		r.Method("POST", "/activate", accountActivationAuth(accountHandler.Activate)) // POST on /account/activate.
+
 	})
 
-	r.Post("/property", adminAuth(propertyHandler.Create)) // POST on /property.
+	r.Method("POST", "/property", adminAuth(propertyHandler.Create)) // POST on /property.
 
-	r.Post("/device_type", adminAuth(deviceTypeHandler.Create)) // POST on /device_type.
+	r.Method("POST", "/device_type", adminAuth(deviceTypeHandler.Create)) // POST on /device_type.
 
 	r.Route("/device", func(r chi.Router) {
-		r.Post("/", accountAuth(deviceHandler.Create))                      // POST on /device.
-		r.Post("/activate", deviceHandler.Activate)                         // POST on /device/activate.
-		r.Get("/{device_name}", accountAuth(deviceHandler.GetDeviceByName)) // GET on /device/{device_name}.
+		r.Method("POST", "/", accountAuth(deviceHandler.Create))                      // POST on /device.
+		r.Method("POST", "/activate", handlers.Handler(deviceHandler.Activate))       // POST on /device/activate.
+		r.Method("GET", "/{device_name}", accountAuth(deviceHandler.GetDeviceByName)) // GET on /device/{device_name}.
 	})
 
-	r.Post("/upload", deviceAuth(uploadHandler.Create)) // POST on /upload.
+	r.Method("POST", "/upload", deviceAuth(uploadHandler.Create)) // POST on /upload.
 
 	err = http.ListenAndServe(":8080", r)
 	if err != nil {

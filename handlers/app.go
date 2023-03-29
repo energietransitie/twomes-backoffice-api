@@ -20,37 +20,32 @@ func NewAppHandler(service ports.AppService) *AppHandler {
 	}
 }
 
-// Handle API endpoint for creating a new app.
-func (h *AppHandler) Create(w http.ResponseWriter, r *http.Request) {
+func (h *AppHandler) Create(w http.ResponseWriter, r *http.Request) error {
 	var request twomes.App
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		logrus.Error(err)
-		http.Error(w, "bad request", http.StatusBadRequest)
-		return
+		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
 	}
 
 	app, err := h.service.Create(request.Name, request.ProvisioningURLTemplate)
 	if err != nil {
 		if helpers.IsMySQLRecordNotFoundError(err) {
-			http.Error(w, "not found", http.StatusNotFound)
-			return
+			return NewHandlerError(err, "not found", http.StatusNotFound)
 		}
 
 		if helpers.IsMySQLDuplicateError(err) {
-			http.Error(w, "duplicate", http.StatusBadRequest)
-			return
+			return NewHandlerError(err, "duplicate", http.StatusBadRequest)
 		}
 
-		logrus.Info(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError)
 	}
 
 	err = json.NewEncoder(w).Encode(app)
 	if err != nil {
 		logrus.Error(err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
 	}
+
+	return nil
 }

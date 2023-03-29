@@ -26,136 +26,108 @@ func NewDeviceHandler(service ports.DeviceService) *DeviceHandler {
 }
 
 // Handle API endpoint for creating a new device.
-func (h *DeviceHandler) Create(w http.ResponseWriter, r *http.Request) {
+func (h *DeviceHandler) Create(w http.ResponseWriter, r *http.Request) error {
 	var request twomes.Device
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		logrus.Error(err)
-		http.Error(w, "bad request", http.StatusBadRequest)
-		return
+		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
 	}
 
 	auth, ok := r.Context().Value(AuthorizationCtxKey).(*twomes.Authorization)
 	if !ok {
-		logrus.Error("failed when getting authentication context value")
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
+		return NewHandlerError(err, "unauthorized", http.StatusUnauthorized).WithMessage("failed when getting authentication context value").WithLevel(logrus.ErrorLevel)
 	}
 
 	if !auth.IsKind(twomes.AccountToken) {
-		logrus.Infof("%s token was used while %s was required", auth.Kind, twomes.AccountToken)
-		http.Error(w, "wrong token kind", http.StatusForbidden)
-		return
+		return NewHandlerError(err, "wrong token kind", http.StatusForbidden).WithMessage("wrong token kind was used")
 	}
 
 	device, err := h.service.Create(request.Name, request.DeviceType, request.BuildingID, auth.ID, request.ActivationSecret)
 	if err != nil {
 		if helpers.IsMySQLRecordNotFoundError(err) {
-			http.Error(w, "not found", http.StatusNotFound)
-			return
+			return NewHandlerError(err, "not found", http.StatusNotFound)
 		}
 
 		if helpers.IsMySQLDuplicateError(err) {
-			http.Error(w, "duplicate", http.StatusBadRequest)
-			return
+			return NewHandlerError(err, "duplicate", http.StatusBadRequest)
 		}
 
 		if errors.Is(err, services.ErrBuildingDoesNotBelongToAccount) {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
+			return NewHandlerError(err, err.Error(), http.StatusBadRequest)
 		}
 
-		logrus.Info(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError)
 	}
 
 	err = json.NewEncoder(w).Encode(&device)
 	if err != nil {
-		logrus.Error(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
 	}
+
+	return nil
 }
 
 // Handle API endpoint for activating a device.
-func (h *DeviceHandler) Activate(w http.ResponseWriter, r *http.Request) {
+func (h *DeviceHandler) Activate(w http.ResponseWriter, r *http.Request) error {
 	var request twomes.Device
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		logrus.Warning("device name present")
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
+		return NewHandlerError(err, "unauthorized", http.StatusUnauthorized).WithMessage("device name present")
 	}
 
 	authHeader := r.Header.Get("Authorization")
 	if authHeader == "" {
-		logrus.Info("authorization header not present")
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
+		return NewHandlerError(err, "unauthorized", http.StatusUnauthorized).WithMessage("authorization header not present")
 	}
 
 	authHeader = strings.Split(authHeader, "Bearer ")[1]
 
 	if authHeader == "" {
 		logrus.Info("authorization malformed")
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
+		return NewHandlerError(err, "unauthorized", http.StatusUnauthorized).WithMessage("authorization malformed")
 	}
 
 	device, err := h.service.Activate(request.Name, authHeader)
 	if err != nil {
 		if errors.Is(err, twomes.ErrDeviceActivationSecretIncorrect) {
-			http.Error(w, "forbidden", http.StatusForbidden)
-			return
+			return NewHandlerError(err, "forbidden", http.StatusForbidden)
 		}
 
-		logrus.Info(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError)
 	}
 
 	err = json.NewEncoder(w).Encode(&device)
 	if err != nil {
-		logrus.Error(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
 	}
+
+	return nil
 }
 
 // Handle API endpoint for getting device information.
-func (h *DeviceHandler) GetDeviceByName(w http.ResponseWriter, r *http.Request) {
+func (h *DeviceHandler) GetDeviceByName(w http.ResponseWriter, r *http.Request) error {
 	deviceName := chi.URLParam(r, "device_name")
 	if deviceName == "" {
-		http.Error(w, "device_name not specified", http.StatusBadRequest)
-		return
+		return NewHandlerError(nil, "device_name not specified", http.StatusBadRequest)
 	}
 
 	device, err := h.service.GetByName(deviceName)
 	if err != nil {
-		logrus.Info("device not found")
-		http.Error(w, "device not found", http.StatusNotFound)
-		return
+		return NewHandlerError(err, "device not found", http.StatusNotFound).WithMessage("device not found")
 	}
 
 	auth, ok := r.Context().Value(AuthorizationCtxKey).(*twomes.Authorization)
 	if !ok {
-		logrus.Error("failed when getting authentication context value")
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting authentication context value")
 	}
 
 	accountID, err := h.service.GetAccountByDeviceID(device.ID)
 	if err != nil {
-		logrus.Info("device could not be found by ID")
-		http.Error(w, "device not found", http.StatusNotFound)
-		return
+		return NewHandlerError(err, "device not found", http.StatusNotFound).WithMessage("device could not be found by ID")
 	}
 
 	if auth.ID != accountID {
-		logrus.Info("request was made for device not owned by account")
-		http.Error(w, "device does not belong to account", http.StatusForbidden)
-		return
+		return NewHandlerError(err, "device does not belong to account", http.StatusForbidden).WithMessage("request was made for device not owned by account")
 	}
 
 	// We don't need to share all uploads.
@@ -163,8 +135,8 @@ func (h *DeviceHandler) GetDeviceByName(w http.ResponseWriter, r *http.Request) 
 
 	err = json.NewEncoder(w).Encode(&device)
 	if err != nil {
-		logrus.Error(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
 	}
+
+	return nil
 }

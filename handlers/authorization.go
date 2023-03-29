@@ -7,7 +7,6 @@ import (
 
 	"github.com/energietransitie/twomes-api/pkg/ports"
 	"github.com/energietransitie/twomes-api/pkg/twomes"
-	"github.com/sirupsen/logrus"
 )
 
 // A Contextkey is the type for a context key.
@@ -28,46 +27,34 @@ func NewAuthorizationHandler(service ports.AuthorizationService) *AuthorizationH
 	}
 }
 
-func (h *AuthorizationHandler) Middleware(kind twomes.AuthKind) func(next http.HandlerFunc) http.HandlerFunc {
-	return func(next http.HandlerFunc) http.HandlerFunc {
-		return func(w http.ResponseWriter, r *http.Request) {
+func (h *AuthorizationHandler) Middleware(kind twomes.AuthKind) func(next Handler) Handler {
+	return func(next Handler) Handler {
+		return func(w http.ResponseWriter, r *http.Request) error {
 			authHeader := r.Header.Get("Authorization")
 			if authHeader == "" {
-				logrus.Info("authorization header not present")
-				http.Error(w, "unauthorized", http.StatusUnauthorized)
-				return
+				return NewHandlerError(nil, "unauthorized", http.StatusUnauthorized).WithMessage("authorization header not present")
 			}
 
 			authHeader = strings.Split(authHeader, "Bearer ")[1]
 
 			if authHeader == "" {
-				logrus.Info("authorization malformed")
-				http.Error(w, "unauthorized", http.StatusUnauthorized)
-				return
+				return NewHandlerError(nil, "unauthorized", http.StatusUnauthorized).WithMessage("authorization malformed")
 			}
 
 			auth, err := h.service.ParseTokenToAuthorization(authHeader)
 			if err != nil {
-				logrus.WithField("error", err).Info("error when parsing token")
-				http.Error(w, "unauthorized", http.StatusUnauthorized)
-				return
+				return NewHandlerError(err, "unauthorized", http.StatusUnauthorized).WithMessage("error when parsing token")
 			}
 
 			if !auth.IsKind(kind) {
-				logrus.WithFields(logrus.Fields{
-					"route":        r.URL.Path,
-					"kindProvided": auth.Kind,
-					"kindNeeded":   kind,
-				}).Info("incorrect authorization kind was used to access route")
-				http.Error(w, "unauthorized", http.StatusUnauthorized)
-				return
+				return NewHandlerError(nil, "unauthorized", http.StatusUnauthorized).WithMessage("incorrect authorization kind was used to access route")
 			}
 
 			// Add the value of audience to the HTTP context with key AuthenticatedID.
 			authCtx := context.WithValue(r.Context(), AuthorizationCtxKey, auth)
 			r = r.WithContext(authCtx)
 
-			next.ServeHTTP(w, r)
+			return next(w, r)
 		}
 	}
 }

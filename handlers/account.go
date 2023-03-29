@@ -23,76 +23,61 @@ func NewAccountHandler(accountService ports.AccountService) *AccountHandler {
 }
 
 // Handle API endpoint for creating a new account.
-func (h *AccountHandler) Create(w http.ResponseWriter, r *http.Request) {
+func (h *AccountHandler) Create(w http.ResponseWriter, r *http.Request) error {
 	var request twomes.Account
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		logrus.Error(err)
-		http.Error(w, "bad request", http.StatusBadRequest)
-		return
+		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
 	}
 
 	account, err := h.accountService.Create(request.Campaign)
 	if err != nil {
 		if helpers.IsMySQLRecordNotFoundError(err) {
-			http.Error(w, "not found", http.StatusNotFound)
-			return
+			return NewHandlerError(err, "not found", http.StatusNotFound)
 		}
 
-		logrus.Error(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError)
 	}
 
 	err = json.NewEncoder(w).Encode(account)
 	if err != nil {
-		logrus.Error(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
 	}
+
+	return nil
 }
 
 // Handle API endpoint for activating an account.
 // This endpoint should be protected with an account activation token.
-func (h *AccountHandler) Activate(w http.ResponseWriter, r *http.Request) {
+func (h *AccountHandler) Activate(w http.ResponseWriter, r *http.Request) error {
 	var request twomes.Building
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		logrus.Error(err)
-		http.Error(w, "bad request", http.StatusBadRequest)
-		return
+		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
 	}
 
 	auth, ok := r.Context().Value(AuthorizationCtxKey).(*twomes.Authorization)
 	if !ok {
-		logrus.Info("failed when getting authentication context value")
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
+		return NewHandlerError(err, "unauthorized", http.StatusUnauthorized).WithMessage("failed when getting authentication context value")
 	}
 
 	if !auth.IsKind(twomes.AccountActivationToken) {
-		logrus.Info("%s token was used while %s was required", auth.Kind, twomes.AccountActivationToken)
-		http.Error(w, "wrong token kind", http.StatusForbidden)
-		return
+		return NewHandlerError(err, "wrong token kind", http.StatusForbidden).WithMessage("wrong token kind was used")
 	}
 
 	account, err := h.accountService.Activate(auth.ID, request.Longtitude, request.Latitude, request.TZName)
 	if err != nil {
-		logrus.Info(err)
-
 		if errors.Is(err, twomes.ErrAccountAlreadyActivated) {
-			http.Error(w, "account already activated", http.StatusBadRequest)
-			return
+			return NewHandlerError(err, "account already activated", http.StatusBadRequest)
 		}
 
-		http.Error(w, "account activation failed", http.StatusBadRequest)
-		return
+		return NewHandlerError(err, "account activation failed", http.StatusBadRequest)
 	}
 
 	err = json.NewEncoder(w).Encode(account)
 	if err != nil {
-		logrus.Error(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
 	}
+
+	return nil
 }
