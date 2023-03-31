@@ -1,9 +1,11 @@
 package repositories
 
 import (
+	"context"
 	"time"
 
 	mysqldriver "github.com/go-sql-driver/mysql"
+	"github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -28,11 +30,25 @@ func NewDatabaseConnection(dsn string) (*gorm.DB, error) {
 }
 
 // Create a new database connection and perform a migration.
-func NewDatabaseConnectionAndMigrate(dsn string) (*gorm.DB, error) {
-	db, err := NewDatabaseConnection(dsn)
-	if err != nil {
-		return nil, err
+// Try until connection succeeds or context is done.
+func NewDatabaseConnectionAndMigrate(ctx context.Context, dsn string) (db *gorm.DB, err error) {
+	_, ok := ctx.Deadline()
+	if !ok {
+		logrus.Warn("no deadline was set for making database connection. we will try indefinately")
 	}
 
-	return db, db.AutoMigrate(&AppModel{}, &CampaignModel{}, &AccountModel{}, &BuildingModel{}, &PropertyModel{}, &UploadModel{}, &DeviceTypeModel{}, &DeviceModel{}, &MeasurementModel{})
+	logrus.Info("connecting to database")
+
+	for {
+		db, err = NewDatabaseConnection(dsn)
+		if err == nil {
+			return db, db.AutoMigrate(&AppModel{}, &CampaignModel{}, &AccountModel{}, &BuildingModel{}, &PropertyModel{}, &UploadModel{}, &DeviceTypeModel{}, &DeviceModel{}, &MeasurementModel{})
+		}
+
+		select {
+		case <-time.After(time.Second): // Wait for 1 second before we loop again.
+		case <-ctx.Done():
+			return // Return with the database and error.
+		}
+	}
 }

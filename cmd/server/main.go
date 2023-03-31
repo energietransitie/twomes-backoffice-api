@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"time"
@@ -39,7 +40,10 @@ func main() {
 		FullTimestamp: true,
 	})
 
-	db, err := repositories.NewDatabaseConnectionAndMigrate(config.DatabaseDSN)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	db, err := repositories.NewDatabaseConnectionAndMigrate(ctx, config.DatabaseDSN)
 	if err != nil {
 		logrus.Fatal(err)
 	}
