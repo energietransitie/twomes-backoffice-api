@@ -1,5 +1,8 @@
 # Twomes Backoffice API
 
+> **Warning**
+> This documentation may be out-of-date in several places, and will be updated soon.
+
 Twomes API based on FastAPI / SQLAlchemy / MariaDB 
 
 ## Table of contents
