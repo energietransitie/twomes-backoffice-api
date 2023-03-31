@@ -1,20 +1,27 @@
-FROM python:3.9.4-buster
+FROM golang:1.20 as build
 
-ARG DEBIAN_FRONTEND=noninteractive
+WORKDIR /go/src/twomes-api-server
 
-COPY ./requirements.txt /app/requirements.txt
-RUN pip install --upgrade pip && \
-    pip install -r /app/requirements.txt
+COPY ./go.mod ./go.sum .
+RUN go mod download
 
-COPY ./alembic.ini /app/alembic.ini
+COPY . .
+RUN CGO_ENABLED=0 go build -o /go/bin/server ./cmd/server/
 
-COPY ./alembic /app/alembic
-COPY ./src /app/src
+# Create /data folder to be copied later.
+RUN mkdir /data
 
-WORKDIR /app/src
+FROM gcr.io/distroless/static-debian11
 
-ENV PYTHONPATH /app/src
+COPY --from=build /go/bin/server /
 
-EXPOSE 80
+# Copy /data folder with correct permissions.
+COPY --from=build --chown=nonroot /data /data
 
-CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "80"]
+USER nonroot
+
+VOLUME /data
+
+EXPOSE 8080
+
+CMD ["/server"]
