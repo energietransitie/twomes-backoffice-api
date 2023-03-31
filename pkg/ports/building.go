@@ -1,6 +1,6 @@
 package ports
 
-import "github.com/energietransitie/twomes-api/pkg/twomes"
+import "github.com/energietransitie/twomes-backoffice-api/pkg/twomes"
 
 // A BuildingRepository can load, store and delete buildings.
 type BuildingRepository interface {

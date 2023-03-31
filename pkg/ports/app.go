@@ -1,7 +1,7 @@
 package ports
 
 import (
-	"github.com/energietransitie/twomes-api/pkg/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/pkg/twomes"
 )
 
 // An AppRepository can load, store and delete apps.

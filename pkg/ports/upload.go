@@ -3,7 +3,7 @@ package ports
 import (
 	"time"
 
-	"github.com/energietransitie/twomes-api/pkg/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/pkg/twomes"
 )
 
 // An UploadRepository can load, store and delete uploads.

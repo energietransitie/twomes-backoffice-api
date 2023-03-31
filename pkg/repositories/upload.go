@@ -3,7 +3,7 @@ package repositories
 import (
 	"time"
 
-	"github.com/energietransitie/twomes-api/pkg/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/pkg/twomes"
 	"gorm.io/gorm"
 )
 

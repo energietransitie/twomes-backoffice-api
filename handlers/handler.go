@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/energietransitie/twomes-api/pkg/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/pkg/twomes"
 	"github.com/sirupsen/logrus"
 )
 

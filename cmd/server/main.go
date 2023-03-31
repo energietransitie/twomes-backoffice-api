@@ -5,10 +5,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/energietransitie/twomes-api/handlers"
-	"github.com/energietransitie/twomes-api/pkg/repositories"
-	"github.com/energietransitie/twomes-api/pkg/services"
-	"github.com/energietransitie/twomes-api/pkg/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/handlers"
+	"github.com/energietransitie/twomes-backoffice-api/pkg/repositories"
+	"github.com/energietransitie/twomes-backoffice-api/pkg/services"
+	"github.com/energietransitie/twomes-backoffice-api/pkg/twomes"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"

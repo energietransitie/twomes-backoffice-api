@@ -1,7 +1,7 @@
 // Package ports exposes ports for interacting with business logic.
 package ports
 
-import "github.com/energietransitie/twomes-api/pkg/twomes"
+import "github.com/energietransitie/twomes-backoffice-api/pkg/twomes"
 
 // An AccountRepository can load, store and delete accounts.
 type AccountRepository interface {

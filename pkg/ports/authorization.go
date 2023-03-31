@@ -1,6 +1,6 @@
 package ports
 
-import "github.com/energietransitie/twomes-api/pkg/twomes"
+import "github.com/energietransitie/twomes-backoffice-api/pkg/twomes"
 
 // An AuthorizationService exposes functionality available for authorization.
 type AuthorizationService interface {

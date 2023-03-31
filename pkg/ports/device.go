@@ -1,6 +1,6 @@
 package ports
 
-import "github.com/energietransitie/twomes-api/pkg/twomes"
+import "github.com/energietransitie/twomes-backoffice-api/pkg/twomes"
 
 // A DeviceRepository can load, store and delete devices.
 type DeviceRepository interface {

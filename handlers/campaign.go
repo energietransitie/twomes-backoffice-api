@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/energietransitie/twomes-api/internal/helpers"
-	"github.com/energietransitie/twomes-api/pkg/ports"
-	"github.com/energietransitie/twomes-api/pkg/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
+	"github.com/energietransitie/twomes-backoffice-api/pkg/ports"
+	"github.com/energietransitie/twomes-backoffice-api/pkg/twomes"
 	"github.com/sirupsen/logrus"
 )
 

@@ -1,4 +1,4 @@
-module github.com/energietransitie/twomes-api
+module github.com/energietransitie/twomes-backoffice-api
 
 go 1.20
 

@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/energietransitie/twomes-api/pkg/ports"
-	"github.com/energietransitie/twomes-api/pkg/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/pkg/ports"
+	"github.com/energietransitie/twomes-backoffice-api/pkg/twomes"
 )
 
 var (
