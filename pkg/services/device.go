@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"time"
 
 	"github.com/energietransitie/twomes-backoffice-api/pkg/ports"
 	"github.com/energietransitie/twomes-backoffice-api/pkg/twomes"
@@ -63,7 +64,7 @@ func (s *DeviceService) GetByName(name string) (twomes.Device, error) {
 	}
 
 	if len(device.Uploads) > 0 {
-		device.LatestUpload = device.Uploads[len(device.Uploads)-1].DeviceTime
+		*device.LatestUpload = time.Time(device.Uploads[len(device.Uploads)-1].DeviceTime)
 	}
 
 	return device, nil

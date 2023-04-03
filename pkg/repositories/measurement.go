@@ -29,7 +29,7 @@ func MakeMeasurementModel(measurement twomes.Measurement) MeasurementModel {
 		PropertyModelID: measurement.Property.ID,
 		Property:        MakePropertyModel(measurement.Property),
 		UploadModelID:   measurement.UploadID,
-		Time:            measurement.Time,
+		Time:            time.Time(measurement.Time),
 		Value:           measurement.Value,
 	}
 }
@@ -40,7 +40,7 @@ func (m *MeasurementModel) fromModel() twomes.Measurement {
 		ID:       m.Model.ID,
 		UploadID: m.UploadModelID,
 		Property: m.Property.fromModel(),
-		Time:     m.Time,
+		Time:     twomes.Time(m.Time),
 		Value:    m.Value,
 	}
 }

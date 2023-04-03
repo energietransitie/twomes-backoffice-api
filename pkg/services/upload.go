@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"time"
 
 	"github.com/energietransitie/twomes-backoffice-api/pkg/ports"
 	"github.com/energietransitie/twomes-backoffice-api/pkg/twomes"
@@ -27,7 +26,7 @@ func NewUploadService(repository ports.UploadRepository, propertyService ports.P
 	}
 }
 
-func (s *UploadService) Create(deviceID uint, deviceTime time.Time, measurements []twomes.Measurement) (twomes.Upload, error) {
+func (s *UploadService) Create(deviceID uint, deviceTime twomes.Time, measurements []twomes.Measurement) (twomes.Upload, error) {
 	filteredMeasurements := make([]twomes.Measurement, 0, len(measurements))
 
 	for _, measurement := range measurements {

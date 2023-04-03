@@ -44,8 +44,8 @@ func MakeUploadModel(upload twomes.Upload) UploadModel {
 	return UploadModel{
 		Model:         gorm.Model{ID: upload.ID},
 		DeviceModelID: upload.DeviceID,
-		ServerTime:    upload.ServerTime,
-		DeviceTime:    upload.DeviceTime,
+		ServerTime:    time.Time(upload.ServerTime),
+		DeviceTime:    time.Time(upload.DeviceTime),
 		Size:          upload.Size,
 		Measurements:  measurementModels,
 	}
@@ -62,8 +62,8 @@ func (m *UploadModel) fromModel() twomes.Upload {
 	return twomes.Upload{
 		ID:           m.Model.ID,
 		DeviceID:     m.DeviceModelID,
-		ServerTime:   m.ServerTime,
-		DeviceTime:   m.DeviceTime,
+		ServerTime:   twomes.Time(m.ServerTime),
+		DeviceTime:   twomes.Time(m.DeviceTime),
 		Size:         m.Size,
 		Measurements: measurements,
 	}

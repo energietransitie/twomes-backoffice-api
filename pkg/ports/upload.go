@@ -1,8 +1,6 @@
 package ports
 
 import (
-	"time"
-
 	"github.com/energietransitie/twomes-backoffice-api/pkg/twomes"
 )
 
@@ -16,5 +14,5 @@ type UploadRepository interface {
 
 // UploadService exposes all operations that can be performed on a [twomes.Upload].
 type UploadService interface {
-	Create(deviceID uint, deviceTime time.Time, measurements []twomes.Measurement) (twomes.Upload, error)
+	Create(deviceID uint, deviceTime twomes.Time, measurements []twomes.Measurement) (twomes.Upload, error)
 }
