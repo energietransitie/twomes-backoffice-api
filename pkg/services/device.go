@@ -20,7 +20,7 @@ type DeviceService struct {
 
 	// Services used when creating a device.
 	deviceTypeService ports.DeviceTypeService
-	BuildingService   ports.BuildingService
+	buildingService   ports.BuildingService
 }
 
 // Create a new DeviceService.
@@ -29,12 +29,12 @@ func NewDeviceService(repository ports.DeviceRepository, authService ports.Autho
 		repository:        repository,
 		authService:       authService,
 		deviceTypeService: deviceTypeService,
-		BuildingService:   BuildingService,
+		buildingService:   BuildingService,
 	}
 }
 
 func (s *DeviceService) Create(name string, deviceType twomes.DeviceType, buildingID, accountID uint, activationSecret string) (twomes.Device, error) {
-	building, err := s.BuildingService.GetByID(buildingID)
+	building, err := s.buildingService.GetByID(buildingID)
 	if err != nil {
 		return twomes.Device{}, err
 	}
@@ -60,6 +60,10 @@ func (s *DeviceService) GetByName(name string) (twomes.Device, error) {
 	device, err := s.repository.Find(twomes.Device{Name: name})
 	if err != nil {
 		return twomes.Device{}, err
+	}
+
+	if len(device.Uploads) > 0 {
+		device.LatestUpload = device.Uploads[len(device.Uploads)-1].DeviceTime
 	}
 
 	return device, nil
@@ -106,7 +110,7 @@ func (s *DeviceService) GetAccountByDeviceID(id uint) (uint, error) {
 		return 0, err
 	}
 
-	building, err := s.BuildingService.GetByID(device.BuildingID)
+	building, err := s.buildingService.GetByID(device.BuildingID)
 	if err != nil {
 		return 0, err
 	}

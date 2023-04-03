@@ -23,6 +23,7 @@ type Device struct {
 	ActivatedAt          *time.Time `json:"activated_at"`
 	AuthorizationToken   string     `json:"authorization_token,omitempty"`
 	Uploads              []Upload   `json:"uploads,omitempty"`
+	LatestUpload         time.Time  `json:"latest_upload"`
 }
 
 // Create a new Device.
