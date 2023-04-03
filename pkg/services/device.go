@@ -62,8 +62,6 @@ func (s *DeviceService) GetByName(name string) (twomes.Device, error) {
 		return twomes.Device{}, err
 	}
 
-	device.UpdateHealth()
-
 	return device, nil
 }
 

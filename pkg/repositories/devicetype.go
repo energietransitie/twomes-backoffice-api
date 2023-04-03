@@ -1,8 +1,6 @@
 package repositories
 
 import (
-	"time"
-
 	"github.com/energietransitie/twomes-backoffice-api/pkg/twomes"
 	"gorm.io/gorm"
 )
@@ -25,7 +23,6 @@ type DeviceTypeModel struct {
 	InstallationManualURL string
 	InfoURL               string
 	Properties            []*PropertyModel `gorm:"many2many:device_type_properties"`
-	UploadInterval        time.Duration
 }
 
 // Set the name of the table in the database.
@@ -48,7 +45,6 @@ func MakeDeviceTypeModel(deviceType twomes.DeviceType) DeviceTypeModel {
 		InstallationManualURL: deviceType.InstallationManualURL,
 		InfoURL:               deviceType.InfoURL,
 		Properties:            propertyModels,
-		UploadInterval:        deviceType.UploadInterval.Duration,
 	}
 }
 
@@ -66,7 +62,6 @@ func (m *DeviceTypeModel) fromModel() twomes.DeviceType {
 		InstallationManualURL: m.InstallationManualURL,
 		InfoURL:               m.InfoURL,
 		Properties:            properties,
-		UploadInterval:        twomes.MakeDuration(m.UploadInterval),
 	}
 }
 
