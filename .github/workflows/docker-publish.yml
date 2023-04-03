@@ -4,13 +4,12 @@ on:
   push:
     tags:
       - "v*.*.*"
-  pull_request:
 
 jobs:
-
   # Build the docker container and publish it to GHCR
   docker:
     name: Build Docker image and push to GHCR
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       # Checkout code
@@ -40,7 +39,6 @@ jobs:
 
       # Login to ghcr
       - name: Login to GHCR
-        if: github.event_name != 'pull_request'
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
@@ -53,7 +51,7 @@ jobs:
         with:
           context: .
           platforms: linux/amd64,linux/arm64,linux/arm/v7
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
