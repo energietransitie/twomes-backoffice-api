@@ -1,2 +1,4 @@
 # Ignore data folder. Used while debugging.
 /data/
+
+docker-compose.yaml
