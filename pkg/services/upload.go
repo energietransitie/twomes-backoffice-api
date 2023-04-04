@@ -27,21 +27,11 @@ func NewUploadService(repository ports.UploadRepository, propertyService ports.P
 }
 
 func (s *UploadService) Create(deviceID uint, deviceTime twomes.Time, measurements []twomes.Measurement) (twomes.Upload, error) {
-	filteredMeasurements := make([]twomes.Measurement, 0, len(measurements))
-
-	for _, measurement := range measurements {
-		var err error
-		measurement.Property, err = s.propertyService.GetByName(measurement.Property.Name)
-		if err == nil {
-			filteredMeasurements = append(filteredMeasurements, measurement)
-		}
-	}
-
-	if len(filteredMeasurements) <= 0 {
+	if len(measurements) <= 0 {
 		return twomes.Upload{}, ErrEmptyUpload
 	}
 
-	upload := twomes.MakeUpload(deviceID, deviceTime, filteredMeasurements)
+	upload := twomes.MakeUpload(deviceID, deviceTime, measurements)
 
 	upload, err := s.repository.Create(upload)
 

@@ -29,7 +29,7 @@ func (h *DeviceTypeHandler) Create(w http.ResponseWriter, r *http.Request) error
 		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
 	}
 
-	deviceType, err := h.service.Create(request.Name, request.InstallationManualURL, request.InfoURL, request.Properties)
+	deviceType, err := h.service.Create(request.Name, request.InstallationManualURL, request.InfoURL)
 	if err != nil {
 		if helpers.IsMySQLDuplicateError(err) {
 			return NewHandlerError(err, "duplicate", http.StatusBadRequest)

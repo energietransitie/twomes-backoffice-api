@@ -20,16 +20,8 @@ func NewDeviceTypeService(repository ports.DeviceTypeRepository, propertyService
 	}
 }
 
-func (s *DeviceTypeService) Create(name, installationManualURL, infoURL string, properties []twomes.Property) (twomes.DeviceType, error) {
-	for i := range properties {
-		var err error
-		properties[i], err = s.propertyService.Find(properties[i])
-		if err != nil {
-			return twomes.DeviceType{}, err
-		}
-	}
-
-	deviceType := twomes.MakeDeviceType(name, installationManualURL, infoURL, properties)
+func (s *DeviceTypeService) Create(name, installationManualURL, infoURL string) (twomes.DeviceType, error) {
+	deviceType := twomes.MakeDeviceType(name, installationManualURL, infoURL)
 	return s.repository.Create(deviceType)
 }
 

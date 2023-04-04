@@ -22,7 +22,6 @@ type DeviceTypeModel struct {
 	Name                  string `gorm:"unique;non null"`
 	InstallationManualURL string
 	InfoURL               string
-	Properties            []*PropertyModel `gorm:"many2many:device_type_properties"`
 }
 
 // Set the name of the table in the database.
@@ -32,36 +31,21 @@ func (DeviceTypeModel) TableName() string {
 
 // Create a DeviceTypeModel from a [twomes.DeviceType].
 func MakeDeviceTypeModel(deviceType twomes.DeviceType) DeviceTypeModel {
-	var propertyModels []*PropertyModel
-
-	for _, property := range deviceType.Properties {
-		propertyModel := MakePropertyModel(property)
-		propertyModels = append(propertyModels, &propertyModel)
-	}
-
 	return DeviceTypeModel{
 		Model:                 gorm.Model{ID: deviceType.ID},
 		Name:                  deviceType.Name,
 		InstallationManualURL: deviceType.InstallationManualURL,
 		InfoURL:               deviceType.InfoURL,
-		Properties:            propertyModels,
 	}
 }
 
 // Create a [twomes.DeviceType] from a DeviceTypeModel.
 func (m *DeviceTypeModel) fromModel() twomes.DeviceType {
-	var properties []twomes.Property
-
-	for _, propertyModel := range m.Properties {
-		properties = append(properties, propertyModel.fromModel())
-	}
-
 	return twomes.DeviceType{
 		ID:                    m.Model.ID,
 		Name:                  m.Name,
 		InstallationManualURL: m.InstallationManualURL,
 		InfoURL:               m.InfoURL,
-		Properties:            properties,
 	}
 }
 
