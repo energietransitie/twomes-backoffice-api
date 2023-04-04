@@ -12,7 +12,7 @@ type PropertyRepository interface {
 
 // PropertyService exposes all operations that can be performed on a [twomes.Property].
 type PropertyService interface {
-	Create(name, unit string) (twomes.Property, error)
+	Create(name string) (twomes.Property, error)
 	Find(property twomes.Property) (twomes.Property, error)
 	GetByID(id uint) (twomes.Property, error)
 	GetByName(name string) (twomes.Property, error)

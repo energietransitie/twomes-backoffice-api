@@ -4,13 +4,11 @@ package twomes
 type Property struct {
 	ID   uint   `json:"id"`
 	Name string `json:"name"`
-	Unit string `json:"unit"`
 }
 
 // Create a new Property.
-func MakeProperty(name, unit string) Property {
+func MakeProperty(name string) Property {
 	return Property{
 		Name: name,
-		Unit: unit,
 	}
 }

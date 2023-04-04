@@ -92,7 +92,6 @@ func main() {
 	appHandler := handlers.NewAppHandler(appService)
 	campaignHandler := handlers.NewCampaignHandler(campaignService)
 	accountHandler := handlers.NewAccountHandler(accountService)
-	propertyHandler := handlers.NewPropertyHandler(propertyService)
 	deviceTypeHandler := handlers.NewDeviceTypeHandler(deviceTypeService)
 	deviceHandler := handlers.NewDeviceHandler(deviceService)
 	uploadHandler := handlers.NewUploadHandler(uploadService)
@@ -110,8 +109,6 @@ func main() {
 		r.Method("POST", "/activate", accountActivationAuth(accountHandler.Activate)) // POST on /account/activate.
 
 	})
-
-	r.Method("POST", "/property", adminAuth(propertyHandler.Create)) // POST on /property.
 
 	r.Method("POST", "/device_type", adminAuth(deviceTypeHandler.Create)) // POST on /device_type.
 

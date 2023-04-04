@@ -20,7 +20,6 @@ func NewPropertyRepository(db *gorm.DB) *PropertyRepository {
 type PropertyModel struct {
 	gorm.Model
 	Name string `gorm:"unique;non null"`
-	Unit string
 }
 
 // Set the name of the table in the database.
@@ -33,7 +32,6 @@ func MakePropertyModel(property twomes.Property) PropertyModel {
 	return PropertyModel{
 		Model: gorm.Model{ID: property.ID},
 		Name:  property.Name,
-		Unit:  property.Unit,
 	}
 }
 
@@ -42,7 +40,6 @@ func (m *PropertyModel) fromModel() twomes.Property {
 	return twomes.Property{
 		ID:   m.Model.ID,
 		Name: m.Name,
-		Unit: m.Unit,
 	}
 }
 

@@ -16,8 +16,8 @@ func NewPropertyService(repository ports.PropertyRepository) *PropertyService {
 	}
 }
 
-func (s *PropertyService) Create(name string, unit string) (twomes.Property, error) {
-	property := twomes.MakeProperty(name, unit)
+func (s *PropertyService) Create(name string) (twomes.Property, error) {
+	property := twomes.MakeProperty(name)
 	return s.repository.Create(property)
 }
 
