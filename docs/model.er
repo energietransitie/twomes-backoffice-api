@@ -6,13 +6,9 @@ entity {bgcolor: "#ececfc"}
 
 [Account]
 *id {label: "Integer"}
-pseudonym {label: "Integer, unique, non-null"}
 
-created_on {label: "Timestamp, non-null"}
-activated_on {label: "Timestamp"}
-
-activation_token {label: "String, unique"}
-session_token {label: "String"}
++campaign_id {label: "Integer, non-null"}
+activated_at {label: "Timestamp"}
 
 
 [Building]
@@ -26,46 +22,24 @@ latitude {label: "Numeric(15, 10), non-null"}
 # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
 tz_name {label: "String, non-null"}
 
-# Year built as defined in https://bag.basisregistraties.overheid.nl/datamodel#oorspronkelijkBouwjaar
-yr_built {label: "Integer"}
-
-# House type, see https://pico.geodan.nl/qgis/?url&map=gknWoningtype
-type {label: "String"}
-
-# Floor area ('gebruiksoppervlakte') as defined in section 3.53 of NTA8800, which refers to section
-# 4.5 of NEN 2580:2007; see also https://imbag.github.io/praktijkhandleiding/attributen/oppervlakte
-floor_area {label: "Integer"}
-
-# Heat loss area ('verliesoppervlakte') as defined in section 3.119 of NTA8800, for the entire
-# building; this property is typically derived and stored after processing various other data fields
-# obtained from public APIs, such as 3DBAG (https://docs.3dbag.nl/en/)
-heat_loss_area {label: "Integer"}
-
-# Energy label, e.g. obtained via https://www.ep-online.nl/ep-online/Energylabel/Search
-energy_label {label: "String"}
-
-# Energy index, e.g. obtained via https://www.ep-online.nl/ep-online/Energylabel/Search
-energy_index {label: "Float"}
-
 
 [DeviceType]
 *id {label: "Integer"}
 name {label: "String, unique, non-null"}
-display_name {label: "String, unique, non-null"}
 installation_manual_url {label: "String, non-null"}
+info_url {label: "String"}
+upload_interval {label: "Integer"}
 
 
 [Device]
 *id {label: "Integer"}
 name {label: "String, unique, non-null"}
 +device_type_id {label: "Integer, non-null"}
-+building_id {label: "Integer"}
++building_id {label: "Integer, non-null"}
 
-activation_token {label: "String, unique, non-null"}
-session_token {label: "String"}
+activation_secret_hash {label: "String, unique, non-null"}
 
-created_on {label: "Timestamp, non-null"}
-activated_on {label: "Timestamp"}
+activated_at {label: "Timestamp"}
 
 
 [Property]
@@ -86,7 +60,6 @@ size {label: "Integer, non-null"}
 
 [Measurement]
 *id {label: "Integer"}
-+device_id {label: "Integer, non-null"}
 +property_id {label: "Integer, non-null"}
 +upload_id {label: "Integer, non-null"}
 
@@ -94,10 +67,27 @@ time {label: "Timestamp, non-null"}
 value {label: "String, non-null"}
 
 
-Account 1--1 Building
-DeviceType +--* Property
-DeviceType *--1 Device
-Device ?--* Building
-Measurement 1--* Device
-Measurement 1--* Property
-Upload *--1 Measurement
+[Campaign]
+*id {label: "Integer"}
+name {label: "String, non-null"}
++app_id {label: "Integer, non-null"}
+info_url {label: "String"}
+start_time {label: "Timestamp"}
+end_time {label: "Timestamp"}
+
+
+[App]
+*id {label: "Integer"}
+name {label: "String, non-null"}
+provisioning_url_template {label: "String, non-null"}
+
+
+App *--1 Campaign
+Campaign 1--* Account
+Account 1--* Building
+Building 1--* Device
+Device *--1 DeviceType
+DeviceType *--* Property
+Device 1--* Upload
+Upload 1--* Measurement
+Measurement *--1 Property

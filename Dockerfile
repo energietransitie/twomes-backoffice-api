@@ -1,20 +1,40 @@
-FROM python:3.9.4-buster
+FROM golang:1.20 as build
 
-ARG DEBIAN_FRONTEND=noninteractive
+WORKDIR /go/src/twomes-api-server
 
-COPY ./requirements.txt /app/requirements.txt
-RUN pip install --upgrade pip && \
-    pip install -r /app/requirements.txt
+# Create /data folder to be copied later.
+RUN mkdir /data
 
-COPY ./alembic.ini /app/alembic.ini
+# Download dependencies.
+COPY ./go.mod ./go.sum .
+RUN go mod download
 
-COPY ./alembic /app/alembic
-COPY ./src /app/src
+# Build healthcheck binary.
+COPY ./cmd/healthcheck/ ./cmd/healthcheck/
+RUN CGO_ENABLED=0 go build -o /go/bin/healthcheck ./cmd/healthcheck/
 
-WORKDIR /app/src
+# Build server binary.
+COPY . .
+RUN CGO_ENABLED=0 go build -o /go/bin/server ./cmd/server/
 
-ENV PYTHONPATH /app/src
+FROM gcr.io/distroless/static-debian11
 
-EXPOSE 80
+# Copy /data folder with correct permissions.
+COPY --from=build --chown=nonroot /data /data
 
-CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "80"]
+# Copy healthcheck binary.
+COPY --from=build /go/bin/healthcheck /
+
+# Copy server binary.
+COPY --from=build /go/bin/server /
+
+USER nonroot
+
+VOLUME /data
+
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=1s --start-period=10s --retries=3 \
+    CMD ["/healthcheck"]
+
+CMD ["/server"]

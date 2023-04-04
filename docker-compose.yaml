@@ -2,21 +2,19 @@ version: "3.8"
 services:
   web:
     build: .
-    command: |
-      bash -c 'while !</dev/tcp/db/3306; do sleep 1; done; (cd /app; alembic upgrade head); uvicorn api:app --reload --host 0.0.0.0 --port 80'
     ports:
-      - 8000:80
+      - 8080:8080
     volumes:
-      - ./src:/app/src
-      - ./alembic:/app/alembic
+      - ./data:/data
     environment:
-      - TWOMES_DB_URL=root:twomes@db/twomes
+      - TWOMES_DSN=root:twomes@tcp(db:3306)/twomes
     depends_on:
       - db
+
   db:
-    image: mariadb:10.5.9
-    expose:
-      - 3306
+    image: mariadb:latest
+    ports:
+      - 3306:3306
     environment:
       - MYSQL_DATABASE=twomes
       - MYSQL_ROOT_PASSWORD=twomes
