@@ -97,8 +97,9 @@ func main() {
 	uploadHandler := handlers.NewUploadHandler(uploadService)
 
 	r := chi.NewRouter()
-	r.Use(middleware.RequestLogger(&middleware.DefaultLogFormatter{Logger: logrus.StandardLogger()}))
 	r.Use(middleware.Timeout(time.Second * 30))
+	r.Use(middleware.Heartbeat("/healthcheck")) // Endpoint for health check.
+	r.Use(middleware.RequestLogger(&middleware.DefaultLogFormatter{Logger: logrus.StandardLogger()}))
 
 	r.Method("POST", "/app", adminAuth(appHandler.Create)) // POST on /app.
 
