@@ -57,12 +57,16 @@ func (a *Authorization) IsKind(kind AuthKind) bool {
 }
 
 // Create a new token of a specified kind, for specified ID.
-func NewToken(kind AuthKind, id uint, key crypto.PrivateKey) (string, error) {
+func NewToken(kind AuthKind, id uint, expiry time.Time, key crypto.PrivateKey) (string, error) {
+	if expiry.IsZero() {
+		expiry = time.Now().UTC().Add(time.Hour * 24 * 365)
+	}
+
 	claims := Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    "TwomesAPIv2",
 			Subject:   strconv.FormatUint(uint64(id), 10),
-			ExpiresAt: jwt.NewNumericDate(time.Now().UTC().Add(time.Hour * 24 * 365)),
+			ExpiresAt: jwt.NewNumericDate(expiry),
 			NotBefore: jwt.NewNumericDate(time.Now().UTC()),
 			IssuedAt:  jwt.NewNumericDate(time.Now().UTC()),
 		},
@@ -75,8 +79,8 @@ func NewToken(kind AuthKind, id uint, key crypto.PrivateKey) (string, error) {
 }
 
 // Create a new token from an Authorization.
-func NewTokenFromAuthorization(auth Authorization, key crypto.PrivateKey) (string, error) {
-	return NewToken(auth.Kind, auth.ID, key)
+func NewTokenFromAuthorization(auth Authorization, expiry time.Time, key crypto.PrivateKey) (string, error) {
+	return NewToken(auth.Kind, auth.ID, expiry, key)
 }
 
 // Parse a signed token. Check if it is valid and return the kind of token and the corresponding ID.

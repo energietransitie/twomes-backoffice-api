@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/url"
 	"regexp"
+	"time"
 
 	"github.com/energietransitie/twomes-backoffice-api/pkg/ports"
 	"github.com/energietransitie/twomes-backoffice-api/pkg/twomes"
@@ -60,7 +61,7 @@ func (s *AccountService) Create(campaign twomes.Campaign) (twomes.Account, error
 		return twomes.Account{}, err
 	}
 
-	account.InvitationToken, err = s.authService.CreateToken(twomes.AccountActivationToken, account.ID)
+	account.InvitationToken, err = s.authService.CreateToken(twomes.AccountActivationToken, account.ID, time.Time{})
 	if err != nil {
 		return twomes.Account{}, err
 	}
@@ -94,7 +95,7 @@ func (s *AccountService) Activate(id uint, longtitude, latitude float32, tzName 
 
 	account.Buildings = append(account.Buildings, building)
 
-	account.AuthorizationToken, err = s.authService.CreateToken(twomes.AccountToken, account.ID)
+	account.AuthorizationToken, err = s.authService.CreateToken(twomes.AccountToken, account.ID, time.Time{})
 	if err != nil {
 		return twomes.Account{}, err
 	}

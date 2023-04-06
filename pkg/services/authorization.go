@@ -10,6 +10,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"time"
 
 	"github.com/energietransitie/twomes-backoffice-api/pkg/twomes"
 	"github.com/sirupsen/logrus"
@@ -106,12 +107,12 @@ func generateKeyFile(path string) error {
 	return nil
 }
 
-func (s *AuthorizationService) CreateToken(kind twomes.AuthKind, id uint) (string, error) {
-	return twomes.NewToken(kind, id, s.key)
+func (s *AuthorizationService) CreateToken(kind twomes.AuthKind, id uint, expiry time.Time) (string, error) {
+	return twomes.NewToken(kind, id, expiry, s.key)
 }
 
-func (s *AuthorizationService) CreateTokenFromAuthorization(auth twomes.Authorization) (string, error) {
-	return twomes.NewTokenFromAuthorization(auth, s.key)
+func (s *AuthorizationService) CreateTokenFromAuthorization(auth twomes.Authorization, expiry time.Time) (string, error) {
+	return twomes.NewTokenFromAuthorization(auth, expiry, s.key)
 }
 
 func (s *AuthorizationService) ParseToken(tokenString string) (twomes.AuthKind, uint, *twomes.Claims, error) {
