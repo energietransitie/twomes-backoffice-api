@@ -13,6 +13,11 @@ RUN go mod download
 COPY ./cmd/healthcheck/ ./cmd/healthcheck/
 RUN CGO_ENABLED=0 go build -o /go/bin/healthcheck ./cmd/healthcheck/
 
+# Build CLI binary.
+COPY ./cmd/admin-cli/ ./cmd/admin-cli/
+COPY ./pkg/twomes/ ./pkg/twomes/
+RUN CGO_ENABLED=0 go build -o /go/bin/admin-cli ./cmd/admin-cli/
+
 # Build server binary.
 COPY . .
 RUN CGO_ENABLED=0 go build -o /go/bin/server ./cmd/server/
@@ -23,7 +28,10 @@ FROM gcr.io/distroless/static-debian11
 COPY --from=build --chown=nonroot /data /data
 
 # Copy healthcheck binary.
-COPY --from=build /go/bin/healthcheck /
+COPY --from=build /go/bin/healthcheck /usr/bin/
+
+# Copy CLI binary.
+COPY --from=build /go/bin/admin-cli /usr/bin/
 
 # Copy server binary.
 COPY --from=build /go/bin/server /
@@ -34,7 +42,7 @@ VOLUME /data
 
 EXPOSE 8080
 
-HEALTHCHECK --interval=30s --timeout=1s --start-period=10s --retries=3 \
-    CMD ["/healthcheck"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD ["healthcheck"]
 
 CMD ["/server"]
