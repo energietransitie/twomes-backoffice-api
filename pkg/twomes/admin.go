@@ -30,7 +30,7 @@ func MakeAdmin(name string, expiry time.Time) Admin {
 
 	return Admin{
 		Name:        name,
-		ActivatedAt: time.Now().UTC(),
+		ActivatedAt: time.Now().UTC().Add(time.Second * -1),
 		Expiry:      expiry,
 	}
 }
