@@ -12,6 +12,23 @@ import (
 )
 
 func main() {
+	nameFlag := &cli.StringFlag{
+		Name:     "name",
+		Aliases:  []string{"n"},
+		Usage:    "`NAME` of the admin",
+		Required: true,
+	}
+
+	year, month, day := time.Now().UTC().Date()
+	defaultExpiry := fmt.Sprintf("%d-%02d-%02d", year+1, month, day)
+
+	expiryFlag := &cli.StringFlag{
+		Name:    "expiry",
+		Aliases: []string{"e"},
+		Usage:   "`EXPIRATION` date (yyyy-mm-dd) (at 00:00 UTC) of the admin",
+		Value:   defaultExpiry,
+	}
+
 	app := &cli.App{
 		Name:  "admin-cli",
 		Usage: "Use this CLI tool to manage API admins",
@@ -25,17 +42,8 @@ func main() {
 				Name:  "create",
 				Usage: "Create a new admin",
 				Flags: []cli.Flag{
-					&cli.StringFlag{
-						Name:     "name",
-						Aliases:  []string{"n"},
-						Usage:    "`NAME` of the admin",
-						Required: true,
-					},
-					&cli.StringFlag{
-						Name:    "expiry",
-						Aliases: []string{"e"},
-						Usage:   "`EXPIRATION` date of the admin",
-					},
+					nameFlag,
+					expiryFlag,
 				},
 				Action: createAdmin,
 			},
@@ -43,12 +51,7 @@ func main() {
 				Name:  "delete",
 				Usage: "Delete an admin",
 				Flags: []cli.Flag{
-					&cli.StringFlag{
-						Name:     "name",
-						Aliases:  []string{"n"},
-						Usage:    "`NAME` of the admin",
-						Required: true,
-					},
+					nameFlag,
 				},
 				Action: deleteAdmin,
 			},
@@ -56,12 +59,7 @@ func main() {
 				Name:  "reactivate",
 				Usage: "Reactive an admin",
 				Flags: []cli.Flag{
-					&cli.StringFlag{
-						Name:     "name",
-						Aliases:  []string{"n"},
-						Usage:    "`NAME` of the admin",
-						Required: true,
-					},
+					nameFlag,
 				},
 				Action: reactivateAdmin,
 			},
@@ -69,17 +67,8 @@ func main() {
 				Name:  "expiry",
 				Usage: "Set expiry for an admin",
 				Flags: []cli.Flag{
-					&cli.StringFlag{
-						Name:     "name",
-						Aliases:  []string{"n"},
-						Usage:    "`NAME` of the admin",
-						Required: true,
-					},
-					&cli.StringFlag{
-						Name:    "expiry",
-						Aliases: []string{"e"},
-						Usage:   "`EXPIRATION` date of the admin",
-					},
+					nameFlag,
+					expiryFlag,
 				},
 				Action: setAdminExpiry,
 			},
