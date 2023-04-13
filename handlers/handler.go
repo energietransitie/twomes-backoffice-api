@@ -76,6 +76,7 @@ func (fn Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	err := fn(w, r)
+
 	if err != nil {
 		if handlerErr, ok := err.(*HandlerError); ok {
 			w.WriteHeader(handlerErr.ResponseCode)
