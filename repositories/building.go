@@ -69,7 +69,7 @@ func (m *BuildingModel) fromModel() twomes.Building {
 
 func (r *BuildingRepository) Find(building twomes.Building) (twomes.Building, error) {
 	buildingModel := MakeBuildingModel(building)
-	err := r.db.Where(&buildingModel).First(&buildingModel).Error
+	err := r.db.Preload("Devices.DeviceType").Where(&buildingModel).First(&buildingModel).Error
 	return buildingModel.fromModel(), err
 }
 
