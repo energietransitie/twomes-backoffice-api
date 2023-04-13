@@ -102,3 +102,8 @@ func (s *AccountService) Activate(id uint, longtitude, latitude float32, tzName 
 
 	return account, nil
 }
+
+// Get an account by ID.
+func (s *AccountService) GetByID(id uint) (twomes.Account, error) {
+	return s.repository.Find(twomes.Account{ID: id})
+}

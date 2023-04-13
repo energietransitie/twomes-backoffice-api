@@ -16,4 +16,5 @@ type AccountRepository interface {
 type AccountService interface {
 	Create(campaign twomes.Campaign) (twomes.Account, error)
 	Activate(id uint, longtitude, latitude float32, tzName string) (twomes.Account, error)
+	GetByID(id uint) (twomes.Account, error)
 }
