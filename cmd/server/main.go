@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"net"
 	"net/http"
+	"net/rpc"
 	"os"
 	"time"
 
@@ -54,17 +56,12 @@ func main() {
 	}
 	authHandler := handlers.NewAuthorizationHandler(authService)
 
-	// Print an admin authorization token.
-	{
-		adminAuthToken, err := authService.CreateTokenFromAuthorization(twomes.Authorization{
-			Kind: twomes.AdminToken,
-			ID:   0,
-		})
-		if err != nil {
-			logrus.Fatal(err)
-		}
-		logrus.Info("admin authorization token: ", adminAuthToken)
+	adminRepository, err := repositories.NewAdminRepository("./data/admins.db")
+	if err != nil {
+		logrus.Fatal(err)
 	}
+	adminService := services.NewAdminService(adminRepository, authService)
+	adminHandler := handlers.NewAdminHandler(adminService)
 
 	adminAuth := authHandler.Middleware(twomes.AdminToken)
 	accountActivationAuth := authHandler.Middleware(twomes.AccountActivationToken)
@@ -101,17 +98,17 @@ func main() {
 	r.Use(middleware.Heartbeat("/healthcheck")) // Endpoint for health check.
 	r.Use(middleware.RequestLogger(&middleware.DefaultLogFormatter{Logger: logrus.StandardLogger()}))
 
-	r.Method("POST", "/app", adminAuth(appHandler.Create)) // POST on /app.
+	r.Method("POST", "/app", adminAuth(adminHandler.Middleware(appHandler.Create))) // POST on /app.
 
-	r.Method("POST", "/campaign", adminAuth(campaignHandler.Create)) // POST on /campaign.
+	r.Method("POST", "/campaign", adminAuth(adminHandler.Middleware(campaignHandler.Create))) // POST on /campaign.
 
 	r.Route("/account", func(r chi.Router) {
-		r.Method("POST", "/", adminAuth(accountHandler.Create))                       // POST on /account.
-		r.Method("POST", "/activate", accountActivationAuth(accountHandler.Activate)) // POST on /account/activate.
+		r.Method("POST", "/", adminAuth(adminHandler.Middleware(accountHandler.Create))) // POST on /account.
+		r.Method("POST", "/activate", accountActivationAuth(accountHandler.Activate))    // POST on /account/activate.
 
 	})
 
-	r.Method("POST", "/device_type", adminAuth(deviceTypeHandler.Create)) // POST on /device_type.
+	r.Method("POST", "/device_type", adminAuth(adminHandler.Middleware(deviceTypeHandler.Create))) // POST on /device_type.
 
 	r.Route("/device", func(r chi.Router) {
 		r.Method("POST", "/", accountAuth(deviceHandler.Create))                      // POST on /device.
@@ -121,7 +118,25 @@ func main() {
 
 	r.Method("POST", "/upload", deviceAuth(uploadHandler.Create)) // POST on /upload.
 
+	go setupAdminRPCHandler(adminHandler)
+
 	err = http.ListenAndServe(":8080", r)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+}
+
+func setupAdminRPCHandler(adminHandler *handlers.AdminHandler) {
+
+	rpc.Register(adminHandler)
+	rpc.HandleHTTP()
+
+	listener, err := net.Listen("tcp4", "127.0.0.1:8081")
+	if err != nil {
+		return
+	}
+
+	err = http.Serve(listener, nil)
 	if err != nil {
 		logrus.Fatal(err)
 	}

@@ -10,6 +10,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"time"
 
 	"github.com/energietransitie/twomes-backoffice-api/pkg/twomes"
 	"github.com/sirupsen/logrus"
@@ -20,19 +21,24 @@ var (
 )
 
 type AuthorizationService struct {
-	key crypto.PrivateKey
+	key *ecdsa.PrivateKey
 }
 
 // Create a new AuthorizationService.
-func NewAuthorizationService(key crypto.PrivateKey) *AuthorizationService {
-	return &AuthorizationService{
-		key: key,
+func NewAuthorizationService(key crypto.PrivateKey) (*AuthorizationService, error) {
+	ecdsaKey, ok := key.(*ecdsa.PrivateKey)
+	if !ok {
+		return nil, ErrInvalidKeyAlgorithm
 	}
+
+	return &AuthorizationService{
+		key: ecdsaKey,
+	}, nil
 }
 
 // Create a new AuthorizationService with the key from a file.
 func NewAuthorizationServiceFromFile(path string) (*AuthorizationService, error) {
-	key, err := KeyFromFile(path)
+	key, err := keyFromFile(path)
 	if err != nil {
 		if !os.IsNotExist(err) {
 			return nil, err
@@ -45,17 +51,17 @@ func NewAuthorizationServiceFromFile(path string) (*AuthorizationService, error)
 		}
 
 		// Load the key from newly generated file.
-		key, err = KeyFromFile(path)
+		key, err = keyFromFile(path)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	return &AuthorizationService{key: key}, nil
+	return NewAuthorizationService(key)
 }
 
 // Open a file and attempt to read the private key from it.
-func KeyFromFile(path string) (crypto.PrivateKey, error) {
+func keyFromFile(path string) (crypto.PrivateKey, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -101,28 +107,18 @@ func generateKeyFile(path string) error {
 	return nil
 }
 
-func (s *AuthorizationService) CreateToken(kind twomes.AuthKind, id uint) (string, error) {
-	return twomes.NewToken(kind, id, s.key)
+func (s *AuthorizationService) CreateToken(kind twomes.AuthKind, id uint, expiry time.Time) (string, error) {
+	return twomes.NewToken(kind, id, expiry, s.key)
 }
 
-func (s *AuthorizationService) CreateTokenFromAuthorization(auth twomes.Authorization) (string, error) {
-	return twomes.NewTokenFromAuthorization(auth, s.key)
+func (s *AuthorizationService) CreateTokenFromAuthorization(auth twomes.Authorization, expiry time.Time) (string, error) {
+	return twomes.NewTokenFromAuthorization(auth, expiry, s.key)
 }
 
-func (s *AuthorizationService) ParseToken(tokenString string) (twomes.AuthKind, uint, error) {
-	key, ok := s.key.(*ecdsa.PrivateKey)
-	if !ok {
-		return twomes.InvalidToken, 0, ErrInvalidKeyAlgorithm
-	}
-
-	return twomes.ParseToken(tokenString, key.Public())
+func (s *AuthorizationService) ParseToken(tokenString string) (twomes.AuthKind, uint, *twomes.Claims, error) {
+	return twomes.ParseToken(tokenString, s.key.Public())
 }
 
 func (s *AuthorizationService) ParseTokenToAuthorization(tokenString string) (*twomes.Authorization, error) {
-	key, ok := s.key.(*ecdsa.PrivateKey)
-	if !ok {
-		return nil, ErrInvalidKeyAlgorithm
-	}
-
-	return twomes.ParseTokenToAuthorization(tokenString, key.Public())
+	return twomes.ParseTokenToAuthorization(tokenString, s.key.Public())
 }

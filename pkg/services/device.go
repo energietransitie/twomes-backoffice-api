@@ -86,7 +86,7 @@ func (s *DeviceService) Activate(name, activationSecret string) (twomes.Device, 
 		return device, err
 	}
 
-	device.AuthorizationToken, err = s.authService.CreateToken(twomes.DeviceToken, device.ID)
+	device.AuthorizationToken, err = s.authService.CreateToken(twomes.DeviceToken, device.ID, time.Time{})
 	if err != nil {
 		return twomes.Device{}, err
 	}
