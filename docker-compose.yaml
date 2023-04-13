@@ -1,6 +1,7 @@
 version: "3.8"
 services:
   web:
+    container_name: twomes-backoffice-api-local-web
     build: .
     ports:
       - 8080:8080
@@ -12,6 +13,7 @@ services:
       - db
 
   db:
+    container_name: twomes-backoffice-api-local-db
     image: mariadb:latest
     ports:
       - 3306:3306
