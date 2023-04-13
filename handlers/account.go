@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
 	"github.com/energietransitie/twomes-backoffice-api/ports"
 	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
 )
 
@@ -75,6 +77,40 @@ func (h *AccountHandler) Activate(w http.ResponseWriter, r *http.Request) error 
 	}
 
 	err = json.NewEncoder(w).Encode(account)
+	if err != nil {
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
+	}
+
+	return nil
+}
+
+// Handle API endpoint for getting account information.
+func (h *AccountHandler) GetAccountByID(w http.ResponseWriter, r *http.Request) error {
+	accountIDParam := chi.URLParam(r, "account_id")
+	if accountIDParam == "" {
+		return NewHandlerError(nil, "account_id not specified", http.StatusBadRequest)
+	}
+
+	accountID, err := strconv.ParseUint(accountIDParam, 10, 64)
+	if err != nil {
+		return NewHandlerError(err, "account_id not a number", http.StatusBadRequest)
+	}
+
+	auth, ok := r.Context().Value(AuthorizationCtxKey).(*twomes.Authorization)
+	if !ok {
+		return NewHandlerError(nil, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting authentication context value")
+	}
+
+	if auth.ID != uint(accountID) {
+		return NewHandlerError(nil, "id does not correspond to auth", http.StatusForbidden).WithMessage("request was made for another account's info")
+	}
+
+	account, err := h.accountService.GetByID(uint(accountID))
+	if err != nil {
+		return NewHandlerError(err, "not found", http.StatusNotFound)
+	}
+
+	err = json.NewEncoder(w).Encode(&account)
 	if err != nil {
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
 	}
