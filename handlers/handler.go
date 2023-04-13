@@ -96,8 +96,3 @@ func (fn Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		logrus.Error(err)
 	}
 }
-
-// Convert a Handler to an http.HandlerFunc.
-func HandlerFunc(h Handler) http.HandlerFunc {
-	return h.ServeHTTP
-}
