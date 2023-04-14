@@ -7,9 +7,9 @@ import (
 	"strings"
 
 	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
-	"github.com/energietransitie/twomes-backoffice-api/pkg/ports"
-	"github.com/energietransitie/twomes-backoffice-api/pkg/services"
-	"github.com/energietransitie/twomes-backoffice-api/pkg/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/ports"
+	"github.com/energietransitie/twomes-backoffice-api/services"
+	"github.com/energietransitie/twomes-backoffice-api/twomes"
 	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
 )

@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/energietransitie/twomes-backoffice-api/pkg/ports"
-	"github.com/energietransitie/twomes-backoffice-api/pkg/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/ports"
+	"github.com/energietransitie/twomes-backoffice-api/twomes"
 )
 
 // A Contextkey is the type for a context key.
