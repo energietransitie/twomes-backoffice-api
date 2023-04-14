@@ -27,7 +27,7 @@ type BuildingModel struct {
 
 // Set the name of the table in the database.
 func (BuildingModel) TableName() string {
-	return "buildings"
+	return "building"
 }
 
 // Create a new BuildingModel from a [twomes.Building]

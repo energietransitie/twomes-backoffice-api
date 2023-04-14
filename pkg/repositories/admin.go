@@ -42,7 +42,7 @@ type AdminModel struct {
 
 // Set the name of the table in the database.
 func (AdminModel) TableName() string {
-	return "admins"
+	return "admin"
 }
 
 // Create a new AdminModel from a [twomes.Admin].

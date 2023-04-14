@@ -24,7 +24,7 @@ type PropertyModel struct {
 
 // Set the name of the table in the database.
 func (PropertyModel) TableName() string {
-	return "properties"
+	return "property"
 }
 
 // Create a PropertyModel from a [twomes.Property].

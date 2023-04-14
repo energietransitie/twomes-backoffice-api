@@ -29,7 +29,7 @@ type AccountModel struct {
 
 // Set the name of the table in the database.
 func (AccountModel) TableName() string {
-	return "accounts"
+	return "account"
 }
 
 // Create a new AccountModel from a [twomes.Account].

@@ -24,7 +24,7 @@ type AppModel struct {
 
 // Set the name of the table in the database.
 func (AppModel) TableName() string {
-	return "apps"
+	return "app"
 }
 
 // Create a new AppModel from a [twomes.App]

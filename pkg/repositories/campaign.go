@@ -30,7 +30,7 @@ type CampaignModel struct {
 
 // Set the name of the table in the database.
 func (CampaignModel) TableName() string {
-	return "campaigns"
+	return "campaign"
 }
 
 // Create a new CampaignModel from a [twomes.campaign].

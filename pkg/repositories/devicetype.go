@@ -26,7 +26,7 @@ type DeviceTypeModel struct {
 
 // Set the name of the table in the database.
 func (DeviceTypeModel) TableName() string {
-	return "device_types"
+	return "device_type"
 }
 
 // Create a DeviceTypeModel from a [twomes.DeviceType].

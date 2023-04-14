@@ -19,7 +19,7 @@ type MeasurementModel struct {
 
 // Set the name of the table in the database.
 func (MeasurementModel) TableName() string {
-	return "measurements"
+	return "measurement"
 }
 
 // Create a MeasurementModel from a [twomes.Measurement].

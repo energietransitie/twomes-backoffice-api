@@ -32,7 +32,7 @@ type DeviceModel struct {
 
 // Set the name of the table in the database.
 func (DeviceModel) TableName() string {
-	return "devices"
+	return "device"
 }
 
 // Create a DeviceModel from a [twomes.Device].

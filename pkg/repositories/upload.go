@@ -30,7 +30,7 @@ type UploadModel struct {
 
 // Set the name of the table in the database.
 func (UploadModel) TableName() string {
-	return "uploads"
+	return "upload"
 }
 
 // Create an UploadModel from a [twomes.Upload].
