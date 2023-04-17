@@ -5,9 +5,9 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/energietransitie/twomes-backoffice-api/pkg/ports"
-	"github.com/energietransitie/twomes-backoffice-api/pkg/services"
-	"github.com/energietransitie/twomes-backoffice-api/pkg/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/ports"
+	"github.com/energietransitie/twomes-backoffice-api/services"
+	"github.com/energietransitie/twomes-backoffice-api/twomes"
 	"github.com/sirupsen/logrus"
 )
 

@@ -7,7 +7,7 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/pkg/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes"
 	"github.com/urfave/cli/v2"
 )
 

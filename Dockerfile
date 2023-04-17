@@ -15,7 +15,7 @@ RUN CGO_ENABLED=0 go build -o /go/bin/healthcheck ./cmd/healthcheck/
 
 # Build CLI binary.
 COPY ./cmd/admin-cli/ ./cmd/admin-cli/
-COPY ./pkg/twomes/ ./pkg/twomes/
+COPY ./twomes/ ./twomes/
 RUN CGO_ENABLED=0 go build -o /go/bin/admin-cli ./cmd/admin-cli/
 
 # Build server binary.
