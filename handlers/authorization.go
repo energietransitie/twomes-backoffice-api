@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -43,7 +44,7 @@ func (h *AuthorizationHandler) Middleware(kind twomes.AuthKind) func(next Handle
 
 			auth, err := h.service.ParseTokenToAuthorization(authHeader)
 			if err != nil {
-				return NewHandlerError(err, "unauthorized", http.StatusUnauthorized).WithMessage("error when parsing token")
+				return NewHandlerError(err, "unauthorized", http.StatusUnauthorized).WithMessage(fmt.Sprintf("error when parsing token: %s", err.Error()))
 			}
 
 			if !auth.IsKind(kind) {
