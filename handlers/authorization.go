@@ -36,8 +36,12 @@ func (h *AuthorizationHandler) Middleware(kind twomes.AuthKind) func(next Handle
 				return NewHandlerError(nil, "unauthorized", http.StatusUnauthorized).WithMessage("authorization header not present")
 			}
 
-			authHeader = strings.Split(authHeader, "Bearer ")[1]
+			splitHeader := strings.Split(authHeader, "Bearer ")
+			if len(splitHeader) != 2 {
+				return NewHandlerError(nil, "unauthorized", http.StatusUnauthorized).WithMessage("authorization malformed")
+			}
 
+			authHeader = splitHeader[1]
 			if authHeader == "" {
 				return NewHandlerError(nil, "unauthorized", http.StatusUnauthorized).WithMessage("authorization malformed")
 			}
