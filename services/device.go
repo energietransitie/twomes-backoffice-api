@@ -64,7 +64,8 @@ func (s *DeviceService) GetByName(name string) (twomes.Device, error) {
 	}
 
 	if len(device.Uploads) > 0 {
-		*device.LatestUpload = time.Time(device.Uploads[len(device.Uploads)-1].DeviceTime)
+		latestUpload := time.Time(device.Uploads[len(device.Uploads)-1].ServerTime)
+		device.LatestUpload = &latestUpload
 	}
 
 	return device, nil
