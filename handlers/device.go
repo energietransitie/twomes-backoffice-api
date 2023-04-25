@@ -96,6 +96,9 @@ func (h *DeviceHandler) Activate(w http.ResponseWriter, r *http.Request) error {
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError)
 	}
 
+	// We don't need to share all uploads.
+	device.Uploads = nil
+
 	err = json.NewEncoder(w).Encode(&device)
 	if err != nil {
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
