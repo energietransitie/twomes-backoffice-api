@@ -18,7 +18,7 @@ type Account struct {
 	InvitationToken    string     `json:"invitation_token,omitempty"`
 	InvitationURL      string     `json:"invitation_url,omitempty"`
 	AuthorizationToken string     `json:"authorization_token,omitempty"`
-	Buildings          []Building `json:"buldings,omitempty"`
+	Buildings          []Building `json:"buildings,omitempty"`
 	// Maybe use separate pseudonym field,
 	// but right now we can derive a pseudonym
 	// using the ID or the campaign ID + account ID.
