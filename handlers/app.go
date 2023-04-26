@@ -42,8 +42,6 @@ func (h *AppHandler) Create(w http.ResponseWriter, r *http.Request) error {
 
 	err = json.NewEncoder(w).Encode(app)
 	if err != nil {
-		logrus.Error(err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
 	}
 

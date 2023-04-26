@@ -88,6 +88,7 @@ func main() {
 
 	appHandler := handlers.NewAppHandler(appService)
 	campaignHandler := handlers.NewCampaignHandler(campaignService)
+	buildingHandler := handlers.NewBuildingHandler(buildingService)
 	accountHandler := handlers.NewAccountHandler(accountService)
 	deviceTypeHandler := handlers.NewDeviceTypeHandler(deviceTypeService)
 	deviceHandler := handlers.NewDeviceHandler(deviceService)
@@ -105,8 +106,10 @@ func main() {
 	r.Route("/account", func(r chi.Router) {
 		r.Method("POST", "/", adminAuth(adminHandler.Middleware(accountHandler.Create))) // POST on /account.
 		r.Method("POST", "/activate", accountActivationAuth(accountHandler.Activate))    // POST on /account/activate.
-
+		r.Method("GET", "/{account_id}", accountAuth(accountHandler.GetAccountByID))     // GET on /account/{account_id}.
 	})
+
+	r.Method("GET", "/building/{building_id}", accountAuth(buildingHandler.GetBuildingByID)) // GET on /building/{building_id}.
 
 	r.Method("POST", "/device_type", adminAuth(adminHandler.Middleware(deviceTypeHandler.Create))) // POST on /device_type.
 
