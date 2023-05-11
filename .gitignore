@@ -1,4 +1,4 @@
 # Ignore data folder. Used while debugging.
 /data/
 
-docker-compose.yaml
+docker-compose.override.yaml
