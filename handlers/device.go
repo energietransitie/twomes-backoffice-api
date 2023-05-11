@@ -143,3 +143,41 @@ func (h *DeviceHandler) GetDeviceByName(w http.ResponseWriter, r *http.Request) 
 
 	return nil
 }
+
+// Handle API endpoint for getting device measurements
+func (h *DeviceHandler) GetDeviceMeasurements(w http.ResponseWriter, r *http.Request) error {
+	deviceName := chi.URLParam(r, "device_name")
+
+	if deviceName == "" {
+		return NewHandlerError(nil, "device_name not specified", http.StatusBadRequest)
+	}
+
+	device, err := h.service.GetByName(deviceName)
+	if err != nil {
+		return NewHandlerError(err, "device not found", http.StatusNotFound).WithMessage("device not found")
+	}
+
+	auth, ok := r.Context().Value(AuthorizationCtxKey).(*twomes.Authorization)
+	if !ok {
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting authentication context value")
+	}
+
+	accountID, err := h.service.GetAccountByDeviceID(device.ID)
+	if err != nil {
+		return NewHandlerError(err, "device not found", http.StatusNotFound).WithMessage("device could not be found by ID")
+	}
+
+	if auth.ID != accountID {
+		return NewHandlerError(err, "device does not belong to account", http.StatusForbidden).WithMessage("request was made for device not owned by account")
+	}
+
+	// We don't need to share all uploads.
+	device.Uploads = nil
+
+	err = json.NewEncoder(w).Encode(&device)
+	if err != nil {
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
+	}
+
+	return nil
+}

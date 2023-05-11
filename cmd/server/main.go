@@ -95,6 +95,7 @@ func main() {
 	uploadHandler := handlers.NewUploadHandler(uploadService)
 
 	r := chi.NewRouter()
+
 	r.Use(middleware.Timeout(time.Second * 30))
 	r.Use(middleware.Heartbeat("/healthcheck")) // Endpoint for health check.
 	r.Use(middleware.RequestLogger(&middleware.DefaultLogFormatter{Logger: logrus.StandardLogger()}))
@@ -114,9 +115,10 @@ func main() {
 	r.Method("POST", "/device_type", adminAuth(adminHandler.Middleware(deviceTypeHandler.Create))) // POST on /device_type.
 
 	r.Route("/device", func(r chi.Router) {
-		r.Method("POST", "/", accountAuth(deviceHandler.Create))                      // POST on /device.
-		r.Method("POST", "/activate", handlers.Handler(deviceHandler.Activate))       // POST on /device/activate.
-		r.Method("GET", "/{device_name}", accountAuth(deviceHandler.GetDeviceByName)) // GET on /device/{device_name}.
+		r.Method("POST", "/", accountAuth(deviceHandler.Create))                                         // POST on /device.
+		r.Method("POST", "/activate", handlers.Handler(deviceHandler.Activate))                          // POST on /device/activate.
+		r.Method("GET", "/{device_name}", accountAuth(deviceHandler.GetDeviceByName))                    // GET on /device/{device_name}.
+		r.Method("GET", "/{device_name}/measurements", accountAuth(deviceHandler.GetDeviceMeasurements)) // GET on /device/{device_name}/measurements.
 	})
 
 	r.Method("POST", "/upload", deviceAuth(uploadHandler.Create)) // POST on /upload.

@@ -16,4 +16,5 @@ type DeviceTypeService interface {
 	Find(deviceType twomes.DeviceType) (twomes.DeviceType, error)
 	GetByID(id uint) (twomes.DeviceType, error)
 	GetByName(name string) (twomes.DeviceType, error)
+	GetAll() ([]twomes.DeviceType, error)
 }
