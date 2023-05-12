@@ -1,0 +1,753 @@
+openapi: '3.0.2'
+
+info:
+  title: Twomes API
+  version: '2.0.0'
+
+servers:
+  - url: https://api.tst.energietransitiewindesheim.nl/v2
+  # TODO: Remove.
+  - url: http://localhost:8080
+
+tags:
+  - name: App
+    description: Operations about apps
+  - name: Campaign
+    description: Operations about campaigns
+  - name: Account
+    description: Operations about accounts
+  - name: DeviceType
+    description: Operations about device types
+  - name: Device
+    description: Operations about devices
+  - name: Building
+    description: Operations about buildings
+  - name: Upload
+    description: Operations about uploads
+
+paths:
+  /app:
+    post:
+      tags:
+        - App
+      summary: Create a new app
+      operationId: createApp
+      security:
+        - AdminAuthorizationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/App'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/App'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '403':
+          $ref: '#/components/responses/403Forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
+
+  /campaign:
+    post:
+      tags:
+        - Campaign
+      summary: Create a new campaign
+      operationId: createCampaign
+      security:
+        - AdminAuthorizationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Test campaign 1
+                app:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: NeedForHeat
+                info_url:
+                  type: string
+                  example: https://www.energietransitiewindesheim.nl/test-campaign-1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '403':
+          $ref: '#/components/responses/403Forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
+
+  /account:
+    post:
+      tags:
+        - Account
+      summary: Create a new account
+      operationId: createAccount
+      security:
+        - AdminAuthorizationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                campaign:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: Test campaign 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountCreated'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '403':
+          $ref: '#/components/responses/403Forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
+
+  /account/{id}:
+    get:
+      tags:
+        - Account
+      summary: Get account information
+      operationId: getAccountByID
+      security:
+        - AccountAuthorizationToken: []
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          description: Account ID
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountInfo'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '403':
+          $ref: '#/components/responses/403Forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
+
+  /account/activate:
+    post:
+      tags:
+        - Account
+      summary: Activate an account
+      operationId: activateAccount
+      security:
+        - AccountActivationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                latitude:
+                  type: integer
+                  example: 52.499817
+                longitude:
+                  type: integer
+                  example: 6.079731
+                tz_name:
+                  type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountActivated'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '403':
+          $ref: '#/components/responses/403Forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
+
+  /device_type:
+    post:
+      tags:
+        - DeviceType
+      summary: Create a new device type
+      operationId: createDeviceType
+      security:
+        - AdminAuthorizationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceType'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceType'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '403':
+          $ref: '#/components/responses/403Forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
+
+  /device:
+    post:
+      tags:
+        - Device
+      summary: Create a new device
+      operationId: createDevice
+      security:
+        - AdminAuthorizationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: TWOMES-AC4BC3
+                device_type:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: Generic-Test
+                building_id:
+                  type: integer
+                  example: 1
+                activation_secret:
+                  type: string
+                  example: 1029380918
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceCreated'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '403':
+          $ref: '#/components/responses/403Forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
+
+  /device/{name}:
+    get:
+      tags:
+        - Device
+      summary: Get device information
+      operationId: getDeviceByName
+      security:
+        - AccountAuthorizationToken: []
+      parameters:
+        - name: name
+          in: path
+          schema:
+            type: string
+          description: Device name
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceInfo'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '403':
+          $ref: '#/components/responses/403Forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
+
+  /device/activate:
+    post:
+      tags:
+        - Device
+      summary: Activate a device
+      operationId: activateDevice
+      security:
+        - DeviceActivationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: TWOMES-AC4BC3
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceActivated'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '403':
+          $ref: '#/components/responses/403Forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
+
+  /building/{id}:
+    get:
+      tags:
+        - Building
+      summary: Get building information
+      operationId: getBuildingByID
+      security:
+        - AccountAuthorizationToken: []
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          description: Building ID
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Building'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '403':
+          $ref: '#/components/responses/403Forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
+
+  /upload:
+    post:
+      tags:
+        - Upload
+      summary: Upload new measurements
+      operationId: createUpload
+      security:
+        - DeviceAuthorizationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Upload'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Upload'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '403':
+          $ref: '#/components/responses/403Forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
+
+components:
+  schemas:
+    App:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        name:
+          type: string
+          example: NeedForHeat
+        provisioning_url_template:
+          type: string
+          example: https://energietransitiewindesheim.page.link/?link=https%3A%2F%2Fwww.energietransitiewindesheim.nl%2F%3Ftest_token%3D<account_activation_token>&apn=nl.windesheim.energietransitie.warmtewachter&ibi=nl.windesheim.energietransitie.warmtewachter&isi=1563201993&efr=1
+
+    Campaign:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        name:
+          type: string
+          example: Test campaign 1
+        app:
+          $ref: '#/components/schemas/App'
+        info_url:
+          type: string
+          example: https://www.energietransitiewindesheim.nl/test-campaign-1
+
+    DeviceType:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        name:
+          type: string
+          example: Generic-Test
+        installation_manual_url:
+          type: string
+          example: https://www.energietransitiewindesheim.nl/manuals/Generic-Test/
+        info_url:
+          type: string
+          example: https://www.energietransitiewindesheim.nl/brains4buildings2022/privacy/
+
+    Building:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        account_id:
+          type: integer
+          example: 2
+        latitude:
+          type: integer
+          example: 52.499817
+        longitude:
+          type: integer
+          example: 6.079731
+        tz_name:
+          type: string
+        devices:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeviceInfo'
+
+    AccountCreated:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        campaign:
+          $ref: '#/components/schemas/Campaign'
+        activated_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: null
+        invitation_token:
+          type: string
+          readOnly: true
+          example: eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJUd29tZXNBUEl2MiIsInN1YiI6IjIiLCJleHAiOjE3MTUyNDg1NjYsIm5iZiI6MTY4MzcxMjU2NiwiaWF0IjoxNjgzNzEyNTY2LCJraW5kIjoiYWNjb3VudEFjdGl2YXRpb25Ub2tlbiJ9.InyaZw25soWCsZpl7te86gh1_u3vJja8q_LOY5vg-3w7DxZr_dYDsaHmSIMB2eOxIewo2lg_lF4QsiTWZH-GLA
+        invitation_url:
+          type: string
+          readOnly: true
+          example: https://energietransitiewindesheim.page.link/?link=https%3A%2F%2Fwww.energietransitiewindesheim.nl%2F%3Ftest_token%3DeyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJUd29tZXNBUEl2MiIsInN1YiI6IjIiLCJleHAiOjE3MTUyNDg1NjYsIm5iZiI6MTY4MzcxMjU2NiwiaWF0IjoxNjgzNzEyNTY2LCJraW5kIjoiYWNjb3VudEFjdGl2YXRpb25Ub2tlbiJ9.InyaZw25soWCsZpl7te86gh1_u3vJja8q_LOY5vg-3w7DxZr_dYDsaHmSIMB2eOxIewo2lg_lF4QsiTWZH-GLA&apn=nl.windesheim.energietransitie.warmtewachter&ibi=nl.windesheim.energietransitie.warmtewachter&isi=1563201993&efr=1
+
+    AccountActivated:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        campaign:
+          $ref: '#/components/schemas/Campaign'
+        activated_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: 2023-05-10T09:13:12Z
+        authorization_token:
+          type: string
+          readOnly: true
+          example: eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJUd29tZXNBUEl2MiIsInN1YiI6IjIiLCJleHAiOjE3MTUyNDg2OTksIm5iZiI6MTY4MzcxMjY5OSwiaWF0IjoxNjgzNzEyNjk5LCJraW5kIjoiYWNjb3VudFRva2VuIn0.RFiIgO4oG1k1gr9xpdKVX1toO_N_ZB0BrsrlXrj_K76pgljRKBbWcNEe4hbJoIKivaVuz9z6QGrWi4ZHPgGvXg
+        buildings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Building'
+
+    AccountInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        campaign:
+          $ref: '#/components/schemas/Campaign'
+        activated_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: 2023-05-10T09:13:12Z
+        buildings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Building'
+
+    DeviceCreated:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        name:
+          type: string
+          example: TWOMES-AC4BC3
+        device_type:
+          $ref: '#/components/schemas/DeviceType'
+        building_id:
+          type: integer
+          example: 1
+        activated_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: null
+        latest_upload:
+          type: string
+          format: date-time
+          nullable: true
+          example: null
+
+    DeviceActivated:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        name:
+          type: string
+          example: TWOMES-AC4BC3
+        device_type:
+          $ref: '#/components/schemas/DeviceType'
+        building_id:
+          type: integer
+          example: 1
+        activated_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: 2023-05-10T09:13:15Z
+        authorization_token:
+          type: string
+          readOnly: true
+          example: eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJUd29tZXNBUEl2MiIsInN1YiI6IjEiLCJleHAiOjE3MTUyNjE2NDQsIm5iZiI6MTY4MzcyNTY0NCwiaWF0IjoxNjgzNzI1NjQ0LCJraW5kIjoiZGV2aWNlVG9rZW4ifQ.fhVwSw6zZNY75O9D19JFu46c9g_yUpToIijQ_vYes_5wVehTuBZvl04zCK4qAcy3MT4GF8AUrodrOQmWwYZ5qg
+        latest_upload:
+          type: string
+          format: date-time
+          nullable: true
+          example: null
+
+    DeviceInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        name:
+          type: string
+          example: TWOMES-AC4BC3
+        device_type:
+          $ref: '#/components/schemas/DeviceType'
+        building_id:
+          type: integer
+          example: 1
+        activated_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: 2023-05-10T09:13:15Z
+        latest_upload:
+          type: string
+          format: date-time
+          nullable: true
+          example: 2023-05-10T13:30:18Z
+
+    Upload:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 2
+        device_id:
+          type: integer
+          readOnly: true
+          example: 1
+        server_time:
+          type: string
+          format: date-time
+          readOnly: true
+          example: 2023-05-10T13:30:18Z
+        device_time:
+          type: string
+          format: date-time
+          example: 2023-05-10T13:30:00Z
+        size:
+          type: integer
+          readOnly: true
+          example: 1
+        measurements:
+          type: array
+          items:
+            type: object
+            properties:
+              property:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: property_name__unit
+              time:
+                type: string
+                example: 2023-05-10T13:20:00Z
+              value:
+                type: string
+                example: 12
+          writeOnly: true
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          example: An error occured
+
+  responses:
+    400BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    401Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    403Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    404NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    500InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    AdminAuthorizationToken:
+      type: http
+      scheme: bearer
+
+    AccountAuthorizationToken:
+      type: http
+      scheme: bearer
+
+    DeviceAuthorizationToken:
+      type: http
+      scheme: bearer
+
+    AccountActivationToken:
+      type: http
+      scheme: bearer
+
+    DeviceActivationToken:
+      type: http
+      scheme: bearer
