@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"io/fs"
 	"net"
 	"net/http"
 	"net/rpc"
@@ -11,6 +12,7 @@ import (
 	"github.com/energietransitie/twomes-backoffice-api/handlers"
 	"github.com/energietransitie/twomes-backoffice-api/repositories"
 	"github.com/energietransitie/twomes-backoffice-api/services"
+	"github.com/energietransitie/twomes-backoffice-api/swaggerdocs"
 	"github.com/energietransitie/twomes-backoffice-api/twomes"
 
 	"github.com/go-chi/chi/v5"
@@ -121,12 +123,24 @@ func main() {
 
 	r.Method("POST", "/upload", deviceAuth(uploadHandler.Create)) // POST on /upload.
 
+	setupSwaggerDocs(r)
+
 	go setupAdminRPCHandler(adminHandler)
 
 	err = http.ListenAndServe(":8080", r)
 	if err != nil {
 		logrus.Fatal(err)
 	}
+}
+
+func setupSwaggerDocs(r *chi.Mux) {
+	swaggerUI, err := fs.Sub(swaggerdocs.StaticFiles, "swagger-ui")
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	r.Method("GET", "/openapi.yml", http.FileServer(http.FS(swaggerdocs.StaticFiles)))          // Serve openapi.yml
+	r.Method("GET", "/docs/*", http.StripPrefix("/docs/", http.FileServer(http.FS(swaggerUI)))) // Server /docs
 }
 
 func setupAdminRPCHandler(adminHandler *handlers.AdminHandler) {
