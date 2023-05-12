@@ -6,8 +6,6 @@ info:
 
 servers:
   - url: https://api.tst.energietransitiewindesheim.nl/v2
-  # TODO: Remove.
-  - url: http://localhost:8080
 
 tags:
   - name: App
