@@ -23,6 +23,7 @@ import (
 // Configuration holds all the configuration for the server.
 type Configuration struct {
 	DatabaseDSN string
+	BaseURL     string
 }
 
 func getConfiguration() Configuration {
@@ -31,8 +32,14 @@ func getConfiguration() Configuration {
 		logrus.Fatal("TWOMES_DSN was not set")
 	}
 
+	baseURL, ok := os.LookupEnv("TWOMES_BASE_URL")
+	if !ok {
+		logrus.Fatal("TWOMES_BASE_URL was not set")
+	}
+
 	return Configuration{
 		DatabaseDSN: dsn,
+		BaseURL:     baseURL,
 	}
 }
 
@@ -123,7 +130,7 @@ func main() {
 
 	r.Method("POST", "/upload", deviceAuth(uploadHandler.Create)) // POST on /upload.
 
-	setupSwaggerDocs(r)
+	setupSwaggerDocs(r, config.BaseURL)
 
 	go setupAdminRPCHandler(adminHandler)
 
@@ -133,14 +140,20 @@ func main() {
 	}
 }
 
-func setupSwaggerDocs(r *chi.Mux) {
+func setupSwaggerDocs(r *chi.Mux, baseURL string) {
 	swaggerUI, err := fs.Sub(swaggerdocs.StaticFiles, "swagger-ui")
 	if err != nil {
 		logrus.Fatal(err)
 	}
 
-	r.Method("GET", "/openapi.yml", http.FileServer(http.FS(swaggerdocs.StaticFiles)))          // Serve openapi.yml
-	r.Method("GET", "/docs/*", http.StripPrefix("/docs/", http.FileServer(http.FS(swaggerUI)))) // Server /docs
+	docsHandler, err := handlers.NewDocsHandler(swaggerdocs.StaticFiles, baseURL)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	r.Method("GET", "/openapi.yml", handlers.Handler(docsHandler.OpenAPISpec))                  // Serve openapi.yml
+	r.Method("GET", "/docs", http.RedirectHandler("/docs/", http.StatusMovedPermanently))       // Serve /docs
+	r.Method("GET", "/docs/*", http.StripPrefix("/docs/", http.FileServer(http.FS(swaggerUI)))) // Serve static files.
 }
 
 func setupAdminRPCHandler(adminHandler *handlers.AdminHandler) {
@@ -150,7 +163,7 @@ func setupAdminRPCHandler(adminHandler *handlers.AdminHandler) {
 
 	listener, err := net.Listen("tcp4", "127.0.0.1:8081")
 	if err != nil {
-		return
+		logrus.Fatal(err)
 	}
 
 	err = http.Serve(listener, nil)

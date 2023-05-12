@@ -5,7 +5,7 @@ info:
   version: '2.0.0'
 
 servers:
-  - url: https://api.tst.energietransitiewindesheim.nl/v2
+  - url: {{.BaseURL}}
 
 tags:
   - name: App

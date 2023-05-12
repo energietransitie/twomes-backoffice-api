@@ -9,5 +9,5 @@ import (
 // Static files for swagger UI and OpenAPI spec.
 //
 //go:embed swagger-ui
-//go:embed openapi.yml
+//go:embed openapi.template.yml
 var StaticFiles embed.FS
