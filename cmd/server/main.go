@@ -151,9 +151,10 @@ func setupSwaggerDocs(r *chi.Mux, baseURL string) {
 		logrus.Fatal(err)
 	}
 
-	r.Method("GET", "/openapi.yml", handlers.Handler(docsHandler.OpenAPISpec))                  // Serve openapi.yml
-	r.Method("GET", "/docs", http.RedirectHandler("/docs/", http.StatusMovedPermanently))       // Serve /docs
-	r.Method("GET", "/docs/*", http.StripPrefix("/docs/", http.FileServer(http.FS(swaggerUI)))) // Serve static files.
+	r.Method("GET", "/openapi.yml", handlers.Handler(docsHandler.OpenAPISpec))                        // Serve openapi.yml
+	r.Method("GET", "/docs/*", http.StripPrefix("/docs/", http.FileServer(http.FS(swaggerUI))))       // Serve static files.
+	r.Method("GET", "/docs", handlers.Handler(docsHandler.RedirectDocs(http.StatusMovedPermanently))) // Redirect /docs to /docs/
+	r.Method("GET", "/", handlers.Handler(docsHandler.RedirectDocs(http.StatusSeeOther)))             // Redirect / to /docs/
 }
 
 func setupAdminRPCHandler(adminHandler *handlers.AdminHandler) {

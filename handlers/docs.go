@@ -31,7 +31,7 @@ func NewDocsHandler(files fs.FS, baseURL string) (*DocsHandler, error) {
 	}, nil
 }
 
-// Hanlde API endpoint for displaying OpenAPI spec.
+// Handle API endpoint for displaying OpenAPI spec.
 // This file should be displayed as openapi.yml.
 func (h *DocsHandler) OpenAPISpec(w http.ResponseWriter, r *http.Request) error {
 	err := h.template.Execute(w, h.baseURL)
@@ -40,4 +40,18 @@ func (h *DocsHandler) OpenAPISpec(w http.ResponseWriter, r *http.Request) error 
 	}
 
 	return nil
+}
+
+// Handle redirection from /docs to /docs/ to serve static files.
+func (h *DocsHandler) RedirectDocs(redirectCode int) func(http.ResponseWriter, *http.Request) error {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		redirectURL := "/docs/"
+
+		// Fix prefix stripped by Traefik proxy to ensure correcy redirection.
+		redirectURL = r.Header.Get("X-Forwarded-Prefix") + redirectURL
+
+		http.Redirect(w, r, redirectURL, redirectCode)
+
+		return nil
+	}
 }
