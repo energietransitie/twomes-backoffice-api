@@ -16,6 +16,8 @@ services:
   db:
     container_name: twomes-backoffice-api-local-db
     image: mariadb:latest
+    ports:
+      - 3306:3306
     volumes:
       - data:/var/lib/mysql
     environment:
