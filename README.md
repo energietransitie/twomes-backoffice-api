@@ -202,3 +202,4 @@ We use and gratefully aknowlegde the efforts of the makers of the following sour
 * [go-sql-driver/mysql](https://github.com/go-sql-driver/mysql), by go-sql-driver, licensed under [Mozilla Public License 2.0](https://github.com/go-sql-driver/mysql/blob/master/LICENSE)
 * [logrus](https://github.com/sirupsen/logrus), by Simon Eskildsen, licensed under [MIT license](https://github.com/sirupsen/logrus/blob/master/LICENSE)
 * [golang-jwt/jwt](https://github.com/golang-jwt/jwt), by Dave Grijalva, licensed under [MIT license](https://github.com/golang-jwt/jwt/blob/main/LICENSE)
+* [swagger-ui](https://github.com/swagger-api/swagger-ui), swagger-api, licensed under [Apache 2.0 license](https://github.com/swagger-api/swagger-ui/blob/master/LICENSE)

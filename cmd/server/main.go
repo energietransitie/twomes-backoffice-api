@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"io/fs"
 	"net"
 	"net/http"
 	"net/rpc"
@@ -11,6 +12,7 @@ import (
 	"github.com/energietransitie/twomes-backoffice-api/handlers"
 	"github.com/energietransitie/twomes-backoffice-api/repositories"
 	"github.com/energietransitie/twomes-backoffice-api/services"
+	"github.com/energietransitie/twomes-backoffice-api/swaggerdocs"
 	"github.com/energietransitie/twomes-backoffice-api/twomes"
 
 	"github.com/go-chi/chi/v5"
@@ -21,6 +23,7 @@ import (
 // Configuration holds all the configuration for the server.
 type Configuration struct {
 	DatabaseDSN string
+	BaseURL     string
 }
 
 func getConfiguration() Configuration {
@@ -29,8 +32,14 @@ func getConfiguration() Configuration {
 		logrus.Fatal("TWOMES_DSN was not set")
 	}
 
+	baseURL, ok := os.LookupEnv("TWOMES_BASE_URL")
+	if !ok {
+		logrus.Fatal("TWOMES_BASE_URL was not set")
+	}
+
 	return Configuration{
 		DatabaseDSN: dsn,
+		BaseURL:     baseURL,
 	}
 }
 
@@ -124,12 +133,31 @@ func main() {
 
 	r.Method("POST", "/upload", deviceAuth(uploadHandler.Create)) // POST on /upload.
 
+	setupSwaggerDocs(r, config.BaseURL)
+
 	go setupAdminRPCHandler(adminHandler)
 
 	err = http.ListenAndServe(":8080", r)
 	if err != nil {
 		logrus.Fatal(err)
 	}
+}
+
+func setupSwaggerDocs(r *chi.Mux, baseURL string) {
+	swaggerUI, err := fs.Sub(swaggerdocs.StaticFiles, "swagger-ui")
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	docsHandler, err := handlers.NewDocsHandler(swaggerdocs.StaticFiles, baseURL)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	r.Method("GET", "/openapi.yml", handlers.Handler(docsHandler.OpenAPISpec))                        // Serve openapi.yml
+	r.Method("GET", "/docs/*", http.StripPrefix("/docs/", http.FileServer(http.FS(swaggerUI))))       // Serve static files.
+	r.Method("GET", "/docs", handlers.Handler(docsHandler.RedirectDocs(http.StatusMovedPermanently))) // Redirect /docs to /docs/
+	r.Method("GET", "/", handlers.Handler(docsHandler.RedirectDocs(http.StatusSeeOther)))             // Redirect / to /docs/
 }
 
 func setupAdminRPCHandler(adminHandler *handlers.AdminHandler) {
@@ -139,7 +167,7 @@ func setupAdminRPCHandler(adminHandler *handlers.AdminHandler) {
 
 	listener, err := net.Listen("tcp4", "127.0.0.1:8081")
 	if err != nil {
-		return
+		logrus.Fatal(err)
 	}
 
 	err = http.Serve(listener, nil)
