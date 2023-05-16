@@ -135,7 +135,7 @@ func (s *DeviceService) GetMeasurementsByDeviceID(id uint) ([]twomes.Measurement
 	return measurements, nil
 }
 
-func (s *DeviceService) GePropertiesByDeviceID(id uint) ([]twomes.Property, error) {
+func (s *DeviceService) GetPropertiesByDeviceID(id uint) ([]twomes.Property, error) {
 	properties, err := s.repository.GetProperties(twomes.Device{ID: id})
 	if err != nil {
 		return nil, err

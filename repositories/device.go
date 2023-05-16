@@ -1,7 +1,6 @@
 package repositories
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/energietransitie/twomes-backoffice-api/twomes"
@@ -80,9 +79,8 @@ func (m *DeviceModel) fromModel() twomes.Device {
 }
 
 func (r *DeviceRepository) Find(device twomes.Device) (twomes.Device, error) {
-	fmt.Println("Find device", device.ID)
 	deviceModel := MakeDeviceModel(device)
-	err := r.db.Preload("DeviceType").Preload("Uploads").Preload("Uploads.Measurements").Where(&deviceModel).First(&deviceModel).Error
+	err := r.db.Preload("DeviceType").Preload("Uploads.Measurements").Where(&deviceModel).First(&deviceModel).Error
 	return deviceModel.fromModel(), err
 }
 

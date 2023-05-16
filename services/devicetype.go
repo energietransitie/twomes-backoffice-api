@@ -36,7 +36,3 @@ func (s *DeviceTypeService) GetByID(id uint) (twomes.DeviceType, error) {
 func (s *DeviceTypeService) GetByName(name string) (twomes.DeviceType, error) {
 	return s.repository.Find(twomes.DeviceType{Name: name})
 }
-
-func (s *DeviceTypeService) GetAll() ([]twomes.DeviceType, error) {
-	return s.repository.GetAll()
-}

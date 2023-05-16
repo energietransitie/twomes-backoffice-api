@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -161,7 +160,7 @@ func (h *DeviceHandler) GetDeviceMeasurements(w http.ResponseWriter, r *http.Req
 
 	measurements, err := h.service.GetMeasurementsByDeviceID(device.ID)
 	if err != nil {
-		return NewHandlerError(err, "internal server error :()", http.StatusInternalServerError).WithMessage("failed when getting measurements")
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting measurements")
 	}
 
 	err = json.NewEncoder(w).Encode(&measurements)
@@ -186,9 +185,9 @@ func (h *DeviceHandler) GetDeviceProperties(w http.ResponseWriter, r *http.Reque
 		return err
 	}
 
-	properties, err := h.service.GePropertiesByDeviceID(device.ID)
+	properties, err := h.service.GetPropertiesByDeviceID(device.ID)
 	if err != nil {
-		return NewHandlerError(err, "internal server error :()", http.StatusInternalServerError).WithMessage("failed when getting measurements")
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting measurements")
 	}
 
 	err = json.NewEncoder(w).Encode(&properties)
@@ -200,7 +199,6 @@ func (h *DeviceHandler) GetDeviceProperties(w http.ResponseWriter, r *http.Reque
 }
 
 func (h *DeviceHandler) getDeviceByName(deviceName string, accountId uint) (*twomes.Device, error) {
-	fmt.Println("getDeviceByName", deviceName)
 	if deviceName == "" {
 		return nil, NewHandlerError(nil, "device_name not specified", http.StatusBadRequest)
 	}

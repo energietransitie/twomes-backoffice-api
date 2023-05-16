@@ -21,5 +21,5 @@ type DeviceService interface {
 	AddUpload(id uint, upload twomes.Upload) (twomes.Device, error)
 	GetAccountByDeviceID(id uint) (uint, error)
 	GetMeasurementsByDeviceID(id uint) ([]twomes.Measurement, error)
-	GePropertiesByDeviceID(id uint) ([]twomes.Property, error)
+	GetPropertiesByDeviceID(id uint) ([]twomes.Property, error)
 }
