@@ -41,10 +41,6 @@ func MakeDeviceModel(device twomes.Device) DeviceModel {
 
 	for _, upload := range device.Uploads {
 		uploadModels = append(uploadModels, MakeUploadModel(upload))
-
-		for _, measurement := range upload.Measurements {
-			uploadModels[len(uploadModels)-1].Measurements = append(uploadModels[len(uploadModels)-1].Measurements, MakeMeasurementModel(measurement))
-		}
 	}
 
 	return DeviceModel{
