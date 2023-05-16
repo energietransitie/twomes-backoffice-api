@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/energietransitie/twomes-backoffice-api/twomes"
@@ -41,6 +42,10 @@ func MakeDeviceModel(device twomes.Device) DeviceModel {
 
 	for _, upload := range device.Uploads {
 		uploadModels = append(uploadModels, MakeUploadModel(upload))
+
+		for _, measurement := range upload.Measurements {
+			uploadModels[len(uploadModels)-1].Measurements = append(uploadModels[len(uploadModels)-1].Measurements, MakeMeasurementModel(measurement))
+		}
 	}
 
 	return DeviceModel{
@@ -75,9 +80,30 @@ func (m *DeviceModel) fromModel() twomes.Device {
 }
 
 func (r *DeviceRepository) Find(device twomes.Device) (twomes.Device, error) {
+	fmt.Println("Find device", device.ID)
 	deviceModel := MakeDeviceModel(device)
-	err := r.db.Preload("DeviceType").Preload("Uploads").Where(&deviceModel).First(&deviceModel).Error
+	err := r.db.Preload("DeviceType").Preload("Uploads").Preload("Uploads.Measurements").Where(&deviceModel).First(&deviceModel).Error
 	return deviceModel.fromModel(), err
+}
+
+func (r *DeviceRepository) GetProperties(device twomes.Device) ([]twomes.Property, error) {
+	var properties []twomes.Property = make([]twomes.Property, 0)
+
+	err := r.db.
+		Table("device").
+		Select("DISTINCT property.id, property.name").
+		Joins("JOIN upload ON device.id = upload.device_id").
+		Joins("JOIN measurement ON upload.id = measurement.upload_id").
+		Joins("JOIN property ON property.id = measurement.property_id").
+		Where("device.id = ?", device.ID).
+		Scan(&properties).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return properties, nil
 }
 
 func (r *DeviceRepository) GetAll() ([]twomes.Device, error) {

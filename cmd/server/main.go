@@ -119,6 +119,7 @@ func main() {
 		r.Method("POST", "/activate", handlers.Handler(deviceHandler.Activate))                          // POST on /device/activate.
 		r.Method("GET", "/{device_name}", accountAuth(deviceHandler.GetDeviceByName))                    // GET on /device/{device_name}.
 		r.Method("GET", "/{device_name}/measurements", accountAuth(deviceHandler.GetDeviceMeasurements)) // GET on /device/{device_name}/measurements.
+		r.Method("GET", "/{device_name}/properties", accountAuth(deviceHandler.GetDeviceProperties))   // GET on /device/{device_name}/measurements.
 	})
 
 	r.Method("POST", "/upload", deviceAuth(uploadHandler.Create)) // POST on /upload.

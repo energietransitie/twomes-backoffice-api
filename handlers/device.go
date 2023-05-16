@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -148,36 +149,79 @@ func (h *DeviceHandler) GetDeviceByName(w http.ResponseWriter, r *http.Request) 
 func (h *DeviceHandler) GetDeviceMeasurements(w http.ResponseWriter, r *http.Request) error {
 	deviceName := chi.URLParam(r, "device_name")
 
-	if deviceName == "" {
-		return NewHandlerError(nil, "device_name not specified", http.StatusBadRequest)
-	}
-
-	device, err := h.service.GetByName(deviceName)
-	if err != nil {
-		return NewHandlerError(err, "device not found", http.StatusNotFound).WithMessage("device not found")
-	}
-
 	auth, ok := r.Context().Value(AuthorizationCtxKey).(*twomes.Authorization)
 	if !ok {
-		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting authentication context value")
+		return NewHandlerError(nil, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting authentication context value")
 	}
 
-	accountID, err := h.service.GetAccountByDeviceID(device.ID)
+	device, err := h.getDeviceByName(deviceName, auth.ID)
 	if err != nil {
-		return NewHandlerError(err, "device not found", http.StatusNotFound).WithMessage("device could not be found by ID")
+		return err
 	}
 
-	if auth.ID != accountID {
-		return NewHandlerError(err, "device does not belong to account", http.StatusForbidden).WithMessage("request was made for device not owned by account")
+	measurements, err := h.service.GetMeasurementsByDeviceID(device.ID)
+	if err != nil {
+		return NewHandlerError(err, "internal server error :()", http.StatusInternalServerError).WithMessage("failed when getting measurements")
 	}
 
-	// We don't need to share all uploads.
-	device.Uploads = nil
-
-	err = json.NewEncoder(w).Encode(&device)
+	err = json.NewEncoder(w).Encode(&measurements)
 	if err != nil {
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
 	}
 
 	return nil
+}
+
+// Handle API endpoint for getting device properties
+func (h *DeviceHandler) GetDeviceProperties(w http.ResponseWriter, r *http.Request) error {
+	deviceName := chi.URLParam(r, "device_name")
+
+	auth, ok := r.Context().Value(AuthorizationCtxKey).(*twomes.Authorization)
+	if !ok {
+		return NewHandlerError(nil, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting authentication context value")
+	}
+
+	device, err := h.getDeviceByName(deviceName, auth.ID)
+	if err != nil {
+		return err
+	}
+
+	properties, err := h.service.GePropertiesByDeviceID(device.ID)
+	if err != nil {
+		return NewHandlerError(err, "internal server error :()", http.StatusInternalServerError).WithMessage("failed when getting measurements")
+	}
+
+	err = json.NewEncoder(w).Encode(&properties)
+	if err != nil {
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
+	}
+
+	return nil
+}
+
+func (h *DeviceHandler) getDeviceByName(deviceName string, accountId uint) (*twomes.Device, error) {
+	fmt.Println("getDeviceByName", deviceName)
+	if deviceName == "" {
+		fmt.Println("test: device_name not specified", deviceName)
+		return nil, NewHandlerError(nil, "device_name not specified", http.StatusBadRequest)
+	}
+
+	device, err := h.service.GetByName(deviceName)
+	if err != nil {
+		fmt.Println("test: device not found", deviceName)
+		return nil, NewHandlerError(err, "device not found", http.StatusNotFound).WithMessage("device not found")
+	}
+
+	deviceAccountId, err := h.service.GetAccountByDeviceID(device.ID)
+	if err != nil {
+		fmt.Println("test: device not found 2", deviceName)
+		return nil, NewHandlerError(err, "device not found", http.StatusNotFound).WithMessage("device could not be found by ID")
+	}
+
+	if deviceAccountId != accountId {
+		fmt.Println("test: device does not belong", deviceName)
+		return nil, NewHandlerError(nil, "device does not belong to account", http.StatusForbidden).WithMessage("request was made for device not owned by account")
+	}
+
+	return &device, nil
 }
