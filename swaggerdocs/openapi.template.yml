@@ -326,6 +326,72 @@ paths:
           $ref: '#/components/responses/404NotFound'
         '500':
           $ref: '#/components/responses/500InternalServerError'
+  
+  /device/{name}/measurements:
+    get:
+      tags:
+        - Device
+      summary: Get device measurements
+      operationId: getDeviceMeasurements
+      security:
+        - AccountAuthorizationToken: []
+      parameters:
+        - name: name
+          in: path
+          schema:
+            type: string
+          description: Device name
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceMeasurements'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '403':
+          $ref: '#/components/responses/403Forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
+          
+  /device/{name}/properties:
+    get:
+      tags:
+        - Device
+      summary: Get all used device properties
+      operationId: getDeviceProperties
+      security:
+        - AccountAuthorizationToken: []
+      parameters:
+        - name: name
+          in: path
+          schema:
+            type: string
+          description: Device name
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceProperties'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '403':
+          $ref: '#/components/responses/403Forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
 
   /device/activate:
     post:
@@ -646,6 +712,38 @@ components:
           format: date-time
           nullable: true
           example: 2023-05-10T13:30:18Z
+
+    DeviceMeasurements:
+      type: array
+      items:
+        properties:
+          id:
+            type: integer
+          upload_id:
+            type: integer
+          property:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+                example: property_name__unit
+          time:
+            type: string
+            example: 2023-05-10T09:13:15Z
+          value:
+            type: string
+
+    DeviceProperties:
+      type: array
+      items:
+        properties:
+          id:
+            type: integer
+          name:
+            type: string
+            example: property_name__unit
 
     Upload:
       type: object
