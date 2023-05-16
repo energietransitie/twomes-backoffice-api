@@ -202,24 +202,20 @@ func (h *DeviceHandler) GetDeviceProperties(w http.ResponseWriter, r *http.Reque
 func (h *DeviceHandler) getDeviceByName(deviceName string, accountId uint) (*twomes.Device, error) {
 	fmt.Println("getDeviceByName", deviceName)
 	if deviceName == "" {
-		fmt.Println("test: device_name not specified", deviceName)
 		return nil, NewHandlerError(nil, "device_name not specified", http.StatusBadRequest)
 	}
 
 	device, err := h.service.GetByName(deviceName)
 	if err != nil {
-		fmt.Println("test: device not found", deviceName)
 		return nil, NewHandlerError(err, "device not found", http.StatusNotFound).WithMessage("device not found")
 	}
 
 	deviceAccountId, err := h.service.GetAccountByDeviceID(device.ID)
 	if err != nil {
-		fmt.Println("test: device not found 2", deviceName)
 		return nil, NewHandlerError(err, "device not found", http.StatusNotFound).WithMessage("device could not be found by ID")
 	}
 
 	if deviceAccountId != accountId {
-		fmt.Println("test: device does not belong", deviceName)
 		return nil, NewHandlerError(nil, "device does not belong to account", http.StatusForbidden).WithMessage("request was made for device not owned by account")
 	}
 
