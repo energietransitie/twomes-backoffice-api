@@ -17,8 +17,8 @@ func NewAppService(repository ports.AppRepository) *AppService {
 }
 
 // Create a new app.
-func (s *AppService) Create(name string, provisioningURLTemplate string) (twomes.App, error) {
-	app := twomes.MakeApp(name, provisioningURLTemplate)
+func (s *AppService) Create(name, provisioningURLTemplate, oauthRedirectURL string) (twomes.App, error) {
+	app := twomes.MakeApp(name, provisioningURLTemplate, oauthRedirectURL)
 	return s.repository.Create(app)
 }
 

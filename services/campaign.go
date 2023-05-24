@@ -23,13 +23,13 @@ func NewCampaignService(repository ports.CampaignRepository, appService ports.Ap
 }
 
 // Create a new campaign.
-func (s *CampaignService) Create(name string, app twomes.App, infoURL string, startTime, endTime *time.Time) (twomes.Campaign, error) {
+func (s *CampaignService) Create(name string, app twomes.App, infoURL string, cloudFeeds []*twomes.CloudFeed, startTime, endTime *time.Time) (twomes.Campaign, error) {
 	app, err := s.appService.Find(app)
 	if err != nil {
 		return twomes.Campaign{}, err
 	}
 
-	campaign := twomes.MakeCampaign(name, app, infoURL, startTime, endTime)
+	campaign := twomes.MakeCampaign(name, app, infoURL, cloudFeeds, startTime, endTime)
 	return s.repository.Create(campaign)
 }
 

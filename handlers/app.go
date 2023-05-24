@@ -27,7 +27,7 @@ func (h *AppHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
 	}
 
-	app, err := h.service.Create(request.Name, request.ProvisioningURLTemplate)
+	app, err := h.service.Create(request.Name, request.ProvisioningURLTemplate, request.OauthRedirectURL)
 	if err != nil {
 		if helpers.IsMySQLRecordNotFoundError(err) {
 			return NewHandlerError(err, "not found", http.StatusNotFound)

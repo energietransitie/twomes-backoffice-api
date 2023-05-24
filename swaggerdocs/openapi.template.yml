@@ -83,6 +83,14 @@ paths:
                 info_url:
                   type: string
                   example: https://www.energietransitiewindesheim.nl/test-campaign-1
+                cloud_feeds:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: "Enelogic"
       responses:
         '200':
           description: OK
@@ -443,6 +451,9 @@ components:
         provisioning_url_template:
           type: string
           example: https://energietransitiewindesheim.page.link/?link=https%3A%2F%2Fwww.energietransitiewindesheim.nl%2F%3Ftest_token%3D<account_activation_token>&apn=nl.windesheim.energietransitie.warmtewachter&ibi=nl.windesheim.energietransitie.warmtewachter&isi=1563201993&efr=1
+        oauth_redirect_url:
+          type: string
+          example: https://energietransitiewindesheim.page.link/callback
 
     Campaign:
       type: object
@@ -459,6 +470,37 @@ components:
         info_url:
           type: string
           example: https://www.energietransitiewindesheim.nl/test-campaign-1
+        cloud_feeds:
+          type: array
+          items:
+            $ref: '#/components/schemas/CloudFeed'
+
+    CloudFeed:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+          readOnly: true
+        name:
+          type: string
+          example: Enelogic
+        authorization_url:
+          type: string
+          example: https://enelogic.com/oauth/v2/auth
+        token_url:
+          type: string
+          example: https://enelogic.com/oauth/v2/token
+        client_id:
+          type: string
+          example: 10319_simpv2iqo80g008wkoo404c0os0sowg480kgww4sk4cwkc0o0
+        client_secret:
+          type: string
+          example: 4lblxyw0bjms08o804o8kswso4o4wkwwcow44cc8c4oo0o008o
+          writeOnly: true
+        scope:
+          type: string
+          example: account
 
     DeviceType:
       type: object

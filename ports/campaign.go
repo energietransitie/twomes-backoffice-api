@@ -16,7 +16,7 @@ type CampaignRepository interface {
 
 // CampaignService exposes all operations that can be performed on a [twomes.Campaign].
 type CampaignService interface {
-	Create(name string, app twomes.App, infoURL string, startTime, endTime *time.Time) (twomes.Campaign, error)
+	Create(name string, app twomes.App, infoURL string, cloudFeeds []*twomes.CloudFeed, startTime, endTime *time.Time) (twomes.Campaign, error)
 	Find(campaign twomes.Campaign) (twomes.Campaign, error)
 	GetByID(id uint) (twomes.Campaign, error)
 }

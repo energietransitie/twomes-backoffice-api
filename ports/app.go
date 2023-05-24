@@ -14,7 +14,7 @@ type AppRepository interface {
 
 // AppService exposes all operations that can be performed on a [twomes.App]
 type AppService interface {
-	Create(name, provisioningURLTemplate string) (twomes.App, error)
+	Create(name, provisioningURLTemplate, oauthRedirectURL string) (twomes.App, error)
 	Find(app twomes.App) (twomes.App, error)
 	GetAll() ([]twomes.App, error)
 	GetByID(id uint) (twomes.App, error)
