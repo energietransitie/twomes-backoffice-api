@@ -121,15 +121,10 @@ func (s *DeviceService) GetAccountByDeviceID(id uint) (uint, error) {
 	return building.AccountID, nil
 }
 
-func (s *DeviceService) GetMeasurementsByDeviceID(id uint) ([]twomes.Measurement, error) {
-	device, err := s.repository.Find(twomes.Device{ID: id})
+func (s *DeviceService) GetMeasurementsByDeviceID(id uint, filters map[string]string) ([]twomes.Measurement, error) {
+	measurements, err := s.repository.GetMeasurements(twomes.Device{ID: id}, filters)
 	if err != nil {
 		return nil, err
-	}
-
-	measurements := make([]twomes.Measurement, 0)
-	for _, upload := range device.Uploads {
-		measurements = append(measurements, upload.Measurements...)
 	}
 
 	return measurements, nil

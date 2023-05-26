@@ -76,8 +76,42 @@ func (m *DeviceModel) fromModel() twomes.Device {
 
 func (r *DeviceRepository) Find(device twomes.Device) (twomes.Device, error) {
 	deviceModel := MakeDeviceModel(device)
-	err := r.db.Preload("DeviceType").Preload("Uploads.Measurements").Where(&deviceModel).First(&deviceModel).Error
+	err := r.db.Preload("DeviceType").Preload("Uploads").Where(&deviceModel).First(&deviceModel).Error
 	return deviceModel.fromModel(), err
+}
+
+func (r *DeviceRepository) GetMeasurements(device twomes.Device, filters map[string]string) ([]twomes.Measurement, error) {
+	// empty array of measurements
+	var measurements []twomes.Measurement = make([]twomes.Measurement, 0)
+
+	query := r.db.
+		Model(&twomes.Measurement{}).
+		Preload("Property").
+		Joins("JOIN upload ON measurement.upload_id = upload.id").
+		Joins("JOIN device ON upload.device_id = device.id").
+		Where("device.id = ?", device.ID)
+
+	// apply filters
+	for name, value := range filters {
+		switch name {
+		case "property":
+			name = "property_id"
+		case "start":
+			name = "measurement.time >= ?"
+		case "end":
+			name = "measurement.time <= ?"
+		}
+
+		query = query.Where(name, value)
+	}
+
+	err := query.Find(&measurements).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return measurements, nil
 }
 
 func (r *DeviceRepository) GetProperties(device twomes.Device) ([]twomes.Property, error) {
