@@ -11,22 +11,31 @@ type CampaignService struct {
 	repository ports.CampaignRepository
 
 	// Service used when creating a campaign.
-	appService ports.AppService
+	appService       ports.AppService
+	cloudFeedService ports.CloudFeedService
 }
 
 // Create a new CampaignService.
-func NewCampaignService(repository ports.CampaignRepository, appService ports.AppService) *CampaignService {
+func NewCampaignService(repository ports.CampaignRepository, appService ports.AppService, cloudFeedService ports.CloudFeedService) *CampaignService {
 	return &CampaignService{
-		repository: repository,
-		appService: appService,
+		repository:       repository,
+		appService:       appService,
+		cloudFeedService: cloudFeedService,
 	}
 }
 
 // Create a new campaign.
-func (s *CampaignService) Create(name string, app twomes.App, infoURL string, cloudFeeds []*twomes.CloudFeed, startTime, endTime *time.Time) (twomes.Campaign, error) {
+func (s *CampaignService) Create(name string, app twomes.App, infoURL string, cloudFeeds []twomes.CloudFeed, startTime, endTime *time.Time) (twomes.Campaign, error) {
 	app, err := s.appService.Find(app)
 	if err != nil {
 		return twomes.Campaign{}, err
+	}
+
+	for i, cloudFeed := range cloudFeeds {
+		cloudFeeds[i], err = s.cloudFeedService.Find(cloudFeed)
+		if err != nil {
+			return twomes.Campaign{}, err
+		}
 	}
 
 	campaign := twomes.MakeCampaign(name, app, infoURL, cloudFeeds, startTime, endTime)

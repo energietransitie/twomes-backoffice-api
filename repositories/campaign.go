@@ -23,7 +23,8 @@ type CampaignModel struct {
 	Name       string `gorm:"unique;not null"`
 	AppModelID uint   `gorm:"column:app_id"`
 	App        AppModel
-	InfoURL    string `gorm:"unique;not null"`
+	InfoURL    string           `gorm:"unique;not null"`
+	CloudFeeds []CloudFeedModel `gorm:"many2many:campaign_cloud_feed"`
 	StartTime  *time.Time
 	EndTime    *time.Time
 }
@@ -35,6 +36,12 @@ func (CampaignModel) TableName() string {
 
 // Create a new CampaignModel from a [twomes.campaign].
 func MakeCampaignModel(campaign twomes.Campaign) CampaignModel {
+	var cloudFeedModels []CloudFeedModel
+
+	for _, cloudFeed := range campaign.CloudFeeds {
+		cloudFeedModels = append(cloudFeedModels, MakeCloudFeedModel(cloudFeed))
+	}
+
 	return CampaignModel{
 		Model: gorm.Model{
 			ID: campaign.ID,
@@ -43,6 +50,7 @@ func MakeCampaignModel(campaign twomes.Campaign) CampaignModel {
 		AppModelID: campaign.App.ID,
 		App:        MakeAppModel(campaign.App),
 		InfoURL:    campaign.InfoURL,
+		CloudFeeds: cloudFeedModels,
 		StartTime:  campaign.StartTime,
 		EndTime:    campaign.EndTime,
 	}
@@ -50,13 +58,20 @@ func MakeCampaignModel(campaign twomes.Campaign) CampaignModel {
 
 // Create a [twomes.Campaign] from an CampaignModel.
 func (m *CampaignModel) fromModel() twomes.Campaign {
+	var cloudFeeds []twomes.CloudFeed
+
+	for _, cloudFeedModel := range m.CloudFeeds {
+		cloudFeeds = append(cloudFeeds, cloudFeedModel.fromModel())
+	}
+
 	return twomes.Campaign{
-		ID:        m.ID,
-		Name:      m.Name,
-		App:       m.App.fromModel(),
-		InfoURL:   m.InfoURL,
-		StartTime: m.StartTime,
-		EndTime:   m.EndTime,
+		ID:         m.ID,
+		Name:       m.Name,
+		App:        m.App.fromModel(),
+		InfoURL:    m.InfoURL,
+		CloudFeeds: cloudFeeds,
+		StartTime:  m.StartTime,
+		EndTime:    m.EndTime,
 	}
 }
 
@@ -83,9 +98,9 @@ func (r *CampaignRepository) GetAll() ([]twomes.Campaign, error) {
 }
 
 func (r *CampaignRepository) Create(campaign twomes.Campaign) (twomes.Campaign, error) {
-	CampaignModel := MakeCampaignModel(campaign)
-	err := r.db.Create(&CampaignModel).Error
-	return CampaignModel.fromModel(), err
+	campaignModel := MakeCampaignModel(campaign)
+	err := r.db.Create(&campaignModel).Error
+	return campaignModel.fromModel(), err
 }
 
 func (r *CampaignRepository) Delete(campaign twomes.Campaign) error {

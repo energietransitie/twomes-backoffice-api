@@ -78,6 +78,7 @@ func main() {
 	deviceAuth := authHandler.Middleware(twomes.DeviceToken)
 
 	appRepository := repositories.NewAppRepository(db)
+	cloudFeedRepository := repositories.NewCloudFeedRepository(db)
 	campaignRepository := repositories.NewCampaignRepository(db)
 	buildingRepository := repositories.NewBuildingRepository(db)
 	accountRepository := repositories.NewAccountRepository(db)
@@ -87,7 +88,8 @@ func main() {
 	uploadRepository := repositories.NewUploadRepository(db)
 
 	appService := services.NewAppService(appRepository)
-	campaignService := services.NewCampaignService(campaignRepository, appService)
+	cloudFeedService := services.NewCloudFeedService(cloudFeedRepository)
+	campaignService := services.NewCampaignService(campaignRepository, appService, cloudFeedService)
 	buildingService := services.NewBuildingService(buildingRepository)
 	accountService := services.NewAccountService(accountRepository, authService, appService, campaignService, buildingService)
 	propertyService := services.NewPropertyService(propertyRepository)
@@ -96,6 +98,7 @@ func main() {
 	uploadService := services.NewUploadService(uploadRepository, propertyService)
 
 	appHandler := handlers.NewAppHandler(appService)
+	cloudFeedHandler := handlers.NewCloudFeedHandler(cloudFeedService)
 	campaignHandler := handlers.NewCampaignHandler(campaignService)
 	buildingHandler := handlers.NewBuildingHandler(buildingService)
 	accountHandler := handlers.NewAccountHandler(accountService)
@@ -109,6 +112,8 @@ func main() {
 	r.Use(middleware.RequestLogger(&middleware.DefaultLogFormatter{Logger: logrus.StandardLogger()}))
 
 	r.Method("POST", "/app", adminAuth(adminHandler.Middleware(appHandler.Create))) // POST on /app.
+
+	r.Method("POST", "/cloud_feed", adminAuth(adminHandler.Middleware(cloudFeedHandler.Create))) // POST on /cloud_feed.
 
 	r.Method("POST", "/campaign", adminAuth(adminHandler.Middleware(campaignHandler.Create))) // POST on /campaign.
 

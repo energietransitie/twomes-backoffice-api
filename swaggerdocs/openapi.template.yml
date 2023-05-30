@@ -10,6 +10,8 @@ servers:
 tags:
   - name: App
     description: Operations about apps
+  - name: CloudFeed
+    description: Operations about cloud feeds
   - name: Campaign
     description: Operations about campaigns
   - name: Account
@@ -45,6 +47,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/App'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '403':
+          $ref: '#/components/responses/403Forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
+
+  /cloud_feed:
+    post:
+      tags:
+        - CloudFeed
+      summary: Create a new cloud feed
+      operationId: createCloudFeed
+      security:
+        - AdminAuthorizationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloudFeed'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudFeed'
         '400':
           $ref: '#/components/responses/400BadRequest'
         '401':
@@ -501,6 +535,9 @@ components:
         scope:
           type: string
           example: account
+        redirect_url:
+          type: string
+          example: https://energietransitiewindesheim.page.link/callback
 
     DeviceType:
       type: object

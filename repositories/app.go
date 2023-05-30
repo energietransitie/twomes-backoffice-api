@@ -20,6 +20,7 @@ type AppModel struct {
 	gorm.Model
 	Name                    string `gorm:"unique;not null"`
 	ProvisioningURLTemplate string
+	OauthRedirectURL        string
 }
 
 // Set the name of the table in the database.
@@ -33,6 +34,7 @@ func MakeAppModel(app twomes.App) AppModel {
 		Model:                   gorm.Model{ID: app.ID},
 		Name:                    app.Name,
 		ProvisioningURLTemplate: app.ProvisioningURLTemplate,
+		OauthRedirectURL:        app.OauthRedirectURL,
 	}
 }
 
@@ -42,6 +44,7 @@ func (m *AppModel) fromModel() twomes.App {
 		ID:                      m.Model.ID,
 		Name:                    m.Name,
 		ProvisioningURLTemplate: m.ProvisioningURLTemplate,
+		OauthRedirectURL:        m.OauthRedirectURL,
 	}
 }
 
