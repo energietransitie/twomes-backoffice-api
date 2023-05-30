@@ -69,7 +69,7 @@ func (m *AccountModel) fromModel() twomes.Account {
 
 func (r *AccountRepository) Find(account twomes.Account) (twomes.Account, error) {
 	accountModel := MakeAccountModel(account)
-	err := r.db.Preload("Campaign.App").Preload("Buildings").Where(&accountModel).First(&accountModel).Error
+	err := r.db.Preload("Campaign.App").Preload("Campaign.CloudFeeds").Preload("Buildings").Where(&accountModel).First(&accountModel).Error
 	return accountModel.fromModel(), err
 }
 
