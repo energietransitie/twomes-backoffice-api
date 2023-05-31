@@ -25,7 +25,7 @@ type CloudFeedAuthModel struct {
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
-	// TODO: WARNING encrypted sting encryption not yet implemented.
+	// TODO: WARNING encrypted string encryption not yet implemented.
 	AccessToken    encryption.EncryptedString
 	RefreshToken   encryption.EncryptedString
 	AuthGrantToken encryption.EncryptedString
