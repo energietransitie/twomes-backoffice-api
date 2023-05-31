@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	ErrInvalidTypeinDB = errors.New("invalid type stored in database")
+	ErrInvalidTypeInDB = errors.New("invalid type stored in database")
 )
 
 // EncryptedString will transparantly encrypt or decrypt data when
@@ -16,18 +16,18 @@ var (
 //
 // TODO: Implement actual encryption.
 // WARNING actual encryption is not yet implemented.
-type EncrpytedString string
+type EncryptedString string
 
-func (e EncrpytedString) Value() (driver.Value, error) {
+func (e EncryptedString) Value() (driver.Value, error) {
 	return []byte(e), nil
 }
 
-func (e *EncrpytedString) Scan(src any) error {
+func (e *EncryptedString) Scan(src any) error {
 	source, ok := src.([]byte)
 	if !ok {
-		return ErrInvalidTypeinDB
+		return ErrInvalidTypeInDB
 	}
 
-	*e = EncrpytedString(source)
+	*e = EncryptedString(source)
 	return nil
 }

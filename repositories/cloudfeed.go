@@ -25,7 +25,7 @@ type CloudFeedModel struct {
 	TokenURL         string
 	ClientID         string
 	// TODO: WARNING EncryptedString still has to implement the encryption.
-	ClientSecret   encryption.EncrpytedString
+	ClientSecret   encryption.EncryptedString
 	Scope          string
 	RedirectURL    string
 	CloudFeedAuths []CloudFeedAuthModel `gorm:"foreignKey:CloudFeedID"`
@@ -44,7 +44,7 @@ func MakeCloudFeedModel(cloudFeed twomes.CloudFeed) CloudFeedModel {
 		AuthorizationURL: cloudFeed.AuthorizationURL,
 		TokenURL:         cloudFeed.AuthorizationURL,
 		ClientID:         cloudFeed.ClientID,
-		ClientSecret:     encryption.EncrpytedString(cloudFeed.ClientSecret),
+		ClientSecret:     encryption.EncryptedString(cloudFeed.ClientSecret),
 		Scope:            cloudFeed.Scope,
 		RedirectURL:      cloudFeed.RedirectURL,
 	}

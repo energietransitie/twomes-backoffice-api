@@ -26,9 +26,9 @@ type CloudFeedAuthModel struct {
 	UpdatedAt   time.Time
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
 	// TODO: WARNING encrypted sting encryption not yet implemented.
-	AccessToken    encryption.EncrpytedString
-	RefreshToken   encryption.EncrpytedString
-	AuthGrantToken encryption.EncrpytedString
+	AccessToken    encryption.EncryptedString
+	RefreshToken   encryption.EncryptedString
+	AuthGrantToken encryption.EncryptedString
 }
 
 // Set the name of the table in the database.
@@ -41,9 +41,9 @@ func MakeCloudFeedAuthModel(cloudFeedAuth twomes.CloudFeedAuth) CloudFeedAuthMod
 	return CloudFeedAuthModel{
 		AccountID:      cloudFeedAuth.AccountID,
 		CloudFeedID:    cloudFeedAuth.CloudFeedID,
-		AccessToken:    encryption.EncrpytedString(cloudFeedAuth.AccessToken),
-		RefreshToken:   encryption.EncrpytedString(cloudFeedAuth.RefreshToken),
-		AuthGrantToken: encryption.EncrpytedString(cloudFeedAuth.AuthGrantToken),
+		AccessToken:    encryption.EncryptedString(cloudFeedAuth.AccessToken),
+		RefreshToken:   encryption.EncryptedString(cloudFeedAuth.RefreshToken),
+		AuthGrantToken: encryption.EncryptedString(cloudFeedAuth.AuthGrantToken),
 	}
 }
 
