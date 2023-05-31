@@ -93,7 +93,7 @@ func main() {
 	cloudFeedAuthService := services.NewCloudFeedAuthService(cloudFeedAuthRepository)
 	campaignService := services.NewCampaignService(campaignRepository, appService, cloudFeedService)
 	buildingService := services.NewBuildingService(buildingRepository)
-	accountService := services.NewAccountService(accountRepository, authService, appService, campaignService, buildingService)
+	accountService := services.NewAccountService(accountRepository, authService, appService, campaignService, buildingService, cloudFeedAuthService)
 	propertyService := services.NewPropertyService(propertyRepository)
 	deviceTypeService := services.NewDeviceTypeService(deviceTypeRepository, propertyService)
 	deviceService := services.NewDeviceService(deviceRepository, authService, deviceTypeService, buildingService)
@@ -118,14 +118,17 @@ func main() {
 
 	r.Method("POST", "/cloud_feed", adminAuth(adminHandler.Middleware(cloudFeedHandler.Create))) // POST on /cloud_feed.
 
-	r.Method("POST", "/cloud_feed_auth", accountAuth(cloudFeedAuthHandler.Create)) // POST on /cloud_feed_auth.
-
 	r.Method("POST", "/campaign", adminAuth(adminHandler.Middleware(campaignHandler.Create))) // POST on /campaign.
 
 	r.Route("/account", func(r chi.Router) {
 		r.Method("POST", "/", adminAuth(adminHandler.Middleware(accountHandler.Create))) // POST on /account.
 		r.Method("POST", "/activate", accountActivationAuth(accountHandler.Activate))    // POST on /account/activate.
-		r.Method("GET", "/{account_id}", accountAuth(accountHandler.GetAccountByID))     // GET on /account/{account_id}.
+
+		r.Route("/{account_id}", func(r chi.Router) {
+			r.Method("GET", "/", accountAuth(accountHandler.GetAccountByID))                          // GET on /account/{account_id}.
+			r.Method("POST", "/cloud_feed_auth", accountAuth(cloudFeedAuthHandler.Create))            // POST on /account/{account_id}/cloud_feed_auth.
+			r.Method("GET", "/cloud_feed_auth", accountAuth(accountHandler.GetCloudFeedAuthStatuses)) // GET on /account/{account_id}/cloud_feed_auth.
+		})
 	})
 
 	r.Method("GET", "/building/{building_id}", accountAuth(buildingHandler.GetBuildingByID)) // GET on /building/{building_id}.

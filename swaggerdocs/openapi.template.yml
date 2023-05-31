@@ -5,7 +5,7 @@ info:
   version: '2.0.0'
 
 servers:
-  - url: {{.BaseURL}}
+  - url: { { .BaseURL } }
 
 tags:
   - name: App
@@ -89,34 +89,6 @@ paths:
           $ref: '#/components/responses/404NotFound'
         '500':
           $ref: '#/components/responses/500InternalServerError'
-  
-  /cloud_feed_auth:
-    post:
-      tags:
-        - CloudFeed
-      summary: Create a new cloud feed auth
-      operationId: createCloudFeedAuth
-      security:
-        - AccountAuthorizationToken: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CloudFeedAuth'
-      responses:
-        '200':
-          description: OK
-        '400':
-          $ref: '#/components/responses/400BadRequest'
-        '401':
-          $ref: '#/components/responses/401Unauthorized'
-        '403':
-          $ref: '#/components/responses/403Forbidden'
-        '404':
-          $ref: '#/components/responses/404NotFound'
-        '500':
-          $ref: '#/components/responses/500InternalServerError'
 
   /campaign:
     post:
@@ -152,7 +124,7 @@ paths:
                     properties:
                       name:
                         type: string
-                        example: "Enelogic"
+                        example: 'Enelogic'
       responses:
         '200':
           description: OK
@@ -210,6 +182,47 @@ paths:
         '500':
           $ref: '#/components/responses/500InternalServerError'
 
+  /account/activate:
+    post:
+      tags:
+        - Account
+      summary: Activate an account
+      operationId: activateAccount
+      security:
+        - AccountActivationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                latitude:
+                  type: integer
+                  example: 52.499817
+                longitude:
+                  type: integer
+                  example: 6.079731
+                tz_name:
+                  type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountActivated'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '403':
+          $ref: '#/components/responses/403Forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
+
   /account/{id}:
     get:
       tags:
@@ -243,36 +256,49 @@ paths:
         '500':
           $ref: '#/components/responses/500InternalServerError'
 
-  /account/activate:
+  /account/{id}/cloud_feed_auth:
     post:
       tags:
         - Account
-      summary: Activate an account
-      operationId: activateAccount
+      summary: Create a new cloud feed auth
+      operationId: createCloudFeedAuth
       security:
-        - AccountActivationToken: []
+        - AccountAuthorizationToken: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                latitude:
-                  type: integer
-                  example: 52.499817
-                longitude:
-                  type: integer
-                  example: 6.079731
-                tz_name:
-                  type: string
+              $ref: '#/components/schemas/CloudFeedAuth'
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '403':
+          $ref: '#/components/responses/403Forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
+    get:
+      tags:
+        - Account
+      summary: Get cloud feed auth information
+      operationId: getCloudFeedAuth
+      security:
+        - AccountAuthorizationToken: []
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccountActivated'
+                type: array
+                items:
+                  $ref: '#/components/schemas/CloudFeedAuthStatus'
         '400':
           $ref: '#/components/responses/400BadRequest'
         '401':
@@ -570,15 +596,21 @@ components:
     CloudFeedAuth:
       type: object
       properties:
-        account_id:
-          type: integer
-          example: 1
         cloud_feed_id:
           type: integer
           example: 1
         auth_grant_token:
           type: string
-          example: "1240912030asa76sa65d"
+          example: '1240912030asa76sa65d'
+
+    CloudFeedAuthStatus:
+      type: object
+      properties:
+        cloud_feed:
+          $ref: '#/components/schemas/CloudFeed'
+        connected:
+          type: boolean
+          example: false
 
     DeviceType:
       type: object

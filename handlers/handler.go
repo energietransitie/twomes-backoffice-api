@@ -97,3 +97,8 @@ func (fn Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		logrus.Error(err)
 	}
 }
+
+// Helper function to easily create a HandlerError with status 500 (internal server error).
+func InternalServerError(err error) *HandlerError {
+	return NewHandlerError(err, "internal server error", http.StatusInternalServerError)
+}

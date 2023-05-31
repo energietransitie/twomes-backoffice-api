@@ -120,3 +120,23 @@ func (h *AccountHandler) GetAccountByID(w http.ResponseWriter, r *http.Request) 
 
 	return nil
 }
+
+// Handle API endpoint for getting connected cloud feed auths.
+func (h *AccountHandler) GetCloudFeedAuthStatuses(w http.ResponseWriter, r *http.Request) error {
+	auth, ok := r.Context().Value(AuthorizationCtxKey).(*twomes.Authorization)
+	if !ok {
+		return InternalServerError(nil).WithMessage("failed when getting authentication context value")
+	}
+
+	cloudFeedAuthStatuses, err := h.accountService.GetCloudFeedAuthStatuses(auth.ID)
+	if err != nil {
+		return InternalServerError(err).WithMessage("failed when getting cloud feed auth statuses")
+	}
+
+	err = json.NewEncoder(w).Encode(&cloudFeedAuthStatuses)
+	if err != nil {
+		return InternalServerError(err).WithLevel(logrus.ErrorLevel)
+	}
+
+	return nil
+}

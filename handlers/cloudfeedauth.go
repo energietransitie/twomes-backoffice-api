@@ -34,10 +34,6 @@ func (h *CloudFeedAuthHandler) Create(w http.ResponseWriter, r *http.Request) er
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting authentication context value")
 	}
 
-	if auth.ID != request.AccountID {
-		return NewHandlerError(nil, "account ID in response does not match authorization token", http.StatusBadRequest)
-	}
-
 	_, err = h.service.Create(auth.ID, request.CloudFeedID, request.AuthGrantToken)
 	if err != nil {
 		if helpers.IsMySQLDuplicateError(err) {
