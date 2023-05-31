@@ -89,6 +89,34 @@ paths:
           $ref: '#/components/responses/404NotFound'
         '500':
           $ref: '#/components/responses/500InternalServerError'
+  
+  /cloud_feed_auth:
+    post:
+      tags:
+        - CloudFeed
+      summary: Create a new cloud feed auth
+      operationId: createCloudFeedAuth
+      security:
+        - AccountAuthorizationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloudFeedAuth'
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '403':
+          $ref: '#/components/responses/403Forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
 
   /campaign:
     post:
@@ -538,6 +566,19 @@ components:
         redirect_url:
           type: string
           example: https://energietransitiewindesheim.page.link/callback
+
+    CloudFeedAuth:
+      type: object
+      properties:
+        account_id:
+          type: integer
+          example: 1
+        cloud_feed_id:
+          type: integer
+          example: 1
+        auth_grant_token:
+          type: string
+          example: "1240912030asa76sa65d"
 
     DeviceType:
       type: object

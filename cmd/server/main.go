@@ -79,6 +79,7 @@ func main() {
 
 	appRepository := repositories.NewAppRepository(db)
 	cloudFeedRepository := repositories.NewCloudFeedRepository(db)
+	cloudFeedAuthRepository := repositories.NewCloudFeedAuthRepository(db)
 	campaignRepository := repositories.NewCampaignRepository(db)
 	buildingRepository := repositories.NewBuildingRepository(db)
 	accountRepository := repositories.NewAccountRepository(db)
@@ -89,6 +90,7 @@ func main() {
 
 	appService := services.NewAppService(appRepository)
 	cloudFeedService := services.NewCloudFeedService(cloudFeedRepository)
+	cloudFeedAuthService := services.NewCloudFeedAuthService(cloudFeedAuthRepository)
 	campaignService := services.NewCampaignService(campaignRepository, appService, cloudFeedService)
 	buildingService := services.NewBuildingService(buildingRepository)
 	accountService := services.NewAccountService(accountRepository, authService, appService, campaignService, buildingService)
@@ -99,6 +101,7 @@ func main() {
 
 	appHandler := handlers.NewAppHandler(appService)
 	cloudFeedHandler := handlers.NewCloudFeedHandler(cloudFeedService)
+	cloudFeedAuthHandler := handlers.NewCloudFeedAuthHandler(cloudFeedAuthService)
 	campaignHandler := handlers.NewCampaignHandler(campaignService)
 	buildingHandler := handlers.NewBuildingHandler(buildingService)
 	accountHandler := handlers.NewAccountHandler(accountService)
@@ -114,6 +117,8 @@ func main() {
 	r.Method("POST", "/app", adminAuth(adminHandler.Middleware(appHandler.Create))) // POST on /app.
 
 	r.Method("POST", "/cloud_feed", adminAuth(adminHandler.Middleware(cloudFeedHandler.Create))) // POST on /cloud_feed.
+
+	r.Method("POST", "/cloud_feed_auth", accountAuth(cloudFeedAuthHandler.Create)) // POST on /cloud_feed_auth.
 
 	r.Method("POST", "/campaign", adminAuth(adminHandler.Middleware(campaignHandler.Create))) // POST on /campaign.
 

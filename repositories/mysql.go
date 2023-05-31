@@ -42,7 +42,7 @@ func NewDatabaseConnectionAndMigrate(ctx context.Context, dsn string) (db *gorm.
 	for {
 		db, err = NewDatabaseConnection(dsn)
 		if err == nil {
-			return db, db.AutoMigrate(&AppModel{}, &CloudFeedModel{}, &CampaignModel{}, &AccountModel{}, &BuildingModel{}, &PropertyModel{}, &UploadModel{}, &DeviceTypeModel{}, &DeviceModel{}, &MeasurementModel{})
+			return db, db.AutoMigrate(&AppModel{}, &CloudFeedModel{}, &CampaignModel{}, &AccountModel{}, &CloudFeedAuthModel{}, &BuildingModel{}, &PropertyModel{}, &UploadModel{}, &DeviceTypeModel{}, &DeviceModel{}, &MeasurementModel{})
 		}
 
 		select {

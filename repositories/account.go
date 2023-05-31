@@ -25,6 +25,7 @@ type AccountModel struct {
 	Campaign        CampaignModel
 	ActivatedAt     *time.Time
 	Buildings       []BuildingModel
+	CloudFeedAuths  []CloudFeedAuthModel `gorm:"foreignKey:AccountID"`
 }
 
 // Set the name of the table in the database.

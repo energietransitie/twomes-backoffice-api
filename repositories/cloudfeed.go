@@ -25,9 +25,10 @@ type CloudFeedModel struct {
 	TokenURL         string
 	ClientID         string
 	// TODO: WARNING EncryptedString still has to implement the encryption.
-	ClientSecret encryption.EncrpytedString
-	Scope        string
-	RedirectURL  string
+	ClientSecret   encryption.EncrpytedString
+	Scope          string
+	RedirectURL    string
+	CloudFeedAuths []CloudFeedAuthModel `gorm:"foreignKey:CloudFeedID"`
 }
 
 // Set the name of the table in the database.

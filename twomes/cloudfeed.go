@@ -2,14 +2,15 @@ package twomes
 
 // A CloudFeed is an external online data source.
 type CloudFeed struct {
-	ID               uint   `json:"id"`
-	Name             string `json:"name"`
-	AuthorizationURL string `json:"authorization_url"`
-	TokenURL         string `json:"token_url"`
-	ClientID         string `json:"client_id"`
-	ClientSecret     string `json:"client_secret,omitempty"`
-	Scope            string `json:"scope"`
-	RedirectURL      string `json:"redirect_url"`
+	ID               uint            `json:"id"`
+	Name             string          `json:"name"`
+	AuthorizationURL string          `json:"authorization_url"`
+	TokenURL         string          `json:"token_url"`
+	ClientID         string          `json:"client_id"`
+	ClientSecret     string          `json:"client_secret,omitempty"`
+	Scope            string          `json:"scope"`
+	RedirectURL      string          `json:"redirect_url"`
+	CloudFeedAuths   []CloudFeedAuth `json:"-"`
 }
 
 // Create a new CloudFeed.
