@@ -95,6 +95,8 @@ func (fn Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// Return error to client, without giving away too much information.
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		logrus.Error(err)
+	} else {
+		w.WriteHeader(http.StatusOK)
 	}
 }
 
