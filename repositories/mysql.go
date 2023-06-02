@@ -9,6 +9,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
 )
 
 // Create a new database connection that can be used by repositories.
@@ -26,6 +27,9 @@ func NewDatabaseConnection(dsn string) (*gorm.DB, error) {
 
 	return gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
+		NamingStrategy: schema.NamingStrategy{
+			SingularTable: true,
+		},
 	})
 }
 

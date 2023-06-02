@@ -1,4 +1,4 @@
-// Package helpers implements common heler functions.
+// Package helpers implements common helper functions.
 package helpers
 
 import (

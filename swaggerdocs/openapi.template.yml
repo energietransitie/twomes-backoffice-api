@@ -1,11 +1,11 @@
-openapi: '3.0.2'
+openapi: "3.0.2"
 
 info:
   title: Twomes API
-  version: '2.0.0'
+  version: "2.0.0"
 
 servers:
-  - url: { { .BaseURL } }
+  - url: {{ .BaseURL }}
 
 tags:
   - name: App
@@ -39,24 +39,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/App'
+              $ref: "#/components/schemas/App"
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/App'
-        '400':
-          $ref: '#/components/responses/400BadRequest'
-        '401':
-          $ref: '#/components/responses/401Unauthorized'
-        '403':
-          $ref: '#/components/responses/403Forbidden'
-        '404':
-          $ref: '#/components/responses/404NotFound'
-        '500':
-          $ref: '#/components/responses/500InternalServerError'
+                $ref: "#/components/schemas/App"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
 
   /cloud_feed:
     post:
@@ -126,22 +126,22 @@ paths:
                         type: string
                         example: 'Enelogic'
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Campaign'
-        '400':
-          $ref: '#/components/responses/400BadRequest'
-        '401':
-          $ref: '#/components/responses/401Unauthorized'
-        '403':
-          $ref: '#/components/responses/403Forbidden'
-        '404':
-          $ref: '#/components/responses/404NotFound'
-        '500':
-          $ref: '#/components/responses/500InternalServerError'
+                $ref: "#/components/schemas/Campaign"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
 
   /account:
     post:
@@ -165,22 +165,22 @@ paths:
                       type: string
                       example: Test campaign 1
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccountCreated'
-        '400':
-          $ref: '#/components/responses/400BadRequest'
-        '401':
-          $ref: '#/components/responses/401Unauthorized'
-        '403':
-          $ref: '#/components/responses/403Forbidden'
-        '404':
-          $ref: '#/components/responses/404NotFound'
-        '500':
-          $ref: '#/components/responses/500InternalServerError'
+                $ref: "#/components/schemas/AccountCreated"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
 
   /account/activate:
     post:
@@ -239,22 +239,22 @@ paths:
           description: Account ID
           required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccountInfo'
-        '400':
-          $ref: '#/components/responses/400BadRequest'
-        '401':
-          $ref: '#/components/responses/401Unauthorized'
-        '403':
-          $ref: '#/components/responses/403Forbidden'
-        '404':
-          $ref: '#/components/responses/404NotFound'
-        '500':
-          $ref: '#/components/responses/500InternalServerError'
+                $ref: "#/components/schemas/AccountInfo"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
 
   /account/{id}/cloud_feed_auth:
     post:
@@ -291,7 +291,7 @@ paths:
       security:
         - AccountAuthorizationToken: []
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -323,24 +323,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DeviceType'
+              $ref: "#/components/schemas/DeviceType"
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DeviceType'
-        '400':
-          $ref: '#/components/responses/400BadRequest'
-        '401':
-          $ref: '#/components/responses/401Unauthorized'
-        '403':
-          $ref: '#/components/responses/403Forbidden'
-        '404':
-          $ref: '#/components/responses/404NotFound'
-        '500':
-          $ref: '#/components/responses/500InternalServerError'
+                $ref: "#/components/schemas/DeviceType"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
 
   /device:
     post:
@@ -373,22 +373,22 @@ paths:
                   type: string
                   example: 1029380918
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DeviceCreated'
-        '400':
-          $ref: '#/components/responses/400BadRequest'
-        '401':
-          $ref: '#/components/responses/401Unauthorized'
-        '403':
-          $ref: '#/components/responses/403Forbidden'
-        '404':
-          $ref: '#/components/responses/404NotFound'
-        '500':
-          $ref: '#/components/responses/500InternalServerError'
+                $ref: "#/components/schemas/DeviceCreated"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
 
   /device/{name}:
     get:
@@ -406,22 +406,106 @@ paths:
           description: Device name
           required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DeviceInfo'
-        '400':
-          $ref: '#/components/responses/400BadRequest'
-        '401':
-          $ref: '#/components/responses/401Unauthorized'
-        '403':
-          $ref: '#/components/responses/403Forbidden'
-        '404':
-          $ref: '#/components/responses/404NotFound'
-        '500':
-          $ref: '#/components/responses/500InternalServerError'
+                $ref: "#/components/schemas/DeviceInfo"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
+
+  /device/{name}/measurements:
+    get:
+      tags:
+        - Device
+      summary: Get device measurements
+      operationId: getDeviceMeasurements
+      security:
+        - AccountAuthorizationToken: []
+      parameters:
+        - name: name
+          in: path
+          schema:
+            type: string
+          description: Device name
+          required: true
+        - name: start
+          in: query
+          schema:
+            type: string
+          description: Start date
+          required: false
+        - name: end
+          in: query
+          schema:
+            type: string
+          description: End date
+          required: false
+        - name: property
+          in: query
+          schema:
+            type: integer
+          description: Property ID
+          required: false
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceMeasurements"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
+
+  /device/{name}/properties:
+    get:
+      tags:
+        - Device
+      summary: Get all used device properties
+      operationId: getDeviceProperties
+      security:
+        - AccountAuthorizationToken: []
+      parameters:
+        - name: name
+          in: path
+          schema:
+            type: string
+          description: Device name
+          required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceProperties"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
 
   /device/activate:
     post:
@@ -442,22 +526,22 @@ paths:
                   type: string
                   example: TWOMES-AC4BC3
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DeviceActivated'
-        '400':
-          $ref: '#/components/responses/400BadRequest'
-        '401':
-          $ref: '#/components/responses/401Unauthorized'
-        '403':
-          $ref: '#/components/responses/403Forbidden'
-        '404':
-          $ref: '#/components/responses/404NotFound'
-        '500':
-          $ref: '#/components/responses/500InternalServerError'
+                $ref: "#/components/schemas/DeviceActivated"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
 
   /building/{id}:
     get:
@@ -475,22 +559,22 @@ paths:
           description: Building ID
           required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Building'
-        '400':
-          $ref: '#/components/responses/400BadRequest'
-        '401':
-          $ref: '#/components/responses/401Unauthorized'
-        '403':
-          $ref: '#/components/responses/403Forbidden'
-        '404':
-          $ref: '#/components/responses/404NotFound'
-        '500':
-          $ref: '#/components/responses/500InternalServerError'
+                $ref: "#/components/schemas/Building"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
 
   /upload:
     post:
@@ -505,24 +589,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Upload'
+              $ref: "#/components/schemas/Upload"
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Upload'
-        '400':
-          $ref: '#/components/responses/400BadRequest'
-        '401':
-          $ref: '#/components/responses/401Unauthorized'
-        '403':
-          $ref: '#/components/responses/403Forbidden'
-        '404':
-          $ref: '#/components/responses/404NotFound'
-        '500':
-          $ref: '#/components/responses/500InternalServerError'
+                $ref: "#/components/schemas/Upload"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
 
 components:
   schemas:
@@ -554,7 +638,7 @@ components:
           type: string
           example: Test campaign 1
         app:
-          $ref: '#/components/schemas/App'
+          $ref: "#/components/schemas/App"
         info_url:
           type: string
           example: https://www.energietransitiewindesheim.nl/test-campaign-1
@@ -650,7 +734,7 @@ components:
         devices:
           type: array
           items:
-            $ref: '#/components/schemas/DeviceInfo'
+            $ref: "#/components/schemas/DeviceInfo"
 
     AccountCreated:
       type: object
@@ -660,7 +744,7 @@ components:
           readOnly: true
           example: 1
         campaign:
-          $ref: '#/components/schemas/Campaign'
+          $ref: "#/components/schemas/Campaign"
         activated_at:
           type: string
           format: date-time
@@ -683,7 +767,7 @@ components:
           readOnly: true
           example: 1
         campaign:
-          $ref: '#/components/schemas/Campaign'
+          $ref: "#/components/schemas/Campaign"
         activated_at:
           type: string
           format: date-time
@@ -696,7 +780,7 @@ components:
         buildings:
           type: array
           items:
-            $ref: '#/components/schemas/Building'
+            $ref: "#/components/schemas/Building"
 
     AccountInfo:
       type: object
@@ -706,7 +790,7 @@ components:
           readOnly: true
           example: 1
         campaign:
-          $ref: '#/components/schemas/Campaign'
+          $ref: "#/components/schemas/Campaign"
         activated_at:
           type: string
           format: date-time
@@ -715,7 +799,7 @@ components:
         buildings:
           type: array
           items:
-            $ref: '#/components/schemas/Building'
+            $ref: "#/components/schemas/Building"
 
     DeviceCreated:
       type: object
@@ -728,7 +812,7 @@ components:
           type: string
           example: TWOMES-AC4BC3
         device_type:
-          $ref: '#/components/schemas/DeviceType'
+          $ref: "#/components/schemas/DeviceType"
         building_id:
           type: integer
           example: 1
@@ -754,7 +838,7 @@ components:
           type: string
           example: TWOMES-AC4BC3
         device_type:
-          $ref: '#/components/schemas/DeviceType'
+          $ref: "#/components/schemas/DeviceType"
         building_id:
           type: integer
           example: 1
@@ -784,7 +868,7 @@ components:
           type: string
           example: TWOMES-AC4BC3
         device_type:
-          $ref: '#/components/schemas/DeviceType'
+          $ref: "#/components/schemas/DeviceType"
         building_id:
           type: integer
           example: 1
@@ -798,6 +882,38 @@ components:
           format: date-time
           nullable: true
           example: 2023-05-10T13:30:18Z
+
+    DeviceMeasurements:
+      type: array
+      items:
+        properties:
+          id:
+            type: integer
+          upload_id:
+            type: integer
+          property:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+                example: property_name__unit
+          time:
+            type: string
+            example: 2023-05-10T09:13:15Z
+          value:
+            type: string
+
+    DeviceProperties:
+      type: array
+      items:
+        properties:
+          id:
+            type: integer
+          name:
+            type: string
+            example: property_name__unit
 
     Upload:
       type: object
@@ -855,31 +971,31 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
     401Unauthorized:
       description: Unauthorized
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
     403Forbidden:
       description: Forbidden
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
     404NotFound:
       description: Not found
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
     500InternalServerError:
       description: Internal server error
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
 
   securitySchemes:
     AdminAuthorizationToken:
