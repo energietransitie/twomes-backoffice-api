@@ -15,7 +15,7 @@ type DeviceRepository interface {
 
 // DeviceService exposes all operations that can be performed on a [twomes.Device].
 type DeviceService interface {
-	Create(name string, deviceType twomes.DeviceType, building, accountID uint, activationSecret string) (twomes.Device, error)
+	Create(name string, buildingID, accountID uint, activationSecret string) (twomes.Device, error)
 	GetByID(id uint) (twomes.Device, error)
 	GetByName(name string) (twomes.Device, error)
 	Activate(name, activationSecret string) (twomes.Device, error)

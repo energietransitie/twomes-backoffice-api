@@ -359,13 +359,7 @@ paths:
               properties:
                 name:
                   type: string
-                  example: TWOMES-AC4BC3
-                device_type:
-                  type: object
-                  properties:
-                    name:
-                      type: string
-                      example: Generic-Test
+                  example: FCA2-AC4BC3
                 building_id:
                   type: integer
                   example: 1
@@ -524,7 +518,7 @@ paths:
               properties:
                 name:
                   type: string
-                  example: TWOMES-AC4BC3
+                  example: FCA2-AC4BC3
       responses:
         "200":
           description: OK
@@ -810,7 +804,7 @@ components:
           example: 1
         name:
           type: string
-          example: TWOMES-AC4BC3
+          example: FCA2-AC4BC3
         device_type:
           $ref: "#/components/schemas/DeviceType"
         building_id:
@@ -836,7 +830,7 @@ components:
           example: 1
         name:
           type: string
-          example: TWOMES-AC4BC3
+          example: FCA2-AC4BC3
         device_type:
           $ref: "#/components/schemas/DeviceType"
         building_id:
@@ -866,7 +860,7 @@ components:
           example: 1
         name:
           type: string
-          example: TWOMES-AC4BC3
+          example: FCA2-AC4BC3
         device_type:
           $ref: "#/components/schemas/DeviceType"
         building_id:

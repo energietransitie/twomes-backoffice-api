@@ -42,7 +42,7 @@ func (h *DeviceHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		return NewHandlerError(err, "wrong token kind", http.StatusForbidden).WithMessage("wrong token kind was used")
 	}
 
-	device, err := h.service.Create(request.Name, request.DeviceType, request.BuildingID, auth.ID, request.ActivationSecret)
+	device, err := h.service.Create(request.Name, request.BuildingID, auth.ID, request.ActivationSecret)
 	if err != nil {
 		if helpers.IsMySQLRecordNotFoundError(err) {
 			return NewHandlerError(err, "not found", http.StatusNotFound)
@@ -53,6 +53,10 @@ func (h *DeviceHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		}
 
 		if errors.Is(err, services.ErrBuildingDoesNotBelongToAccount) {
+			return NewHandlerError(err, err.Error(), http.StatusBadRequest)
+		}
+
+		if errors.Is(err, services.ErrHashDoesNotMatchType) {
 			return NewHandlerError(err, err.Error(), http.StatusBadRequest)
 		}
 
