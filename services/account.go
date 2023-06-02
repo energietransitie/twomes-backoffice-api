@@ -93,12 +93,14 @@ func (s *AccountService) Activate(id uint, longtitude, latitude float32, tzName 
 		return twomes.Account{}, err
 	}
 
-	building, err := s.buildingService.Create(account.ID, longtitude, latitude, tzName)
-	if err != nil {
-		return twomes.Account{}, err
-	}
+	if len(account.Buildings) < 1 {
+		building, err := s.buildingService.Create(account.ID, longtitude, latitude, tzName)
+		if err != nil {
+			return twomes.Account{}, err
+		}
 
-	account.Buildings = append(account.Buildings, building)
+		account.Buildings = append(account.Buildings, building)
+	}
 
 	account.AuthorizationToken, err = s.authService.CreateToken(twomes.AccountToken, account.ID, time.Time{})
 	if err != nil {
