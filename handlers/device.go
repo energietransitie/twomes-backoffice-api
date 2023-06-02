@@ -143,3 +143,90 @@ func (h *DeviceHandler) GetDeviceByName(w http.ResponseWriter, r *http.Request) 
 
 	return nil
 }
+
+// Handle API endpoint for getting device measurements
+func (h *DeviceHandler) GetDeviceMeasurements(w http.ResponseWriter, r *http.Request) error {
+	deviceName := chi.URLParam(r, "device_name")
+
+	auth, ok := r.Context().Value(AuthorizationCtxKey).(*twomes.Authorization)
+	if !ok {
+		return NewHandlerError(nil, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting authentication context value")
+	}
+
+	device, err := h.getDeviceByName(deviceName, auth.ID)
+	if err != nil {
+		return err
+	}
+
+	// filters is a map of query parameters with only: property, start & end
+	filters := make(map[string]string)
+	allowedFilters := []string{"property", "start", "end"}
+	for _, v := range allowedFilters {
+		val := r.URL.Query().Get(v)
+
+		if val != "" {
+			filters[v] = val
+		}
+	}
+
+	measurements, err := h.service.GetMeasurementsByDeviceID(device.ID, filters)
+	if err != nil {
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting measurements")
+	}
+
+	err = json.NewEncoder(w).Encode(&measurements)
+	if err != nil {
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
+	}
+
+	return nil
+}
+
+// Handle API endpoint for getting device properties
+func (h *DeviceHandler) GetDeviceProperties(w http.ResponseWriter, r *http.Request) error {
+	deviceName := chi.URLParam(r, "device_name")
+
+	auth, ok := r.Context().Value(AuthorizationCtxKey).(*twomes.Authorization)
+	if !ok {
+		return NewHandlerError(nil, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting authentication context value")
+	}
+
+	device, err := h.getDeviceByName(deviceName, auth.ID)
+	if err != nil {
+		return err
+	}
+
+	properties, err := h.service.GetPropertiesByDeviceID(device.ID)
+	if err != nil {
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting properties")
+	}
+
+	err = json.NewEncoder(w).Encode(&properties)
+	if err != nil {
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
+	}
+
+	return nil
+}
+
+func (h *DeviceHandler) getDeviceByName(deviceName string, accountId uint) (*twomes.Device, error) {
+	if deviceName == "" {
+		return nil, NewHandlerError(nil, "device_name not specified", http.StatusBadRequest)
+	}
+
+	device, err := h.service.GetByName(deviceName)
+	if err != nil {
+		return nil, NewHandlerError(err, "device not found", http.StatusNotFound).WithMessage("device not found")
+	}
+
+	deviceAccountId, err := h.service.GetAccountByDeviceID(device.ID)
+	if err != nil {
+		return nil, NewHandlerError(err, "device not found", http.StatusNotFound).WithMessage("device could not be found by ID")
+	}
+
+	if deviceAccountId != accountId {
+		return nil, NewHandlerError(nil, "device does not belong to account", http.StatusForbidden).WithMessage("request was made for device not owned by account")
+	}
+
+	return &device, nil
+}

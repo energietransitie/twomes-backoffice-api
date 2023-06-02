@@ -120,3 +120,21 @@ func (s *DeviceService) GetAccountByDeviceID(id uint) (uint, error) {
 
 	return building.AccountID, nil
 }
+
+func (s *DeviceService) GetMeasurementsByDeviceID(id uint, filters map[string]string) ([]twomes.Measurement, error) {
+	measurements, err := s.repository.GetMeasurements(twomes.Device{ID: id}, filters)
+	if err != nil {
+		return nil, err
+	}
+
+	return measurements, nil
+}
+
+func (s *DeviceService) GetPropertiesByDeviceID(id uint) ([]twomes.Property, error) {
+	properties, err := s.repository.GetProperties(twomes.Device{ID: id})
+	if err != nil {
+		return nil, err
+	}
+
+	return properties, nil
+}
