@@ -161,9 +161,11 @@ func (h *DeviceHandler) GetDeviceMeasurements(w http.ResponseWriter, r *http.Req
 	// filters is a map of query parameters with only: property, start & end
 	filters := make(map[string]string)
 	allowedFilters := []string{"property", "start", "end"}
-	for k, v := range r.URL.Query() {
-		if len(v) > 0 && helpers.Contains(allowedFilters, k) {
-			filters[k] = v[0]
+	for _, v := range allowedFilters {
+		val := r.URL.Query().Get(v)
+
+		if val != "" {
+			filters[v] = val
 		}
 	}
 
@@ -196,7 +198,7 @@ func (h *DeviceHandler) GetDeviceProperties(w http.ResponseWriter, r *http.Reque
 
 	properties, err := h.service.GetPropertiesByDeviceID(device.ID)
 	if err != nil {
-		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting measurements")
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting properties")
 	}
 
 	err = json.NewEncoder(w).Encode(&properties)
