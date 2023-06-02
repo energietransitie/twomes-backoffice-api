@@ -101,3 +101,9 @@ func (r *UploadRepository) Delete(upload twomes.Upload) error {
 	uploadModel := MakeUploadModel(upload)
 	return r.db.Delete(&uploadModel).Error
 }
+
+func (r *UploadRepository) GetLatestUploadForDeviceWithID(id uint) (twomes.Upload, error) {
+	var uploadModel UploadModel
+	err := r.db.Where(UploadModel{DeviceModelID: id}).First(&uploadModel).Error
+	return uploadModel.fromModel(), err
+}

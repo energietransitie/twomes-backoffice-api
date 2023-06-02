@@ -22,15 +22,19 @@ type DeviceService struct {
 	// Services used when creating a device.
 	deviceTypeService ports.DeviceTypeService
 	buildingService   ports.BuildingService
+
+	// Services used when getting device info.
+	uploadService ports.UploadService
 }
 
 // Create a new DeviceService.
-func NewDeviceService(repository ports.DeviceRepository, authService ports.AuthorizationService, deviceTypeService ports.DeviceTypeService, BuildingService ports.BuildingService) *DeviceService {
+func NewDeviceService(repository ports.DeviceRepository, authService ports.AuthorizationService, deviceTypeService ports.DeviceTypeService, BuildingService ports.BuildingService, uploadService ports.UploadService) *DeviceService {
 	return &DeviceService{
 		repository:        repository,
 		authService:       authService,
 		deviceTypeService: deviceTypeService,
 		buildingService:   BuildingService,
+		uploadService:     uploadService,
 	}
 }
 
@@ -63,10 +67,9 @@ func (s *DeviceService) GetByName(name string) (twomes.Device, error) {
 		return twomes.Device{}, err
 	}
 
-	if len(device.Uploads) > 0 {
-		latestUpload := device.Uploads[len(device.Uploads)-1]
-		latestUploadTime := time.Time(latestUpload.ServerTime)
-		device.LatestUpload = &latestUploadTime
+	device.LatestUpload, err = s.uploadService.GetLatestUploadTimeForDeviceWithID(device.ID)
+	if err != nil {
+		return twomes.Device{}, err
 	}
 
 	return device, nil

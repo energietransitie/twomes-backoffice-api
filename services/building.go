@@ -7,12 +7,16 @@ import (
 
 type BuildingService struct {
 	repository ports.BuildingRepository
+
+	// Services used when getting device info.
+	uploadService ports.UploadService
 }
 
 // Create a new BuildingService.
-func NewBuildingService(repository ports.BuildingRepository) *BuildingService {
+func NewBuildingService(repository ports.BuildingRepository, uploadService ports.UploadService) *BuildingService {
 	return &BuildingService{
-		repository: repository,
+		repository:    repository,
+		uploadService: uploadService,
 	}
 }
 
@@ -22,5 +26,17 @@ func (s *BuildingService) Create(accountID uint, long float32, lat float32, tzNa
 }
 
 func (s *BuildingService) GetByID(id uint) (twomes.Building, error) {
-	return s.repository.Find(twomes.Building{ID: id})
+	building, err := s.repository.Find(twomes.Building{ID: id})
+	if err != nil {
+		return twomes.Building{}, err
+	}
+
+	for _, device := range building.Devices {
+		device.LatestUpload, err = s.uploadService.GetLatestUploadTimeForDeviceWithID(device.ID)
+		if err != nil {
+			return twomes.Building{}, err
+		}
+	}
+
+	return building, nil
 }
