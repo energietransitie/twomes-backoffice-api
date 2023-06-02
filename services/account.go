@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
 	"github.com/energietransitie/twomes-backoffice-api/ports"
 	"github.com/energietransitie/twomes-backoffice-api/twomes"
 	"github.com/sirupsen/logrus"
@@ -26,12 +27,15 @@ type AccountService struct {
 	campaignService ports.CampaignService
 	buildingService ports.BuildingService
 
+	// Services used for getting cloud feed auth statuses.
+	cloudFeedAuthService ports.CloudFeedAuthService
+
 	// Regular expression used for pattern matching in a provisioning_url_template.
 	activationTokenRegex *regexp.Regexp
 }
 
 // Create a new AccountService
-func NewAccountService(repository ports.AccountRepository, authService ports.AuthorizationService, appService ports.AppService, campaignService ports.CampaignService, buildingService ports.BuildingService) *AccountService {
+func NewAccountService(repository ports.AccountRepository, authService ports.AuthorizationService, appService ports.AppService, campaignService ports.CampaignService, buildingService ports.BuildingService, cloudFeedAuthService ports.CloudFeedAuthService) *AccountService {
 	activationTokenRegex, err := regexp.Compile(`<account_activation_token>`)
 	if err != nil {
 		logrus.WithField("error", err).Fatal("account activation token regex did not compile")
@@ -43,6 +47,7 @@ func NewAccountService(repository ports.AccountRepository, authService ports.Aut
 		appService:           appService,
 		campaignService:      campaignService,
 		buildingService:      buildingService,
+		cloudFeedAuthService: cloudFeedAuthService,
 		activationTokenRegex: activationTokenRegex,
 	}
 }
@@ -106,4 +111,25 @@ func (s *AccountService) Activate(id uint, longtitude, latitude float32, tzName 
 // Get an account by ID.
 func (s *AccountService) GetByID(id uint) (twomes.Account, error) {
 	return s.repository.Find(twomes.Account{ID: id})
+}
+
+// Get cloud feed auth statuses.
+func (s *AccountService) GetCloudFeedAuthStatuses(id uint) ([]twomes.CloudFeedAuthStatus, error) {
+	var cloudFeedAuthStatuses []twomes.CloudFeedAuthStatus
+
+	account, err := s.GetByID(id)
+	if err != nil {
+		return cloudFeedAuthStatuses, err
+	}
+
+	for _, cloudFeed := range account.Campaign.CloudFeeds {
+		cloudFeedAuth, err := s.cloudFeedAuthService.Find(twomes.CloudFeedAuth{AccountID: id, CloudFeedID: cloudFeed.ID})
+		if err != nil && !helpers.IsMySQLRecordNotFoundError(err) {
+			return cloudFeedAuthStatuses, err
+		}
+
+		cloudFeedAuthStatuses = append(cloudFeedAuthStatuses, twomes.MakeCloudFeedAuthStatus(cloudFeed, cloudFeedAuth))
+	}
+
+	return cloudFeedAuthStatuses, nil
 }

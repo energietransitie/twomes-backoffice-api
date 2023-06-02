@@ -29,7 +29,7 @@ func (h *CampaignHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
 	}
 
-	campaign, err := h.service.Create(request.Name, request.App, request.InfoURL, request.StartTime, request.EndTime)
+	campaign, err := h.service.Create(request.Name, request.App, request.InfoURL, request.CloudFeeds, request.StartTime, request.EndTime)
 	if err != nil {
 		if helpers.IsMySQLRecordNotFoundError(err) {
 			return NewHandlerError(err, "not found", http.StatusNotFound)

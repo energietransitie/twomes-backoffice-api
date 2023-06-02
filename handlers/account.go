@@ -41,6 +41,9 @@ func (h *AccountHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError)
 	}
 
+	// We don't need to return cloud feed auths.
+	account.CloudFeedAuths = nil
+
 	err = json.NewEncoder(w).Encode(account)
 	if err != nil {
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
@@ -113,6 +116,26 @@ func (h *AccountHandler) GetAccountByID(w http.ResponseWriter, r *http.Request) 
 	err = json.NewEncoder(w).Encode(&account)
 	if err != nil {
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
+	}
+
+	return nil
+}
+
+// Handle API endpoint for getting connected cloud feed auths.
+func (h *AccountHandler) GetCloudFeedAuthStatuses(w http.ResponseWriter, r *http.Request) error {
+	auth, ok := r.Context().Value(AuthorizationCtxKey).(*twomes.Authorization)
+	if !ok {
+		return InternalServerError(nil).WithMessage("failed when getting authentication context value")
+	}
+
+	cloudFeedAuthStatuses, err := h.accountService.GetCloudFeedAuthStatuses(auth.ID)
+	if err != nil {
+		return InternalServerError(err).WithMessage("failed when getting cloud feed auth statuses")
+	}
+
+	err = json.NewEncoder(w).Encode(&cloudFeedAuthStatuses)
+	if err != nil {
+		return InternalServerError(err).WithLevel(logrus.ErrorLevel)
 	}
 
 	return nil

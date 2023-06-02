@@ -72,6 +72,7 @@ value {label: "String, non-null"}
 name {label: "String, non-null"}
 +app_id {label: "Integer, non-null"}
 info_url {label: "String"}
++cloud_feeds {label: "Integer"}
 start_time {label: "Timestamp"}
 end_time {label: "Timestamp"}
 
@@ -80,7 +81,24 @@ end_time {label: "Timestamp"}
 *id {label: "Integer"}
 name {label: "String, non-null"}
 provisioning_url_template {label: "String, non-null"}
+oauth_redirect_url {label: "String, non-null"}
 
+[CloudFeed]
+*id {label: "Integer"}
+name {label: "String, non-null"}
+authorization_url {label: "String, non-null"}
+token_url {label: "String, non-null"}
+client_id {label: "String, non-null"}
+client_secret {label: "String, non-null"}
+scope {label: "String, non-null"}
+redirect_url {label: "String, non-null"}
+
+[CloudFeedAuth]
+*account_id {label: "Integer"}
+*cloud_feed_id {label: "Integer"}
+access_token {label: "String"}
+refresh_token {label: "String"}
+auth_grant_token {label: "String, non-null"}
 
 App *--1 Campaign
 Campaign 1--* Account
@@ -91,3 +109,6 @@ DeviceType *--* Property
 Device 1--* Upload
 Upload 1--* Measurement
 Measurement *--1 Property
+Campaign *--* CloudFeed
+CloudFeedAuth *--1 CloudFeed
+CloudFeedAuth *--1 Account

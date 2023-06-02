@@ -10,6 +10,8 @@ servers:
 tags:
   - name: App
     description: Operations about apps
+  - name: CloudFeed
+    description: Operations about cloud feeds
   - name: Campaign
     description: Operations about campaigns
   - name: Account
@@ -56,6 +58,38 @@ paths:
         "500":
           $ref: "#/components/responses/500InternalServerError"
 
+  /cloud_feed:
+    post:
+      tags:
+        - CloudFeed
+      summary: Create a new cloud feed
+      operationId: createCloudFeed
+      security:
+        - AdminAuthorizationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloudFeed'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudFeed'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '403':
+          $ref: '#/components/responses/403Forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
+
   /campaign:
     post:
       tags:
@@ -83,6 +117,14 @@ paths:
                 info_url:
                   type: string
                   example: https://www.energietransitiewindesheim.nl/test-campaign-1
+                cloud_feeds:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: 'Enelogic'
       responses:
         "200":
           description: OK
@@ -140,6 +182,47 @@ paths:
         "500":
           $ref: "#/components/responses/500InternalServerError"
 
+  /account/activate:
+    post:
+      tags:
+        - Account
+      summary: Activate an account
+      operationId: activateAccount
+      security:
+        - AccountActivationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                latitude:
+                  type: integer
+                  example: 52.499817
+                longitude:
+                  type: integer
+                  example: 6.079731
+                tz_name:
+                  type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountActivated'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '403':
+          $ref: '#/components/responses/403Forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
+
   /account/{id}:
     get:
       tags:
@@ -173,46 +256,59 @@ paths:
         "500":
           $ref: "#/components/responses/500InternalServerError"
 
-  /account/activate:
+  /account/{id}/cloud_feed_auth:
     post:
       tags:
         - Account
-      summary: Activate an account
-      operationId: activateAccount
+      summary: Create a new cloud feed auth
+      operationId: createCloudFeedAuth
       security:
-        - AccountActivationToken: []
+        - AccountAuthorizationToken: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                latitude:
-                  type: integer
-                  example: 52.499817
-                longitude:
-                  type: integer
-                  example: 6.079731
-                tz_name:
-                  type: string
+              $ref: '#/components/schemas/CloudFeedAuth'
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '403':
+          $ref: '#/components/responses/403Forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
+    get:
+      tags:
+        - Account
+      summary: Get cloud feed auth information
+      operationId: getCloudFeedAuth
+      security:
+        - AccountAuthorizationToken: []
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AccountActivated"
-        "400":
-          $ref: "#/components/responses/400BadRequest"
-        "401":
-          $ref: "#/components/responses/401Unauthorized"
-        "403":
-          $ref: "#/components/responses/403Forbidden"
-        "404":
-          $ref: "#/components/responses/404NotFound"
-        "500":
-          $ref: "#/components/responses/500InternalServerError"
+                type: array
+                items:
+                  $ref: '#/components/schemas/CloudFeedAuthStatus'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '403':
+          $ref: '#/components/responses/403Forbidden'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+        '500':
+          $ref: '#/components/responses/500InternalServerError'
 
   /device_type:
     post:
@@ -527,6 +623,9 @@ components:
         provisioning_url_template:
           type: string
           example: https://energietransitiewindesheim.page.link/?link=https%3A%2F%2Fwww.energietransitiewindesheim.nl%2F%3Ftest_token%3D<account_activation_token>&apn=nl.windesheim.energietransitie.warmtewachter&ibi=nl.windesheim.energietransitie.warmtewachter&isi=1563201993&efr=1
+        oauth_redirect_url:
+          type: string
+          example: https://energietransitiewindesheim.page.link/callback
 
     Campaign:
       type: object
@@ -543,6 +642,59 @@ components:
         info_url:
           type: string
           example: https://www.energietransitiewindesheim.nl/test-campaign-1
+        cloud_feeds:
+          type: array
+          items:
+            $ref: '#/components/schemas/CloudFeed'
+
+    CloudFeed:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+          readOnly: true
+        name:
+          type: string
+          example: Enelogic
+        authorization_url:
+          type: string
+          example: https://enelogic.com/oauth/v2/auth
+        token_url:
+          type: string
+          example: https://enelogic.com/oauth/v2/token
+        client_id:
+          type: string
+          example: 10319_simpv2iqo80g008wkoo404c0os0sowg480kgww4sk4cwkc0o0
+        client_secret:
+          type: string
+          example: 4lblxyw0bjms08o804o8kswso4o4wkwwcow44cc8c4oo0o008o
+          writeOnly: true
+        scope:
+          type: string
+          example: account
+        redirect_url:
+          type: string
+          example: https://energietransitiewindesheim.page.link/callback
+
+    CloudFeedAuth:
+      type: object
+      properties:
+        cloud_feed_id:
+          type: integer
+          example: 1
+        auth_grant_token:
+          type: string
+          example: '1240912030asa76sa65d'
+
+    CloudFeedAuthStatus:
+      type: object
+      properties:
+        cloud_feed:
+          $ref: '#/components/schemas/CloudFeed'
+        connected:
+          type: boolean
+          example: false
 
     DeviceType:
       type: object

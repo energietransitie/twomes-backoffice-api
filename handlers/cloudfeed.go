@@ -10,29 +10,27 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type AppHandler struct {
-	service ports.AppService
+type CloudFeedHandler struct {
+	service ports.CloudFeedService
 }
 
-func NewAppHandler(service ports.AppService) *AppHandler {
-	return &AppHandler{
+// Create a new CloudFeedHandler.
+func NewCloudFeedHandler(service ports.CloudFeedService) *CloudFeedHandler {
+	return &CloudFeedHandler{
 		service: service,
 	}
 }
 
-func (h *AppHandler) Create(w http.ResponseWriter, r *http.Request) error {
-	var request twomes.App
+// Handle API endpoint for creating a new cloud feed.
+func (h *CloudFeedHandler) Create(w http.ResponseWriter, r *http.Request) error {
+	var request twomes.CloudFeed
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
 	}
 
-	app, err := h.service.Create(request.Name, request.ProvisioningURLTemplate, request.OauthRedirectURL)
+	cloudFeed, err := h.service.Create(request.Name, request.AuthorizationURL, request.TokenURL, request.ClientID, request.ClientSecret, request.Scope, request.RedirectURL)
 	if err != nil {
-		if helpers.IsMySQLRecordNotFoundError(err) {
-			return NewHandlerError(err, "not found", http.StatusNotFound)
-		}
-
 		if helpers.IsMySQLDuplicateError(err) {
 			return NewHandlerError(err, "duplicate", http.StatusBadRequest)
 		}
@@ -40,7 +38,7 @@ func (h *AppHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError)
 	}
 
-	err = json.NewEncoder(w).Encode(app)
+	err = json.NewEncoder(w).Encode(&cloudFeed)
 	if err != nil {
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
 	}
