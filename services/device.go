@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/energietransitie/twomes-backoffice-api/ports"
@@ -11,6 +12,7 @@ import (
 var (
 	ErrDeviceDoesNotBelongToAccount   = errors.New("device does not belong to this account")
 	ErrBuildingDoesNotBelongToAccount = errors.New("building does not belong to this account")
+	ErrDeviceTypeNameInvalid          = errors.New("device type name invalid")
 )
 
 type DeviceService struct {
@@ -38,7 +40,7 @@ func NewDeviceService(repository ports.DeviceRepository, authService ports.Autho
 	}
 }
 
-func (s *DeviceService) Create(name string, deviceType twomes.DeviceType, buildingID, accountID uint, activationSecret string) (twomes.Device, error) {
+func (s *DeviceService) Create(name string, buildingID, accountID uint, activationSecret string) (twomes.Device, error) {
 	building, err := s.buildingService.GetByID(buildingID)
 	if err != nil {
 		return twomes.Device{}, err
@@ -48,7 +50,13 @@ func (s *DeviceService) Create(name string, deviceType twomes.DeviceType, buildi
 		return twomes.Device{}, ErrBuildingDoesNotBelongToAccount
 	}
 
-	deviceType, err = s.deviceTypeService.Find(deviceType)
+	splitDeviceTypeName := strings.Split(name, "-")
+	if len(splitDeviceTypeName) != 2 {
+		return twomes.Device{}, ErrDeviceTypeNameInvalid
+	}
+
+	deviceTypeHash := splitDeviceTypeName[0]
+	deviceType, err := s.deviceTypeService.GetByHash(deviceTypeHash)
 	if err != nil {
 		return twomes.Device{}, err
 	}

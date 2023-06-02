@@ -14,6 +14,7 @@ type DeviceTypeRepository interface {
 type DeviceTypeService interface {
 	Create(name, installationManualURL, infoURL string) (twomes.DeviceType, error)
 	Find(deviceType twomes.DeviceType) (twomes.DeviceType, error)
+	GetByHash(deviceTypeHash string) (twomes.DeviceType, error)
 	GetByID(id uint) (twomes.DeviceType, error)
 	GetByName(name string) (twomes.DeviceType, error)
 }
