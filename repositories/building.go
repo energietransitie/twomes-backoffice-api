@@ -19,7 +19,7 @@ func NewBuildingRepository(db *gorm.DB) *BuildingRepository {
 type BuildingModel struct {
 	gorm.Model
 	AccountModelID uint `gorm:"column:account_id"`
-	Longtitude     float32
+	Longitude      float32
 	Latitude       float32
 	TZName         string
 	Devices        []DeviceModel
@@ -41,7 +41,7 @@ func MakeBuildingModel(building twomes.Building) BuildingModel {
 	return BuildingModel{
 		Model:          gorm.Model{ID: building.ID},
 		AccountModelID: building.AccountID,
-		Longtitude:     building.Longtitude,
+		Longitude:      building.Longitude,
 		Latitude:       building.Latitude,
 		TZName:         building.TZName,
 		Devices:        deviceModels,
@@ -58,12 +58,12 @@ func (m *BuildingModel) fromModel() twomes.Building {
 	}
 
 	return twomes.Building{
-		ID:         m.Model.ID,
-		AccountID:  m.AccountModelID,
-		Longtitude: m.Longtitude,
-		Latitude:   m.Latitude,
-		TZName:     m.TZName,
-		Devices:    devices,
+		ID:        m.Model.ID,
+		AccountID: m.AccountModelID,
+		Longitude: m.Longitude,
+		Latitude:  m.Latitude,
+		TZName:    m.TZName,
+		Devices:   devices,
 	}
 }
 
