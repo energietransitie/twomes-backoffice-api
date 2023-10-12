@@ -8,6 +8,7 @@ import (
 	"github.com/energietransitie/twomes-backoffice-api/ports"
 	"github.com/energietransitie/twomes-backoffice-api/twomes"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/oauth2"
 )
 
 type CloudFeedAuthHandler struct {
@@ -38,6 +39,10 @@ func (h *CloudFeedAuthHandler) Create(w http.ResponseWriter, r *http.Request) er
 	if err != nil {
 		if helpers.IsMySQLDuplicateError(err) {
 			return NewHandlerError(err, "duplicate", http.StatusBadRequest)
+		}
+
+		if _, ok := err.(*oauth2.RetrieveError); ok {
+			return NewHandlerError(err, "invalid auth code exchange", http.StatusBadRequest)
 		}
 
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError)
