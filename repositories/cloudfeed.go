@@ -42,7 +42,7 @@ func MakeCloudFeedModel(cloudFeed twomes.CloudFeed) CloudFeedModel {
 		Model:            gorm.Model{ID: cloudFeed.ID},
 		Name:             cloudFeed.Name,
 		AuthorizationURL: cloudFeed.AuthorizationURL,
-		TokenURL:         cloudFeed.AuthorizationURL,
+		TokenURL:         cloudFeed.TokenURL,
 		ClientID:         cloudFeed.ClientID,
 		ClientSecret:     encryption.EncryptedString(cloudFeed.ClientSecret),
 		Scope:            cloudFeed.Scope,

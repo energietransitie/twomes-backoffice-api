@@ -28,6 +28,7 @@ type CloudFeedAuthModel struct {
 	// TODO: WARNING encrypted string encryption not yet implemented.
 	AccessToken    encryption.EncryptedString
 	RefreshToken   encryption.EncryptedString
+	Expiry         time.Time
 	AuthGrantToken encryption.EncryptedString
 }
 
@@ -43,6 +44,7 @@ func MakeCloudFeedAuthModel(cloudFeedAuth twomes.CloudFeedAuth) CloudFeedAuthMod
 		CloudFeedID:    cloudFeedAuth.CloudFeedID,
 		AccessToken:    encryption.EncryptedString(cloudFeedAuth.AccessToken),
 		RefreshToken:   encryption.EncryptedString(cloudFeedAuth.RefreshToken),
+		Expiry:         cloudFeedAuth.Expiry,
 		AuthGrantToken: encryption.EncryptedString(cloudFeedAuth.AuthGrantToken),
 	}
 }
@@ -54,6 +56,7 @@ func (m *CloudFeedAuthModel) fromModel() twomes.CloudFeedAuth {
 		CloudFeedID:    m.CloudFeedID,
 		AccessToken:    string(m.AccessToken),
 		RefreshToken:   string(m.RefreshToken),
+		Expiry:         m.Expiry,
 		AuthGrantToken: string(m.AuthGrantToken),
 	}
 }

@@ -6,7 +6,7 @@ import (
 
 // A CloudFeedRepository can load, store and delete cloud feeds.
 type CloudFeedRepository interface {
-	Find(campaign twomes.CloudFeed) (twomes.CloudFeed, error)
+	Find(twomes.CloudFeed) (twomes.CloudFeed, error)
 	GetAll() ([]twomes.CloudFeed, error)
 	Create(twomes.CloudFeed) (twomes.CloudFeed, error)
 	Delete(twomes.CloudFeed) error
