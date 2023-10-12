@@ -13,10 +13,13 @@ type CloudFeedAuth struct {
 }
 
 // Create a new CloudFeedAuth.
-func MakeCloudFeedAuth(accountID, cloudFeedID uint, authGrantToken string) CloudFeedAuth {
+func MakeCloudFeedAuth(accountID, cloudFeedID uint, accessToken string, refreshToken string, expiry time.Time, authGrantToken string) CloudFeedAuth {
 	return CloudFeedAuth{
 		AccountID:      accountID,
 		CloudFeedID:    cloudFeedID,
+		AccessToken:    accessToken,
+		RefreshToken:   refreshToken,
+		Expiry:         expiry,
 		AuthGrantToken: authGrantToken,
 	}
 }

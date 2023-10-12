@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"net/rpc"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/energietransitie/twomes-backoffice-api/handlers"
@@ -51,10 +53,13 @@ func main() {
 		FullTimestamp: true,
 	})
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
-	db, err := repositories.NewDatabaseConnectionAndMigrate(ctx, config.DatabaseDSN)
+	dbCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	db, err := repositories.NewDatabaseConnectionAndMigrate(dbCtx, config.DatabaseDSN)
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -90,7 +95,7 @@ func main() {
 
 	appService := services.NewAppService(appRepository)
 	cloudFeedService := services.NewCloudFeedService(cloudFeedRepository)
-	cloudFeedAuthService := services.NewCloudFeedAuthService(cloudFeedAuthRepository)
+	cloudFeedAuthService := services.NewCloudFeedAuthService(ctx, cloudFeedAuthRepository, cloudFeedRepository)
 	campaignService := services.NewCampaignService(campaignRepository, appService, cloudFeedService)
 	propertyService := services.NewPropertyService(propertyRepository)
 	uploadService := services.NewUploadService(uploadRepository, propertyService)
