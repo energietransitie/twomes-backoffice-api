@@ -77,7 +77,7 @@ func (s *AccountService) Create(campaign twomes.Campaign) (twomes.Account, error
 }
 
 // Activate an account.
-func (s *AccountService) Activate(id uint, longitude, latitude float32, tzName string) (twomes.Account, error) {
+func (s *AccountService) Activate(id uint, longtitude, latitude float32, tzName string) (twomes.Account, error) {
 	account, err := s.repository.Find(twomes.Account{ID: id})
 	if err != nil {
 		return twomes.Account{}, err
@@ -94,7 +94,7 @@ func (s *AccountService) Activate(id uint, longitude, latitude float32, tzName s
 	}
 
 	if len(account.Buildings) < 1 {
-		building, err := s.buildingService.Create(account.ID, longitude, latitude, tzName)
+		building, err := s.buildingService.Create(account.ID, longtitude, latitude, tzName)
 		if err != nil {
 			return twomes.Account{}, err
 		}
