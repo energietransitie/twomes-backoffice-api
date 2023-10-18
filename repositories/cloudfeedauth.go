@@ -89,6 +89,12 @@ func (r *CloudFeedAuthRepository) Create(cloudFeedAuth twomes.CloudFeedAuth) (tw
 	return cloudFeedAuthModel.fromModel(), err
 }
 
+func (r *CloudFeedAuthRepository) Update(cloudFeedAuth twomes.CloudFeedAuth) (twomes.CloudFeedAuth, error) {
+	cloudFeedAuthModel := MakeCloudFeedAuthModel(cloudFeedAuth)
+	err := r.db.Model(&cloudFeedAuthModel).Updates(cloudFeedAuthModel).Error
+	return cloudFeedAuthModel.fromModel(), err
+}
+
 func (r *CloudFeedAuthRepository) Delete(cloudFeedAuth twomes.CloudFeedAuth) error {
 	CloudFeedAuthModel := MakeCloudFeedAuthModel(cloudFeedAuth)
 	return r.db.Delete(&CloudFeedAuthModel).Error

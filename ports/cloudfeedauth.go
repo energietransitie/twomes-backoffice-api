@@ -9,6 +9,7 @@ type CloudFeedAuthRepository interface {
 	Find(cloudFeedAuth twomes.CloudFeedAuth) (twomes.CloudFeedAuth, error)
 	GetAll() ([]twomes.CloudFeedAuth, error)
 	Create(twomes.CloudFeedAuth) (twomes.CloudFeedAuth, error)
+	Update(twomes.CloudFeedAuth) (twomes.CloudFeedAuth, error)
 	Delete(twomes.CloudFeedAuth) error
 }
 
