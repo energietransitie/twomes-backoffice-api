@@ -56,8 +56,8 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
-	dbCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
-	defer cancel()
+	dbCtx, dbCancel := context.WithTimeout(ctx, 10*time.Second)
+	defer dbCancel()
 
 	db, err := repositories.NewDatabaseConnectionAndMigrate(dbCtx, config.DatabaseDSN)
 	if err != nil {
