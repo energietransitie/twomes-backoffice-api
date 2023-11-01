@@ -24,7 +24,8 @@ import (
 )
 
 const (
-	shutdownTimeout = 30 * time.Second
+	shutdownTimeout    = 30 * time.Second
+	preRenewalDuration = 12 * time.Hour
 )
 
 // Configuration holds all the configuration for the server.
@@ -119,7 +120,6 @@ func main() {
 	deviceTypeHandler := handlers.NewDeviceTypeHandler(deviceTypeService)
 	deviceHandler := handlers.NewDeviceHandler(deviceService)
 
-	preRenewalDuration := time.Hour * 12
 	go cloudFeedAuthService.RefreshTokensInBackground(ctx, preRenewalDuration)
 
 	r := chi.NewRouter()
