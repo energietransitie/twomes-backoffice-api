@@ -95,7 +95,7 @@ func main() {
 
 	appService := services.NewAppService(appRepository)
 	cloudFeedService := services.NewCloudFeedService(cloudFeedRepository)
-	cloudFeedAuthService := services.NewCloudFeedAuthService(ctx, cloudFeedAuthRepository, cloudFeedRepository)
+	cloudFeedAuthService := services.NewCloudFeedAuthService(cloudFeedAuthRepository, cloudFeedRepository)
 	campaignService := services.NewCampaignService(campaignRepository, appService, cloudFeedService)
 	propertyService := services.NewPropertyService(propertyRepository)
 	uploadService := services.NewUploadService(uploadRepository, propertyService)
@@ -115,7 +115,7 @@ func main() {
 	deviceHandler := handlers.NewDeviceHandler(deviceService)
 
 	preRenewalDuration := time.Hour * 12
-	go cloudFeedAuthService.RefreshTokensInBackground(preRenewalDuration)
+	go cloudFeedAuthService.RefreshTokensInBackground(ctx, preRenewalDuration)
 
 	r := chi.NewRouter()
 

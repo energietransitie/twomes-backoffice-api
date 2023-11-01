@@ -1,6 +1,7 @@
 package ports
 
 import (
+	"context"
 	"time"
 
 	"github.com/energietransitie/twomes-backoffice-api/twomes"
@@ -19,6 +20,6 @@ type CloudFeedAuthRepository interface {
 
 // CloudFeedAuthService exposes all operations that can be performed on a [twomes.CloudFeedAuth].
 type CloudFeedAuthService interface {
-	Create(accountID, cloudFeedID uint, authGrantToken string) (twomes.CloudFeedAuth, error)
+	Create(ctx context.Context, accountID, cloudFeedID uint, authGrantToken string) (twomes.CloudFeedAuth, error)
 	Find(cloudFeedAuth twomes.CloudFeedAuth) (twomes.CloudFeedAuth, error)
 }

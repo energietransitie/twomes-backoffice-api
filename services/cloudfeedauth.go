@@ -23,23 +23,20 @@ type CloudFeedAuthService struct {
 	cloudFeedAuthRepo ports.CloudFeedAuthRepository
 	cloudFeedRepo     ports.CloudFeedRepository
 	updateChan        chan struct{}
-	ctx               context.Context
 }
 
 // Create a new CloudFeedAuthService.
-func NewCloudFeedAuthService(ctx context.Context, cloudFeedAuthRepo ports.CloudFeedAuthRepository, cloudFeedRepo ports.CloudFeedRepository) *CloudFeedAuthService {
+func NewCloudFeedAuthService(cloudFeedAuthRepo ports.CloudFeedAuthRepository, cloudFeedRepo ports.CloudFeedRepository) *CloudFeedAuthService {
 	return &CloudFeedAuthService{
 		cloudFeedAuthRepo: cloudFeedAuthRepo,
 		cloudFeedRepo:     cloudFeedRepo,
 		updateChan:        make(chan struct{}, 1),
-		// TODO: Remove this context and pass one in directly into functions that need one.
-		ctx: ctx,
 	}
 }
 
 // Create a new cloudFeedAuth.
 // This function exchanges the AuthGrantToken (Code) for a access and refresh token.
-func (s *CloudFeedAuthService) Create(accountID, cloudFeedID uint, authGrantToken string) (twomes.CloudFeedAuth, error) {
+func (s *CloudFeedAuthService) Create(ctx context.Context, accountID, cloudFeedID uint, authGrantToken string) (twomes.CloudFeedAuth, error) {
 	cloudFeed, err := s.cloudFeedRepo.Find(twomes.CloudFeed{ID: cloudFeedID})
 	if err != nil {
 		return twomes.CloudFeedAuth{}, err
@@ -58,7 +55,7 @@ func (s *CloudFeedAuthService) Create(accountID, cloudFeedID uint, authGrantToke
 		RedirectURL: cloudFeed.RedirectURL,
 	}
 
-	accessToken, refreshToken, expiry, err := exchangeAuthCode(s.ctx, conf, authGrantToken)
+	accessToken, refreshToken, expiry, err := exchangeAuthCode(ctx, conf, authGrantToken)
 	if err != nil {
 		return twomes.CloudFeedAuth{}, err
 	}
@@ -143,7 +140,7 @@ func (s *CloudFeedAuthService) RefreshTokens(ctx context.Context, accountID uint
 
 // Run this function in a goroutine to keep tokens refreshed before they expire.
 // The preRenewalDuration sets the time we need to refresh the tokens in advance of theri expiry.
-func (s *CloudFeedAuthService) RefreshTokensInBackground(preRenewalDuration time.Duration) {
+func (s *CloudFeedAuthService) RefreshTokensInBackground(ctx context.Context, preRenewalDuration time.Duration) {
 refreshLoop:
 	for {
 		accountID, cloudFeedID, expiry, err := s.cloudFeedAuthRepo.FindFirstTokenToExpire()
@@ -152,7 +149,7 @@ refreshLoop:
 			select {
 			case <-s.updateChan:
 				logrus.Infoln("a new cloud feed auth was added. re-checking first expiring token")
-			case <-s.ctx.Done():
+			case <-ctx.Done():
 				break refreshLoop
 			}
 			continue
@@ -160,7 +157,7 @@ refreshLoop:
 
 		timerDuration := time.Until(expiry) - preRenewalDuration
 		if timerDuration < 0 {
-			_, err = s.RefreshTokens(s.ctx, accountID, cloudFeedID)
+			_, err = s.RefreshTokens(ctx, accountID, cloudFeedID)
 			if err != nil {
 				logrus.Warningln(err)
 			}
@@ -173,14 +170,14 @@ refreshLoop:
 
 		select {
 		case <-expiryTimer.C:
-			_, err = s.RefreshTokens(s.ctx, accountID, cloudFeedID)
+			_, err = s.RefreshTokens(ctx, accountID, cloudFeedID)
 			if err != nil {
 				logrus.Warningln(err)
 			}
 		case <-s.updateChan:
 			logrus.Infoln("a new cloud feed auth was added. re-checking first expiring cloud feed auth token")
 			expiryTimer.Stop()
-		case <-s.ctx.Done():
+		case <-ctx.Done():
 			break refreshLoop
 		}
 	}
