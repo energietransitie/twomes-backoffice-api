@@ -114,6 +114,9 @@ func main() {
 	deviceTypeHandler := handlers.NewDeviceTypeHandler(deviceTypeService)
 	deviceHandler := handlers.NewDeviceHandler(deviceService)
 
+	preRenewalDuration := time.Hour * 12
+	go cloudFeedAuthService.RefreshTokensInBackground(preRenewalDuration)
+
 	r := chi.NewRouter()
 
 	r.Use(middleware.Timeout(time.Second * 30))
