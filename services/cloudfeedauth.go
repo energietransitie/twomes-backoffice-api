@@ -1,9 +1,12 @@
 package services
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -116,8 +119,13 @@ func (s *CloudFeedAuthService) RefreshTokens(ctx context.Context, accountID uint
 	}
 	defer resp.Body.Close()
 
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return twomes.CloudFeedAuth{}, errors.New("error reading response from token endpoint")
+	}
+
 	if resp.StatusCode != http.StatusOK {
-		return twomes.CloudFeedAuth{}, errors.New("unsuccessful refresh request")
+		return twomes.CloudFeedAuth{}, fmt.Errorf("unsuccessful refresh request. request: %s", string(respBody))
 	}
 
 	response := struct {
@@ -126,7 +134,8 @@ func (s *CloudFeedAuthService) RefreshTokens(ctx context.Context, accountID uint
 		TokenType    string `json:"token_type"`
 		ExpiresIn    uint   `json:"expires_in"`
 	}{}
-	err = json.NewDecoder(resp.Body).Decode(&response)
+	respBodyReader := bytes.NewReader(respBody)
+	err = json.NewDecoder(respBodyReader).Decode(&response)
 	if err != nil {
 		return twomes.CloudFeedAuth{}, err
 	}
