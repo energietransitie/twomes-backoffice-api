@@ -16,10 +16,15 @@ import (
 	"github.com/energietransitie/twomes-backoffice-api/services"
 	"github.com/energietransitie/twomes-backoffice-api/swaggerdocs"
 	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/sirupsen/logrus"
+)
+
+const (
+	shutdownTimeout = 30 * time.Second
 )
 
 // Configuration holds all the configuration for the server.
@@ -158,10 +163,44 @@ func main() {
 
 	go setupAdminRPCHandler(adminHandler)
 
-	err = http.ListenAndServe(":8080", r)
+	server := &http.Server{
+		Addr:    ":8080",
+		Handler: r,
+	}
+
+	err = listenAndServe(ctx, server)
 	if err != nil {
 		logrus.Fatal(err)
 	}
+	logrus.Infoln("server exited gracefully")
+}
+
+func listenAndServe(ctx context.Context, server *http.Server) error {
+	g, gCtx := errgroup.WithContext(ctx)
+
+	g.Go(func() error {
+		err := server.ListenAndServe()
+		if err == http.ErrServerClosed {
+			return nil
+		}
+		return err
+	})
+	logrus.Infoln("listening on", server.Addr)
+
+	g.Go(func() error {
+		<-gCtx.Done()
+
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+		defer cancel()
+
+		return server.Shutdown(shutdownCtx)
+	})
+
+	err := g.Wait()
+	if err != http.ErrServerClosed {
+		return err
+	}
+	return nil
 }
 
 func setupSwaggerDocs(r *chi.Mux, baseURL string) {
