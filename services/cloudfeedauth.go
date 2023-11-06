@@ -124,20 +124,30 @@ func (s *CloudFeedAuthService) RefreshTokens(ctx context.Context, accountID uint
 		return twomes.CloudFeedAuth{}, errors.New("error reading response from token endpoint")
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		return twomes.CloudFeedAuth{}, fmt.Errorf("unsuccessful refresh request. request: %s", string(respBody))
-	}
-
 	response := struct {
 		AccessToken  string `json:"access_token"`
 		RefreshToken string `json:"refresh_token"`
 		TokenType    string `json:"token_type"`
 		ExpiresIn    uint   `json:"expires_in"`
+		Error        string `json:"error"`
 	}{}
 	respBodyReader := bytes.NewReader(respBody)
 	err = json.NewDecoder(respBodyReader).Decode(&response)
 	if err != nil {
 		return twomes.CloudFeedAuth{}, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		// Delete auth since we can not recover from "invalid_grant" error.
+		if response.Error == "invalid_grant" {
+			logrus.Warnln("deleting invalid cloud feed auth for accountID", accountID, "cloudFeedID", cloudFeedID)
+			err := s.cloudFeedAuthRepo.Delete(twomes.CloudFeedAuth{AccountID: accountID, CloudFeedID: cloudFeedID})
+			if err != nil {
+				return twomes.CloudFeedAuth{}, fmt.Errorf("error deleting invalid auth: %w", err)
+			}
+		}
+
+		return twomes.CloudFeedAuth{}, fmt.Errorf("unsuccessful refresh request. request: %s", string(respBody))
 	}
 
 	cloudFeedAuth.AccessToken = response.AccessToken
@@ -166,6 +176,9 @@ refreshLoop:
 
 		timerDuration := time.Until(expiry) - preRenewalDuration
 		if timerDuration < 0 {
+			// Wait 10 seconds to prevent a possible flood of refresh requests.
+			time.Sleep(time.Second * 10)
+
 			_, err = s.RefreshTokens(ctx, accountID, cloudFeedID)
 			if err != nil {
 				logrus.Warningln(err)
