@@ -67,6 +67,23 @@ func (r *CloudFeedAuthRepository) Find(cloudFeedAuth twomes.CloudFeedAuth) (twom
 	return cloudFeedAuthModel.fromModel(), err
 }
 
+func (r *CloudFeedAuthRepository) FindOAuthInfo(accountID uint, cloudFeedID uint) (string, string, string, string, error) {
+	var result struct {
+		TokenURL     string
+		RefreshToken string
+		ClientID     string
+		ClientSecret string
+	}
+	err := r.db.Table("cloud_feed").Select("cloud_feed.token_url, cloud_feed_auth.refresh_token AS refresh_token, cloud_feed.client_id, cloud_feed.client_secret").Joins("JOIN cloud_feed_auth ON cloud_feed.id = cloud_feed_auth.cloud_feed_id").Where("cloud_feed_auth.account_id = ? AND cloud_feed_auth.cloud_feed_id = ?", accountID, cloudFeedID).Scan(&result).Error
+	return result.TokenURL, result.RefreshToken, result.ClientID, result.ClientSecret, err
+}
+
+func (r *CloudFeedAuthRepository) FindFirstTokenToExpire() (uint, uint, time.Time, error) {
+	var cloudFeedAuthModel CloudFeedAuthModel
+	err := r.db.Order("expiry ASC").Where("expiry <> ''").First(&cloudFeedAuthModel).Error
+	return cloudFeedAuthModel.AccountID, cloudFeedAuthModel.CloudFeedID, cloudFeedAuthModel.Expiry, err
+}
+
 func (r *CloudFeedAuthRepository) GetAll() ([]twomes.CloudFeedAuth, error) {
 	var cloudFeedAuths []twomes.CloudFeedAuth
 
@@ -86,6 +103,12 @@ func (r *CloudFeedAuthRepository) GetAll() ([]twomes.CloudFeedAuth, error) {
 func (r *CloudFeedAuthRepository) Create(cloudFeedAuth twomes.CloudFeedAuth) (twomes.CloudFeedAuth, error) {
 	cloudFeedAuthModel := MakeCloudFeedAuthModel(cloudFeedAuth)
 	err := r.db.Create(&cloudFeedAuthModel).Error
+	return cloudFeedAuthModel.fromModel(), err
+}
+
+func (r *CloudFeedAuthRepository) Update(cloudFeedAuth twomes.CloudFeedAuth) (twomes.CloudFeedAuth, error) {
+	cloudFeedAuthModel := MakeCloudFeedAuthModel(cloudFeedAuth)
+	err := r.db.Model(&cloudFeedAuthModel).Updates(cloudFeedAuthModel).Error
 	return cloudFeedAuthModel.fromModel(), err
 }
 

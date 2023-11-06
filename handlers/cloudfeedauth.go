@@ -35,7 +35,7 @@ func (h *CloudFeedAuthHandler) Create(w http.ResponseWriter, r *http.Request) er
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting authentication context value")
 	}
 
-	_, err = h.service.Create(auth.ID, request.CloudFeedID, request.AuthGrantToken)
+	_, err = h.service.Create(r.Context(), auth.ID, request.CloudFeedID, request.AuthGrantToken)
 	if err != nil {
 		if helpers.IsMySQLDuplicateError(err) {
 			return NewHandlerError(err, "duplicate", http.StatusBadRequest)
