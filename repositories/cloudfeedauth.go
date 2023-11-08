@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/energietransitie/twomes-backoffice-api/internal/encryption"
+	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
 	"github.com/energietransitie/twomes-backoffice-api/twomes"
 	"gorm.io/gorm"
 )
@@ -101,8 +102,37 @@ func (r *CloudFeedAuthRepository) GetAll() ([]twomes.CloudFeedAuth, error) {
 }
 
 func (r *CloudFeedAuthRepository) Create(cloudFeedAuth twomes.CloudFeedAuth) (twomes.CloudFeedAuth, error) {
+	// First check if a soft deleted entry exists.
+	// We need to do this because we can't create a new one if one exists.
+	cfaCheck := CloudFeedAuthModel{}
+	err := r.db.Unscoped().Where(&CloudFeedAuthModel{
+		AccountID:   cloudFeedAuth.AccountID,
+		CloudFeedID: cloudFeedAuth.CloudFeedID,
+	}).First(&cfaCheck).Error
+
+	// Return immediately if there is an error,
+	// except if the error was RecordNotFound.
+	if err != nil && !helpers.IsMySQLRecordNotFoundError(err) {
+		return cloudFeedAuth, err
+	}
+
+	// At this point we know that there are no errors,
+	// except maybe that the record was not found, so check.
+	if !helpers.IsMySQLRecordNotFoundError(err) {
+		// Record was found. Check if it was soft deleted.
+		if cfaCheck.DeletedAt.Valid {
+			// Record was soft deleted. Delete it so we can create a new one.
+			err := r.db.Unscoped().Delete(&cfaCheck).Error
+			if err != nil {
+				return cloudFeedAuth, err
+			}
+		}
+	}
+
+	// If we reach this, it means there was not previous record,
+	// or it was deleted, and we can just create a new one.
 	cloudFeedAuthModel := MakeCloudFeedAuthModel(cloudFeedAuth)
-	err := r.db.Create(&cloudFeedAuthModel).Error
+	err = r.db.Create(&cloudFeedAuthModel).Error
 	return cloudFeedAuthModel.fromModel(), err
 }
 

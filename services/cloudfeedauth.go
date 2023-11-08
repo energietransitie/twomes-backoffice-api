@@ -66,11 +66,14 @@ func (s *CloudFeedAuthService) Create(ctx context.Context, accountID, cloudFeedI
 	cloudFeedAuth := twomes.MakeCloudFeedAuth(accountID, cloudFeedID, accessToken, refreshToken, expiry, authGrantToken)
 
 	cloudFeedAuth, err = s.cloudFeedAuthRepo.Create(cloudFeedAuth)
+	if err != nil {
+		return cloudFeedAuth, err
+	}
 
 	// Signal an update
 	s.updateChan <- struct{}{}
 
-	return cloudFeedAuth, err
+	return cloudFeedAuth, nil
 }
 
 // Find a cloudFeedAuth using any field set in the cloudFeedAuth struct.
