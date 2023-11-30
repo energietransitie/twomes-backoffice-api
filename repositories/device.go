@@ -80,6 +80,30 @@ func (r *DeviceRepository) Find(device twomes.Device) (twomes.Device, error) {
 	return deviceModel.fromModel(), err
 }
 
+func (r *DeviceRepository) FindCloudFeedAuthCreationTimeFromDeviceID(deviceID uint) (*time.Time, error) {
+	result := struct {
+		CreatedAt time.Time
+	}{}
+
+	err := r.db.
+		Table("device").
+		Select("cloud_feed_auth.created_at").
+		Joins("JOIN device_type ON device.device_type_id = device_type.id").
+		Joins("JOIN cloud_feed ON device_type.name = cloud_feed.name").
+		Joins("JOIN building ON device.building_id = building.id").
+		Joins("JOIN account ON building.account_id = account.id").
+		Joins("JOIN cloud_feed_auth ON account.id = cloud_feed_auth.account_id").
+		Where("device.id = ?", deviceID).
+		First(&result).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &result.CreatedAt, nil
+}
+
 func (r *DeviceRepository) GetMeasurements(device twomes.Device, filters map[string]string) ([]twomes.Measurement, error) {
 	// empty array of measurements
 	var measurements []twomes.Measurement = make([]twomes.Measurement, 0)

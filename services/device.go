@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
 	"github.com/energietransitie/twomes-backoffice-api/ports"
 	"github.com/energietransitie/twomes-backoffice-api/twomes"
 )
@@ -78,6 +79,15 @@ func (s *DeviceService) GetByName(name string) (twomes.Device, error) {
 	device.LatestUpload, err = s.uploadService.GetLatestUploadTimeForDeviceWithID(device.ID)
 	if err != nil {
 		return twomes.Device{}, err
+	}
+
+	// If the device corresponds to a cloud_feed_auth and there was no upload yet,
+	// use the cloud_feed_auth's created_at_time.
+	if device.LatestUpload == nil {
+		device.LatestUpload, err = s.repository.FindCloudFeedAuthCreationTimeFromDeviceID(device.ID)
+		if err != nil && !helpers.IsMySQLRecordNotFoundError(err) {
+			return twomes.Device{}, err
+		}
 	}
 
 	return device, nil
