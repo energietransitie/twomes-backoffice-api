@@ -1,10 +1,15 @@
 package ports
 
-import "github.com/energietransitie/twomes-backoffice-api/twomes"
+import (
+	"time"
+
+	"github.com/energietransitie/twomes-backoffice-api/twomes"
+)
 
 // A DeviceRepository can load, store and delete devices.
 type DeviceRepository interface {
 	Find(device twomes.Device) (twomes.Device, error)
+	FindCloudFeedAuthCreationTimeFromDeviceID(deviceID uint) (*time.Time, error)
 	GetProperties(device twomes.Device) ([]twomes.Property, error)
 	GetMeasurements(device twomes.Device, filters map[string]string) ([]twomes.Measurement, error)
 	GetAll() ([]twomes.Device, error)
