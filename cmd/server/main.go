@@ -104,7 +104,7 @@ func main() {
 	cloudFeedAuthService := services.NewCloudFeedAuthService(cloudFeedAuthRepository, cloudFeedRepository)
 	campaignService := services.NewCampaignService(campaignRepository, appService, cloudFeedService)
 	propertyService := services.NewPropertyService(propertyRepository)
-	uploadService := services.NewUploadService(uploadRepository, propertyService)
+	uploadService := services.NewUploadService(uploadRepository, deviceRepository, propertyService)
 	buildingService := services.NewBuildingService(buildingRepository, uploadService)
 	accountService := services.NewAccountService(accountRepository, authService, appService, campaignService, buildingService, cloudFeedAuthService)
 	deviceTypeService := services.NewDeviceTypeService(deviceTypeRepository, propertyService)
