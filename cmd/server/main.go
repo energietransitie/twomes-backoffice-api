@@ -62,16 +62,12 @@ func getConfiguration() Configuration {
 		logrus.Fatal(err)
 	}
 
-	logrus.Infoln("local time is", time.Now())
 	downloadStartTime := time.Now().Truncate(Day)
-	logrus.Infoln("truncated local time is", time.Now().Truncate(Day))
 	downloadStartTime = downloadStartTime.Add(duration)
 	// If time is in the past, add 1 day.
 	if downloadStartTime.Before(time.Now()) {
 		downloadStartTime = downloadStartTime.Add(Day)
 	}
-
-	logrus.Infoln("download will start at", downloadStartTime)
 
 	return Configuration{
 		DatabaseDSN:       dsn,
