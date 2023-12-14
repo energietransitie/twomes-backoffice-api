@@ -10,6 +10,7 @@ services:
     environment:
       - TWOMES_DSN=root:twomes@tcp(db:3306)/twomes
       - TWOMES_BASE_URL=http://localhost:8080
+      - TWOMES_DOWNLOAD_TIME=04h00m # 04:00 UTC
     depends_on:
       - db
 

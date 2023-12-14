@@ -24,14 +24,20 @@ import (
 )
 
 const (
-	shutdownTimeout    = 30 * time.Second
-	preRenewalDuration = 12 * time.Hour
+	Day = time.Hour * 24
+)
+
+const (
+	shutdownTimeout     = 30 * time.Second
+	preRenewalDuration  = 12 * time.Hour
+	defaultDownloadTime = "04h00s"
 )
 
 // Configuration holds all the configuration for the server.
 type Configuration struct {
-	DatabaseDSN string
-	BaseURL     string
+	DatabaseDSN       string
+	BaseURL           string
+	downloadStartTime time.Time
 }
 
 func getConfiguration() Configuration {
@@ -45,9 +51,32 @@ func getConfiguration() Configuration {
 		logrus.Fatal("TWOMES_BASE_URL was not set")
 	}
 
+	downloadTime, ok := os.LookupEnv("TWOMES_DOWNLOAD_TIME")
+	if !ok {
+		logrus.Warning("TWOMES_DOWNLOAD_TIME was not set. defaulting to", defaultDownloadTime)
+		downloadTime = defaultDownloadTime
+	}
+
+	duration, err := time.ParseDuration(downloadTime)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	logrus.Infoln("local time is", time.Now())
+	downloadStartTime := time.Now().Truncate(Day)
+	logrus.Infoln("truncated local time is", time.Now().Truncate(Day))
+	downloadStartTime = downloadStartTime.Add(duration)
+	// If time is in the past, add 1 day.
+	if downloadStartTime.Before(time.Now()) {
+		downloadStartTime = downloadStartTime.Add(Day)
+	}
+
+	logrus.Infoln("download will start at", downloadStartTime)
+
 	return Configuration{
-		DatabaseDSN: dsn,
-		BaseURL:     baseURL,
+		DatabaseDSN:       dsn,
+		BaseURL:           baseURL,
+		downloadStartTime: downloadStartTime,
 	}
 }
 
@@ -101,10 +130,10 @@ func main() {
 
 	appService := services.NewAppService(appRepository)
 	cloudFeedService := services.NewCloudFeedService(cloudFeedRepository)
-	cloudFeedAuthService := services.NewCloudFeedAuthService(cloudFeedAuthRepository, cloudFeedRepository)
 	campaignService := services.NewCampaignService(campaignRepository, appService, cloudFeedService)
 	propertyService := services.NewPropertyService(propertyRepository)
 	uploadService := services.NewUploadService(uploadRepository, deviceRepository, propertyService)
+	cloudFeedAuthService := services.NewCloudFeedAuthService(cloudFeedAuthRepository, cloudFeedRepository, uploadService)
 	buildingService := services.NewBuildingService(buildingRepository, uploadService)
 	accountService := services.NewAccountService(accountRepository, authService, appService, campaignService, buildingService, cloudFeedAuthService)
 	deviceTypeService := services.NewDeviceTypeService(deviceTypeRepository, propertyService)
@@ -121,6 +150,7 @@ func main() {
 	deviceHandler := handlers.NewDeviceHandler(deviceService)
 
 	go cloudFeedAuthService.RefreshTokensInBackground(ctx, preRenewalDuration)
+	go cloudFeedAuthService.DownloadInBackground(ctx, config.downloadStartTime)
 
 	r := chi.NewRouter()
 

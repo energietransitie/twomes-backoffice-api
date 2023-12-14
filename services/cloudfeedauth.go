@@ -13,9 +13,14 @@ import (
 	"time"
 
 	"github.com/energietransitie/twomes-backoffice-api/ports"
+	"github.com/energietransitie/twomes-backoffice-api/services/cloudfeeds/enelogic"
 	"github.com/energietransitie/twomes-backoffice-api/twomes"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
+)
+
+const (
+	CloudFeedDownloadInterval = time.Hour * 24
 )
 
 var (
@@ -25,14 +30,16 @@ var (
 type CloudFeedAuthService struct {
 	cloudFeedAuthRepo ports.CloudFeedAuthRepository
 	cloudFeedRepo     ports.CloudFeedRepository
+	uploadService     ports.UploadService
 	updateChan        chan struct{}
 }
 
 // Create a new CloudFeedAuthService.
-func NewCloudFeedAuthService(cloudFeedAuthRepo ports.CloudFeedAuthRepository, cloudFeedRepo ports.CloudFeedRepository) *CloudFeedAuthService {
+func NewCloudFeedAuthService(cloudFeedAuthRepo ports.CloudFeedAuthRepository, cloudFeedRepo ports.CloudFeedRepository, uploadService ports.UploadService) *CloudFeedAuthService {
 	return &CloudFeedAuthService{
 		cloudFeedAuthRepo: cloudFeedAuthRepo,
 		cloudFeedRepo:     cloudFeedRepo,
+		uploadService:     uploadService,
 		updateChan:        make(chan struct{}, 1),
 	}
 }
@@ -215,4 +222,89 @@ func exchangeAuthCode(ctx context.Context, conf *oauth2.Config, code string) (st
 	}
 
 	return token.AccessToken, token.RefreshToken, token.Expiry, nil
+}
+
+// Run this function in a goroutine to periodically download data from the cloud feed.
+// downloadStartTime is the time at which the data should be downloaded and repeated each day.
+func (s *CloudFeedAuthService) DownloadInBackground(ctx context.Context, downloadStartTime time.Time) {
+	waitTime := time.Until(downloadStartTime)
+	startTimer := time.NewTimer(waitTime)
+
+	logrus.Infoln("waiting", waitTime.String(), "to start downloading data from cloud feeds")
+
+	select {
+	case <-startTimer.C:
+		err := s.download(ctx)
+		if err != nil {
+			logrus.Errorln(err)
+		}
+	case <-ctx.Done():
+		return
+	}
+
+	ticker := time.NewTicker(CloudFeedDownloadInterval)
+
+	for {
+		waitTime = time.Until(time.Now().Add(CloudFeedDownloadInterval))
+		logrus.Infoln("waiting", waitTime.String(), "to download data from cloud feeds")
+
+		select {
+		case <-ticker.C:
+			err := s.download(ctx)
+			if err != nil {
+				logrus.Errorln(err)
+			}
+		case <-ctx.Done():
+			return
+		}
+	}
+}
+
+func (s *CloudFeedAuthService) download(ctx context.Context) error {
+	cloudFeedAuths, err := s.cloudFeedAuthRepo.GetAll()
+	if err != nil {
+		return err
+	}
+
+	logrus.Infoln("starting download of data from cloud feeds")
+
+	for _, cfa := range cloudFeedAuths {
+		logrus.Infoln("downloading data from cloud feed auth with accountID", cfa.AccountID, "cloudFeedID", cfa.CloudFeedID)
+
+		args := enelogic.DownloadArgs{
+			RequestMonthsDatapoints: enelogic.Timespan{
+				From: time.Now().AddDate(-2, 0, 0),
+				To:   time.Now(),
+			},
+			RequestDaysDatapoints:     enelogic.Timespan{},
+			RequestIntervalDatapoints: enelogic.Timespan{},
+		}
+		measurements, err := enelogic.Download(ctx, cfa.AccessToken, args)
+		if err != nil {
+			if err == enelogic.ErrNoData {
+				logrus.Infoln("no data found for cloud feed auth with accountID", cfa.AccountID, "cloudFeedID", cfa.CloudFeedID)
+				continue
+			}
+			return err
+		}
+
+		device, err := s.cloudFeedAuthRepo.FindDevice(cfa)
+		if err != nil {
+			logrus.Warningln("error finding device for cloud feed auth:", err)
+			continue
+		}
+
+		upload, err := s.uploadService.Create(device.ID, twomes.Time(time.Now()), measurements)
+		if err != nil {
+			logrus.Warningln("error creating upload:", err)
+			continue
+		}
+
+		if upload.Size != len(measurements) {
+			logrus.Errorln("upload size", upload.Size, "does not match number of measurements", len(measurements))
+			continue
+		}
+	}
+
+	return nil
 }

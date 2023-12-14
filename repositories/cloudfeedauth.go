@@ -85,6 +85,37 @@ func (r *CloudFeedAuthRepository) FindFirstTokenToExpire() (uint, uint, time.Tim
 	return cloudFeedAuthModel.AccountID, cloudFeedAuthModel.CloudFeedID, cloudFeedAuthModel.Expiry, err
 }
 
+func (r *CloudFeedAuthRepository) FindDevice(cloudFeedAuth twomes.CloudFeedAuth) (*twomes.Device, error) {
+	var device DeviceModel
+
+	// err := r.db.Table("cloud_feed_auth").
+	// 	Select("device.*").
+	// 	Joins("JOIN cloud_feed ON cloud_feed_auth.cloud_feed_id = cloud_feed.id").
+	// 	Joins("JOIN device_type ON cloud_feed.name = device_type.name").
+	// 	Joins("JOIN device ON device_type.id = device.device_type_id").
+	// 	Joins("JOIN building ON device.building_id = building.id").
+	// 	Where("building.account_id = cloud_feed_auth.account_id AND cloud_feed_auth.account_id = ? AND cloud_feed_auth.cloud_feed_id = ?", cloudFeedAuth.AccountID, cloudFeedAuth.CloudFeedID).
+	// 	Order("cloud_feed_auth.account_id DESC").
+	// 	First(&device).
+	// 	Error
+
+	err := r.db.Model(&device).
+		Joins("JOIN device_type ON device_type.id = device.device_type_id").
+		Joins("JOIN cloud_feed ON cloud_feed.name = device_type.name").
+		Joins("JOIN cloud_feed_auth ON cloud_feed_auth.cloud_feed_id = cloud_feed.id").
+		Joins("JOIN building ON building.id = device.building_id").
+		Where("building.account_id = cloud_feed_auth.account_id AND cloud_feed_auth.account_id = ? AND cloud_feed_auth.cloud_feed_id = ?", cloudFeedAuth.AccountID, cloudFeedAuth.CloudFeedID).
+		First(&device).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	d := device.fromModel()
+	return &d, nil
+}
+
 func (r *CloudFeedAuthRepository) GetAll() ([]twomes.CloudFeedAuth, error) {
 	var cloudFeedAuths []twomes.CloudFeedAuth
 
