@@ -180,8 +180,14 @@ type DownloadArgs struct {
 
 // Download downloads the data from enelogic.
 // A slice of measurements is returned, which can be saved to the database.
-func Download(ctx context.Context, token string, args DownloadArgs) ([]twomes.Measurement, error) {
+//
+// StartPeriod is the start of the period from which data should be downloaded.
+func Download(ctx context.Context, token string, startPeriod time.Time) ([]twomes.Measurement, error) {
 	var measurements []twomes.Measurement
+
+	if dateEqual(startPeriod, time.Now()) {
+		return nil, ErrNoData
+	}
 
 	measuringPoints, err := getMeasuringPoints(ctx, token)
 	if err != nil {
@@ -193,7 +199,7 @@ func Download(ctx context.Context, token string, args DownloadArgs) ([]twomes.Me
 	}
 
 	for _, measuringPoint := range measuringPoints {
-		args := newRequestArgs(measuringPoint.ID, args.RequestMonthsDatapoints.From, args.RequestMonthsDatapoints.To)
+		args := newRequestArgs(measuringPoint.ID, startPeriod, time.Now())
 		datapoints, err := getDatapointsMonths(ctx, token, args)
 		if err != nil {
 			return nil, fmt.Errorf("error getting datapoints: %w", err)
@@ -301,4 +307,10 @@ func getRequestURL(endpoint string, args RequestArgs) (string, error) {
 	}
 
 	return requestURL.String(), nil
+}
+
+func dateEqual(a, b time.Time) bool {
+	y1, m1, d1 := a.Date()
+	y2, m2, d2 := b.Date()
+	return y1 == y2 && m1 == m2 && d1 == d2
 }

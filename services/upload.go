@@ -42,17 +42,18 @@ func (s *UploadService) Create(deviceID uint, deviceTime twomes.Time, measuremen
 	return upload, err
 }
 
-func (s *UploadService) GetLatestUploadTimeForDeviceWithID(id uint) (*time.Time, error) {
+func (s *UploadService) GetLatestUploadTimeForDeviceWithID(id uint) (*time.Time, bool, error) {
 	upload, err := s.repository.GetLatestUploadForDeviceWithID(id)
 	if err != nil {
 		// If the record is not found, there was no upload. That's not an error.
 		if helpers.IsMySQLRecordNotFoundError(err) {
-			return s.getCloudFeedAuthCreationTimeForDeviceWithID(id)
+			uploadTime, err := s.getCloudFeedAuthCreationTimeForDeviceWithID(id)
+			return uploadTime, false, err
 		}
-		return nil, err
+		return nil, false, err
 	}
 
-	return (*time.Time)(&upload.ServerTime), nil
+	return (*time.Time)(&upload.ServerTime), true, nil
 }
 
 func (s *UploadService) getCloudFeedAuthCreationTimeForDeviceWithID(id uint) (*time.Time, error) {

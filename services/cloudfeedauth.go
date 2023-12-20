@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
 	"github.com/energietransitie/twomes-backoffice-api/ports"
 	"github.com/energietransitie/twomes-backoffice-api/services/cloudfeeds/enelogic"
 	"github.com/energietransitie/twomes-backoffice-api/twomes"
@@ -271,31 +272,34 @@ func (s *CloudFeedAuthService) download(ctx context.Context) error {
 	for _, cfa := range cloudFeedAuths {
 		logrus.Infoln("downloading data from cloud feed auth with accountID", cfa.AccountID, "cloudFeedID", cfa.CloudFeedID)
 
-		args := enelogic.DownloadArgs{
-			RequestMonthsDatapoints: enelogic.Timespan{
-				From: time.Now().AddDate(-2, 0, 0),
-				To:   time.Now(),
-			},
-			RequestDaysDatapoints:     enelogic.Timespan{},
-			RequestIntervalDatapoints: enelogic.Timespan{},
+		device, err := s.cloudFeedAuthRepo.FindDevice(cfa)
+		if err != nil {
+			logrus.Warningln("error finding device for cloud feed auth:", err)
+			continue
 		}
-		measurements, err := enelogic.Download(ctx, cfa.AccessToken, args)
+
+		latestUpload, isUpload, err := s.uploadService.GetLatestUploadTimeForDeviceWithID(device.ID)
+		if err != nil && !helpers.IsMySQLRecordNotFoundError(err) {
+			logrus.Warningln("error getting latest upload time for device:", err)
+			continue
+		}
+
+		if latestUpload == nil || !isUpload {
+			// Set to 14 months ago if no uploads are found.
+			*latestUpload = time.Now().AddDate(-1, -2, 0)
+		}
+
+		measurements, err := enelogic.Download(ctx, cfa.AccessToken, *latestUpload)
 		if err != nil {
 			if err == enelogic.ErrNoData {
-				logrus.Infoln("no data found for cloud feed auth with accountID", cfa.AccountID, "cloudFeedID", cfa.CloudFeedID)
+				logrus.Infoln("no (new) data found for cloud feed auth with accountID", cfa.AccountID, "cloudFeedID", cfa.CloudFeedID)
 				continue
 			}
 			return err
 		}
 
 		if len(measurements) == 0 {
-			logrus.Infoln("no data found for cloud feed auth with accountID", cfa.AccountID, "cloudFeedID", cfa.CloudFeedID)
-			continue
-		}
-
-		device, err := s.cloudFeedAuthRepo.FindDevice(cfa)
-		if err != nil {
-			logrus.Warningln("error finding device for cloud feed auth:", err)
+			logrus.Infoln("no (new) data found for cloud feed auth with accountID", cfa.AccountID, "cloudFeedID", cfa.CloudFeedID)
 			continue
 		}
 
