@@ -288,6 +288,11 @@ func (s *CloudFeedAuthService) download(ctx context.Context) error {
 			return err
 		}
 
+		if len(measurements) == 0 {
+			logrus.Infoln("no data found for cloud feed auth with accountID", cfa.AccountID, "cloudFeedID", cfa.CloudFeedID)
+			continue
+		}
+
 		device, err := s.cloudFeedAuthRepo.FindDevice(cfa)
 		if err != nil {
 			logrus.Warningln("error finding device for cloud feed auth:", err)
