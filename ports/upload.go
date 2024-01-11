@@ -18,5 +18,8 @@ type UploadRepository interface {
 // UploadService exposes all operations that can be performed on a [twomes.Upload].
 type UploadService interface {
 	Create(deviceID uint, deviceTime twomes.Time, measurements []twomes.Measurement) (twomes.Upload, error)
-	GetLatestUploadTimeForDeviceWithID(id uint) (*time.Time, error)
+	// GetLatestUploadTimeForDeviceWithID returns the latest upload time for a device.
+	// If there is no upload, it returns the creation time of the cloud feed auth.
+	// The bool is true if the time actually came from the latest upload.
+	GetLatestUploadTimeForDeviceWithID(id uint) (*time.Time, bool, error)
 }

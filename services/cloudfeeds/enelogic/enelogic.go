@@ -6,11 +6,13 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"text/template"
 	"time"
 
 	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/sirupsen/logrus"
 )
 
 // Client is the http client used to make requests to enelogic.
@@ -34,6 +36,8 @@ const (
 
 	enelogicTimeFormat          = `"2006-01-02 15:04:05"`
 	enelogicDefaultTimeLocation = "Europe/Amsterdam"
+
+	Day = time.Hour * 24
 )
 
 var (
@@ -82,31 +86,78 @@ func (t EnelogicTime) String() string {
 type UnitType int
 
 const (
-	unitTypeElectricity UnitType = 0
-	unitTypeGas         UnitType = 1
+	UnitTypeElectricity UnitType = 0
+	UnitTypeGas         UnitType = 1
 )
+
+func (u UnitType) String() string {
+	switch u {
+	case UnitTypeElectricity:
+		return "electricity"
+	case UnitTypeGas:
+		return "gas"
+	}
+
+	return "unknown"
+}
 
 // Rate is the type of the Rate, as defined by enelogic.
 type Rate int
 
+// Rate constants as defined by enelogic.
+// See https://enelogic.com/nl/blog/slimme-meter-data-exporteren for more information.
 const (
-	g_use_cum__m3     Rate = 180
-	e_use_lo_cum__kWh Rate = 181
-	e_use_hi_cum__kWh Rate = 182
-	e_ret_lo_cum__kWh Rate = 281
-	e_ret_hi_cum__kWh Rate = 282
+	RateUsageTotal  Rate = 180
+	RateUsageLow    Rate = 181
+	RateUsageHigh   Rate = 182
+	RateReturnTotal Rate = 280
+	RateReturnLow   Rate = 281
+	RateReturnHigh  Rate = 282
 )
 
-func (r Rate) String() string {
+func (r Rate) Parse(unit UnitType) string {
 	propertyNames := map[Rate]string{
-		g_use_cum__m3:     "g_use_cum__m3",
-		e_use_lo_cum__kWh: "e_use_lo_cum__kWh",
-		e_use_hi_cum__kWh: "e_use_hi_cum__kWh",
-		e_ret_lo_cum__kWh: "e_ret_lo_cum__kWh",
-		e_ret_hi_cum__kWh: "e_ret_hi_cum__kWh",
+		RateUsageTotal:  "use_cum",
+		RateUsageLow:    "use_lo_cum",
+		RateUsageHigh:   "use_hi_cum",
+		RateReturnTotal: "ret_cum",
+		RateReturnLow:   "ret_lo_cum",
+		RateReturnHigh:  "ret_hi_cum",
+	}
+
+	switch unit {
+	case UnitTypeElectricity:
+		return "e_" + propertyNames[r] + "__kWh"
+	case UnitTypeGas:
+		return "g_" + propertyNames[r] + "__m3"
 	}
 
 	return propertyNames[r]
+}
+
+type Quantity float64
+
+func (q *Quantity) UnmarshalJSON(b []byte) error {
+	var quantity float64
+	err := json.Unmarshal(b, &quantity)
+	if err != nil {
+		// Try to unmarshal as string.
+		var quantity string
+		err := json.Unmarshal(b, &quantity)
+		if err != nil {
+			return err
+		}
+
+		q64, err := strconv.ParseFloat(quantity, 64)
+		if err != nil {
+			return err
+		}
+		*q = Quantity(q64)
+		return nil
+	}
+
+	*q = Quantity(quantity)
+	return nil
 }
 
 type MeasuringsPointsResponse []MeasuringPoint
@@ -140,9 +191,25 @@ func (m *MeasuringPoint) UnmarshalJSON(b []byte) error {
 type DatapointsResponse []DataPoint
 
 type DataPoint struct {
-	Quantity float64      `json:"quantity"`
+	Quantity Quantity     `json:"quantity"`
 	Rate     Rate         `json:"rate"`
 	Date     EnelogicTime `json:"date"`
+	Datetime EnelogicTime `json:"datetime"`
+}
+
+func (d DataPoint) Parse(unit UnitType) twomes.Measurement {
+	t := twomes.Time(d.Date.Time)
+	if time.Time(t).IsZero() {
+		t = twomes.Time(d.Datetime.Time)
+	}
+
+	return twomes.Measurement{
+		Property: twomes.Property{
+			Name: d.Rate.Parse(unit),
+		},
+		Time:  t,
+		Value: fmt.Sprintf("%.3f", d.Quantity),
+	}
 }
 
 type RequestTime struct {
@@ -167,21 +234,21 @@ func newRequestArgs(measuringPointID int, from, to time.Time) RequestArgs {
 	}
 }
 
-type Timespan struct {
-	From time.Time
-	To   time.Time
-}
-
-type DownloadArgs struct {
-	RequestMonthsDatapoints   Timespan
-	RequestDaysDatapoints     Timespan
-	RequestIntervalDatapoints Timespan
-}
-
 // Download downloads the data from enelogic.
 // A slice of measurements is returned, which can be saved to the database.
-func Download(ctx context.Context, token string, args DownloadArgs) ([]twomes.Measurement, error) {
+//
+// StartPeriod is the start of the period from which data should be downloaded.
+func Download(ctx context.Context, token string, startPeriod time.Time) ([]twomes.Measurement, error) {
 	var measurements []twomes.Measurement
+	isFirstDownload := startPeriod.IsZero()
+
+	if isFirstDownload {
+		startPeriod = time.Now().AddDate(-1, -2, 0)
+	}
+
+	if dateEqual(startPeriod, time.Now()) {
+		return nil, ErrNoData
+	}
 
 	measuringPoints, err := getMeasuringPoints(ctx, token)
 	if err != nil {
@@ -193,31 +260,68 @@ func Download(ctx context.Context, token string, args DownloadArgs) ([]twomes.Me
 	}
 
 	for _, measuringPoint := range measuringPoints {
-		args := newRequestArgs(measuringPoint.ID, args.RequestMonthsDatapoints.From, args.RequestMonthsDatapoints.To)
-		datapoints, err := getDatapointsMonths(ctx, token, args)
-		if err != nil {
-			return nil, fmt.Errorf("error getting datapoints: %w", err)
+		// Get month datapoints.
+		// Only get month datapoints on the first download or the first day of the month.
+		if time.Now().Day() == 1 || isFirstDownload {
+			logrus.Infoln("downloading", measuringPoint.UnitType.String(), "month datapoints from", RequestTime{startPeriod}, "to", RequestTime{time.Now()})
+
+			args := newRequestArgs(measuringPoint.ID, startPeriod, time.Now())
+			datapoints, err := getDatapoints(ctx, token, endpointDatapointsMonths, args)
+			if err != nil {
+				return nil, fmt.Errorf("error getting month datapoints: %w", err)
+			}
+			measurements = append(measurements, parseDatapoints(datapoints, measuringPoint.UnitType)...)
 		}
 
-		measurements = append(measurements, parseDatapoints(datapoints)...)
+		// Get day datapoints.
+		{
+			// Shadow startPeriod to avoid changing the original value. This is needed for the next iteration.
+			startPeriod := startPeriod
+			if time.Since(startPeriod) > Day*40 {
+				// Set startPeriod to 40 days ago, if the real startPeriod is more than 40 days ago.
+				startPeriod = time.Now().Add(-Day * 40)
+			}
+
+			logrus.Infoln("downloading", measuringPoint.UnitType.String(), "day datapoints from", RequestTime{startPeriod}, "to", RequestTime{time.Now()})
+
+			args := newRequestArgs(measuringPoint.ID, startPeriod, time.Now())
+			datapoints, err := getDatapoints(ctx, token, endpointDatapointsDays, args)
+			if err != nil {
+				return nil, fmt.Errorf("error getting day datapoints: %w", err)
+			}
+			measurements = append(measurements, parseDatapoints(datapoints, measuringPoint.UnitType)...)
+		}
+
+		// Get interval datapoints.
+		{
+			// Shadow startPeriod to avoid changing the original value. This is needed for the next iteration.
+			startPeriod := startPeriod
+			if time.Since(startPeriod) > Day*10 {
+				// Set startPeriod to 10 days ago, if the real startPeriod is more than 10 days ago.
+				startPeriod = time.Now().Add(-Day * 10)
+			}
+
+			logrus.Infoln("downloading", measuringPoint.UnitType.String(), "interval datapoints from", RequestTime{startPeriod}, "to", RequestTime{time.Now()})
+
+			for _, day := range splitDays(startPeriod, time.Now()) {
+				args := newRequestArgs(measuringPoint.ID, day.Start, day.End)
+				datapoints, err := getDatapoints(ctx, token, endpointDatapointsInterval, args)
+				if err != nil {
+					return nil, fmt.Errorf("error getting interval datapoints: %w", err)
+				}
+				measurements = append(measurements, parseDatapoints(datapoints, measuringPoint.UnitType)...)
+			}
+		}
 	}
 
 	return measurements, nil
 }
 
-func parseDatapoints(datapoints DatapointsResponse) []twomes.Measurement {
+func parseDatapoints(datapoints DatapointsResponse, unit UnitType) []twomes.Measurement {
 	var measurements []twomes.Measurement
 
 	for _, datapoint := range datapoints {
-		measurement := twomes.Measurement{
-			Property: twomes.Property{
-				Name: datapoint.Rate.String(),
-			},
-			Time:  twomes.Time(datapoint.Date.Time),
-			Value: fmt.Sprintf("%.3f", datapoint.Quantity),
-		}
-
-		measurements = append(measurements, measurement)
+		measurements = append(measurements, datapoint.Parse(unit))
 	}
 
 	return measurements
@@ -249,9 +353,9 @@ func getMeasuringPoints(ctx context.Context, token string) (MeasuringsPointsResp
 	return response, nil
 }
 
-// GetDatapointsMonths returns the data points for the account with the given token.
-func getDatapointsMonths(ctx context.Context, token string, args RequestArgs) (DatapointsResponse, error) {
-	requestUrl, err := getRequestURL(endpointDatapointsMonths, args)
+// GetDatapoints returns the data points for the account with the given token.
+func getDatapoints(ctx context.Context, token string, endpoint string, args RequestArgs) (DatapointsResponse, error) {
+	requestUrl, err := getRequestURL(endpoint, args)
 	if err != nil {
 		return nil, fmt.Errorf("error getting request url: %w", err)
 	}
@@ -277,16 +381,6 @@ func getDatapointsMonths(ctx context.Context, token string, args RequestArgs) (D
 	return response, nil
 }
 
-// GetDatapointsDays returns the data points for the account with the given token.
-func getDatapointsDays(ctx context.Context, token string, args RequestArgs) (DatapointsResponse, error) {
-	return nil, nil
-}
-
-// GetDatapointsInterval returns the data points for the account with the given token.
-func getDatapointsInterval(ctx context.Context, token string, args RequestArgs) (DatapointsResponse, error) {
-	return nil, nil
-}
-
 func getRequestURL(endpoint string, args RequestArgs) (string, error) {
 	requestURL := strings.Builder{}
 
@@ -301,4 +395,30 @@ func getRequestURL(endpoint string, args RequestArgs) (string, error) {
 	}
 
 	return requestURL.String(), nil
+}
+
+func dateEqual(a, b time.Time) bool {
+	y1, m1, d1 := a.Date()
+	y2, m2, d2 := b.Date()
+	return y1 == y2 && m1 == m2 && d1 == d2
+}
+
+type day struct {
+	Start time.Time
+	End   time.Time
+}
+
+func splitDays(from, to time.Time) []day {
+	var days []day
+
+	for from.Before(to) && !dateEqual(from, to) {
+		to := from.AddDate(0, 0, 1)
+		days = append(days, day{
+			Start: from,
+			End:   to,
+		})
+		from = to
+	}
+
+	return days
 }

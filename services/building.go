@@ -32,7 +32,7 @@ func (s *BuildingService) GetByID(id uint) (twomes.Building, error) {
 	}
 
 	for _, device := range building.Devices {
-		device.LatestUpload, err = s.uploadService.GetLatestUploadTimeForDeviceWithID(device.ID)
+		device.LatestUpload, _, err = s.uploadService.GetLatestUploadTimeForDeviceWithID(device.ID)
 		if err != nil {
 			return twomes.Building{}, err
 		}

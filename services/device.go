@@ -75,7 +75,7 @@ func (s *DeviceService) GetByName(name string) (twomes.Device, error) {
 		return twomes.Device{}, err
 	}
 
-	device.LatestUpload, err = s.uploadService.GetLatestUploadTimeForDeviceWithID(device.ID)
+	device.LatestUpload, _, err = s.uploadService.GetLatestUploadTimeForDeviceWithID(device.ID)
 	if err != nil {
 		return twomes.Device{}, err
 	}
