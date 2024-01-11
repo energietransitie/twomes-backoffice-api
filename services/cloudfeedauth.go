@@ -26,6 +26,8 @@ const (
 
 var (
 	ErrDuplicateCloudFeedAuth = errors.New("duplicate cloud feed auth")
+
+	NoLatestUploadTime = time.Time{}
 )
 
 type CloudFeedAuthService struct {
@@ -285,8 +287,7 @@ func (s *CloudFeedAuthService) download(ctx context.Context) error {
 		}
 
 		if latestUpload == nil || !isUpload {
-			// Set to 14 months ago if no uploads are found.
-			*latestUpload = time.Now().AddDate(-1, -2, 0)
+			*latestUpload = NoLatestUploadTime
 		}
 
 		measurements, err := enelogic.Download(ctx, cfa.AccessToken, *latestUpload)
