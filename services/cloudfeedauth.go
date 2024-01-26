@@ -294,9 +294,9 @@ func (s *CloudFeedAuthService) download(ctx context.Context) error {
 		if err != nil {
 			if err == enelogic.ErrNoData {
 				logrus.Infoln("no (new) data found for cloud feed auth with accountID", cfa.AccountID, "cloudFeedID", cfa.CloudFeedID)
-				continue
 			}
-			return err
+			logrus.Warnln(err)
+			continue
 		}
 
 		if len(measurements) == 0 {
