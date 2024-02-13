@@ -1,20 +1,25 @@
-package twomes
+package campaign
 
-import "time"
+import (
+	"time"
+
+	"github.com/energietransitie/twomes-backoffice-api/twomes/app"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeed"
+)
 
 // A campaign is a timeframe where we gather measurements with a specific goal.
 type Campaign struct {
 	ID         uint        `json:"id"`
 	Name       string      `json:"name"`
-	App        App         `json:"app"`
+	App        app.App         `json:"app"`
 	InfoURL    string      `json:"info_url"`
-	CloudFeeds []CloudFeed `json:"cloud_feeds"`
+	CloudFeeds []cloudfeed.CloudFeed `json:"cloud_feeds"`
 	StartTime  *time.Time  `json:"start_time,omitempty"`
 	EndTime    *time.Time  `json:"end_time,omitempty"`
 }
 
 // Create a new Campaign.
-func MakeCampaign(name string, app App, infoURL string, cloudFeeds []CloudFeed, startTime, endTime *time.Time) Campaign {
+func MakeCampaign(name string, app app.App, infoURL string, cloudFeeds []cloudfeed.CloudFeed, startTime, endTime *time.Time) Campaign {
 	return Campaign{
 		Name:       name,
 		App:        app,

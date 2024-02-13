@@ -1,4 +1,4 @@
-package twomes
+package property
 
 // A Property is the type of a measurement.
 type Property struct {

@@ -4,7 +4,8 @@ import (
 	"time"
 
 	"github.com/energietransitie/twomes-backoffice-api/ports"
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/admin"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
 )
 
 type AdminService struct {
@@ -22,60 +23,60 @@ func NewAdminService(repository ports.AdminRepository, authService ports.Authori
 	}
 }
 
-func (s *AdminService) Create(name string, expiry time.Time) (twomes.Admin, error) {
-	admin := twomes.MakeAdmin(name, expiry)
-	admin, err := s.repository.Create(admin)
+func (s *AdminService) Create(name string, expiry time.Time) (admin.Admin, error) {
+	a := admin.MakeAdmin(name, expiry)
+	a, err := s.repository.Create(a)
 	if err != nil {
-		return twomes.Admin{}, err
+		return admin.Admin{}, err
 	}
 
-	admin.AuthorizationToken, err = s.authService.CreateToken(twomes.AdminToken, admin.ID, admin.Expiry)
+	a.AuthorizationToken, err = s.authService.CreateToken(authorization.AdminToken, a.ID, a.Expiry)
 	if err != nil {
-		return twomes.Admin{}, err
+		return admin.Admin{}, err
 	}
 
-	return admin, nil
+	return a, nil
 }
 
-func (s *AdminService) Find(admin twomes.Admin) (twomes.Admin, error) {
+func (s *AdminService) Find(admin admin.Admin) (admin.Admin, error) {
 	return s.repository.Find(admin)
 }
 
-func (s *AdminService) GetAll() ([]twomes.Admin, error) {
+func (s *AdminService) GetAll() ([]admin.Admin, error) {
 	return s.repository.GetAll()
 }
 
-func (s *AdminService) Delete(admin twomes.Admin) error {
+func (s *AdminService) Delete(admin admin.Admin) error {
 	return s.repository.Delete(admin)
 }
 
-func (s *AdminService) Reactivate(admin twomes.Admin) (twomes.Admin, error) {
-	admin, err := s.repository.Find(admin)
+func (s *AdminService) Reactivate(a admin.Admin) (admin.Admin, error) {
+	a, err := s.repository.Find(a)
 	if err != nil {
-		return twomes.Admin{}, err
+		return admin.Admin{}, err
 	}
 
-	admin.Reactivate()
+	a.Reactivate()
 
-	admin, err = s.repository.Update(admin)
+	a, err = s.repository.Update(a)
 	if err != nil {
-		return twomes.Admin{}, err
+		return admin.Admin{}, err
 	}
 
-	admin.AuthorizationToken, err = s.authService.CreateToken(twomes.AdminToken, admin.ID, admin.Expiry)
+	a.AuthorizationToken, err = s.authService.CreateToken(authorization.AdminToken, a.ID, a.Expiry)
 	if err != nil {
-		return twomes.Admin{}, err
+		return admin.Admin{}, err
 	}
 
-	return admin, nil
+	return a, nil
 }
 
-func (s *AdminService) SetExpiry(admin twomes.Admin, expiry time.Time) (twomes.Admin, error) {
-	admin, err := s.repository.Find(admin)
+func (s *AdminService) SetExpiry(a admin.Admin, expiry time.Time) (admin.Admin, error) {
+	a, err := s.repository.Find(a)
 	if err != nil {
-		return twomes.Admin{}, err
+		return admin.Admin{}, err
 	}
 
-	admin.SetExpiry(expiry)
-	return s.repository.Update(admin)
+	a.SetExpiry(expiry)
+	return s.repository.Update(a)
 }

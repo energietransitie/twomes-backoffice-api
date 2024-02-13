@@ -1,4 +1,4 @@
-package twomes
+package app
 
 // An App can provision a [Device] in a [Building].
 type App struct {

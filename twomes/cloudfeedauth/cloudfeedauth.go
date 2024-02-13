@@ -1,4 +1,4 @@
-package twomes
+package cloudfeedauth
 
 import "time"
 

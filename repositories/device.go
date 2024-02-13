@@ -3,7 +3,10 @@ package repositories
 import (
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/device"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/measurement"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/property"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/upload"
 	"gorm.io/gorm"
 )
 
@@ -18,7 +21,7 @@ func NewDeviceRepository(db *gorm.DB) *DeviceRepository {
 	}
 }
 
-// Database representation of a [twomes.Device]
+// Database representation of a [device.Device]
 type DeviceModel struct {
 	gorm.Model
 	Name                 string `gorm:"unique;not null"`
@@ -35,8 +38,8 @@ func (DeviceModel) TableName() string {
 	return "device"
 }
 
-// Create a DeviceModel from a [twomes.Device].
-func MakeDeviceModel(device twomes.Device) DeviceModel {
+// Create a DeviceModel from a [device.Device].
+func MakeDeviceModel(device device.Device) DeviceModel {
 	var uploadModels []UploadModel
 
 	for _, upload := range device.Uploads {
@@ -55,15 +58,15 @@ func MakeDeviceModel(device twomes.Device) DeviceModel {
 	}
 }
 
-// Create a [twomes.Device] from a DeviceModel.
-func (m *DeviceModel) fromModel() twomes.Device {
-	var uploads []twomes.Upload
+// Create a [device.Device] from a DeviceModel.
+func (m *DeviceModel) fromModel() device.Device {
+	var uploads []upload.Upload
 
 	for _, uploadModel := range m.Uploads {
 		uploads = append(uploads, uploadModel.fromModel())
 	}
 
-	return twomes.Device{
+	return device.Device{
 		ID:                   m.Model.ID,
 		Name:                 m.Name,
 		DeviceType:           m.DeviceType.fromModel(),
@@ -74,7 +77,7 @@ func (m *DeviceModel) fromModel() twomes.Device {
 	}
 }
 
-func (r *DeviceRepository) Find(device twomes.Device) (twomes.Device, error) {
+func (r *DeviceRepository) Find(device device.Device) (device.Device, error) {
 	deviceModel := MakeDeviceModel(device)
 	err := r.db.Preload("DeviceType").Preload("Uploads").Where(&deviceModel).First(&deviceModel).Error
 	return deviceModel.fromModel(), err
@@ -104,12 +107,12 @@ func (r *DeviceRepository) FindCloudFeedAuthCreationTimeFromDeviceID(deviceID ui
 	return &result.CreatedAt, nil
 }
 
-func (r *DeviceRepository) GetMeasurements(device twomes.Device, filters map[string]string) ([]twomes.Measurement, error) {
+func (r *DeviceRepository) GetMeasurements(device device.Device, filters map[string]string) ([]measurement.Measurement, error) {
 	// empty array of measurements
-	var measurements []twomes.Measurement = make([]twomes.Measurement, 0)
+	var measurements []measurement.Measurement = make([]measurement.Measurement, 0)
 
 	query := r.db.
-		Model(&twomes.Measurement{}).
+		Model(&measurement.Measurement{}).
 		Preload("Property").
 		Joins("JOIN upload ON measurement.upload_id = upload.id").
 		Joins("JOIN device ON upload.device_id = device.id").
@@ -138,8 +141,8 @@ func (r *DeviceRepository) GetMeasurements(device twomes.Device, filters map[str
 	return measurements, nil
 }
 
-func (r *DeviceRepository) GetProperties(device twomes.Device) ([]twomes.Property, error) {
-	var properties []twomes.Property = make([]twomes.Property, 0)
+func (r *DeviceRepository) GetProperties(device device.Device) ([]property.Property, error) {
+	var properties []property.Property = make([]property.Property, 0)
 
 	err := r.db.
 		Table("device").
@@ -158,8 +161,8 @@ func (r *DeviceRepository) GetProperties(device twomes.Device) ([]twomes.Propert
 	return properties, nil
 }
 
-func (r *DeviceRepository) GetAll() ([]twomes.Device, error) {
-	var devices []twomes.Device
+func (r *DeviceRepository) GetAll() ([]device.Device, error) {
+	var devices []device.Device
 
 	var deviceModels []DeviceModel
 	err := r.db.Preload("DeviceType").Preload("Uploads").Find(&deviceModels).Error
@@ -174,19 +177,19 @@ func (r *DeviceRepository) GetAll() ([]twomes.Device, error) {
 	return devices, nil
 }
 
-func (r *DeviceRepository) Create(device twomes.Device) (twomes.Device, error) {
+func (r *DeviceRepository) Create(device device.Device) (device.Device, error) {
 	deviceModel := MakeDeviceModel(device)
 	err := r.db.Preload("").Create(&deviceModel).Error
 	return deviceModel.fromModel(), err
 }
 
-func (r *DeviceRepository) Update(device twomes.Device) (twomes.Device, error) {
+func (r *DeviceRepository) Update(device device.Device) (device.Device, error) {
 	deviceModel := MakeDeviceModel(device)
 	err := r.db.Model(&deviceModel).Updates(deviceModel).Error
 	return deviceModel.fromModel(), err
 }
 
-func (r *DeviceRepository) Delete(device twomes.Device) error {
+func (r *DeviceRepository) Delete(device device.Device) error {
 	deviceModel := MakeDeviceModel(device)
 	return r.db.Delete(&deviceModel).Error
 }

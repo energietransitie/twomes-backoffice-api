@@ -1,20 +1,18 @@
 package ports
 
-import (
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
-)
+import "github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeed"
 
 // A CloudFeedRepository can load, store and delete cloud feeds.
 type CloudFeedRepository interface {
-	Find(twomes.CloudFeed) (twomes.CloudFeed, error)
-	GetAll() ([]twomes.CloudFeed, error)
-	Create(twomes.CloudFeed) (twomes.CloudFeed, error)
-	Delete(twomes.CloudFeed) error
+	Find(cloudfeed.CloudFeed) (cloudfeed.CloudFeed, error)
+	GetAll() ([]cloudfeed.CloudFeed, error)
+	Create(cloudfeed.CloudFeed) (cloudfeed.CloudFeed, error)
+	Delete(cloudfeed.CloudFeed) error
 }
 
-// CloudFeedService exposes all operations that can be performed on a [twomes.CloudFeed].
+// CloudFeedService exposes all operations that can be performed on a [cloudfeed.CloudFeed].
 type CloudFeedService interface {
-	Create(name, authorizationURL, tokenURL, clientID, clientSecret, scope, redirectURL string) (twomes.CloudFeed, error)
-	Find(cloudFeed twomes.CloudFeed) (twomes.CloudFeed, error)
-	GetByID(id uint) (twomes.CloudFeed, error)
+	Create(name, authorizationURL, tokenURL, clientID, clientSecret, scope, redirectURL string) (cloudfeed.CloudFeed, error)
+	Find(cloudFeed cloudfeed.CloudFeed) (cloudfeed.CloudFeed, error)
+	GetByID(id uint) (cloudfeed.CloudFeed, error)
 }

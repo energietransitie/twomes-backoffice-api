@@ -1,4 +1,6 @@
-package twomes
+package building
+
+import "github.com/energietransitie/twomes-backoffice-api/twomes/device"
 
 // A Building belongs to a research subject where we take regular measurements with devices.
 type Building struct {
@@ -7,7 +9,7 @@ type Building struct {
 	Longtitude float32   `json:"longtitude"`
 	Latitude   float32   `json:"latitude"`
 	TZName     string    `json:"tz_name"`
-	Devices    []*Device `json:"devices,omitempty"`
+	Devices    []*device.Device `json:"devices,omitempty"`
 }
 
 // Create a new Building.
@@ -21,6 +23,6 @@ func MakeBuilding(accountID uint, long, lat float32, tzName string) Building {
 }
 
 // Add a [Device] to a Building.
-func (b *Building) AddDevice(device *Device) {
+func (b *Building) AddDevice(device *device.Device) {
 	b.Devices = append(b.Devices, device)
 }

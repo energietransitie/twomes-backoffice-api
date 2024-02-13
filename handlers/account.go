@@ -9,7 +9,9 @@ import (
 
 	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
 	"github.com/energietransitie/twomes-backoffice-api/ports"
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/account"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/building"
 	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
 )
@@ -26,7 +28,7 @@ func NewAccountHandler(accountService ports.AccountService) *AccountHandler {
 
 // Handle API endpoint for creating a new account.
 func (h *AccountHandler) Create(w http.ResponseWriter, r *http.Request) error {
-	var request twomes.Account
+	var request account.Account
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
@@ -55,31 +57,31 @@ func (h *AccountHandler) Create(w http.ResponseWriter, r *http.Request) error {
 // Handle API endpoint for activating an account.
 // This endpoint should be protected with an account activation token.
 func (h *AccountHandler) Activate(w http.ResponseWriter, r *http.Request) error {
-	var request twomes.Building
+	var request building.Building
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
 	}
 
-	auth, ok := r.Context().Value(AuthorizationCtxKey).(*twomes.Authorization)
+	auth, ok := r.Context().Value(AuthorizationCtxKey).(*authorization.Authorization)
 	if !ok {
 		return NewHandlerError(err, "unauthorized", http.StatusUnauthorized).WithMessage("failed when getting authentication context value")
 	}
 
-	if !auth.IsKind(twomes.AccountActivationToken) {
+	if !auth.IsKind(authorization.AccountActivationToken) {
 		return NewHandlerError(err, "wrong token kind", http.StatusForbidden).WithMessage("wrong token kind was used")
 	}
 
-	account, err := h.accountService.Activate(auth.ID, request.Longtitude, request.Latitude, request.TZName)
+	a, err := h.accountService.Activate(auth.ID, request.Longtitude, request.Latitude, request.TZName)
 	if err != nil {
-		if errors.Is(err, twomes.ErrAccountAlreadyActivated) {
+		if errors.Is(err, account.ErrAccountAlreadyActivated) {
 			return NewHandlerError(err, "account already activated", http.StatusBadRequest)
 		}
 
 		return NewHandlerError(err, "account activation failed", http.StatusBadRequest)
 	}
 
-	err = json.NewEncoder(w).Encode(account)
+	err = json.NewEncoder(w).Encode(a)
 	if err != nil {
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
 	}
@@ -99,7 +101,7 @@ func (h *AccountHandler) GetAccountByID(w http.ResponseWriter, r *http.Request) 
 		return NewHandlerError(err, "account_id not a number", http.StatusBadRequest)
 	}
 
-	auth, ok := r.Context().Value(AuthorizationCtxKey).(*twomes.Authorization)
+	auth, ok := r.Context().Value(AuthorizationCtxKey).(*authorization.Authorization)
 	if !ok {
 		return NewHandlerError(nil, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting authentication context value")
 	}
@@ -123,7 +125,7 @@ func (h *AccountHandler) GetAccountByID(w http.ResponseWriter, r *http.Request) 
 
 // Handle API endpoint for getting connected cloud feed auths.
 func (h *AccountHandler) GetCloudFeedAuthStatuses(w http.ResponseWriter, r *http.Request) error {
-	auth, ok := r.Context().Value(AuthorizationCtxKey).(*twomes.Authorization)
+	auth, ok := r.Context().Value(AuthorizationCtxKey).(*authorization.Authorization)
 	if !ok {
 		return InternalServerError(nil).WithMessage("failed when getting authentication context value")
 	}

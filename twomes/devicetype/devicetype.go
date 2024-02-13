@@ -1,4 +1,4 @@
-package twomes
+package devicetype
 
 // A DeviceType contains information about a group of devices with the same functionality.
 type DeviceType struct {

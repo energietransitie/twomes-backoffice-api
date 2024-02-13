@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/energietransitie/twomes-backoffice-api/ports"
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
 )
 
 // A Contextkey is the type for a context key.
@@ -28,7 +28,7 @@ func NewAuthorizationHandler(service ports.AuthorizationService) *AuthorizationH
 	}
 }
 
-func (h *AuthorizationHandler) Middleware(kind twomes.AuthKind) func(next Handler) Handler {
+func (h *AuthorizationHandler) Middleware(kind authorization.AuthKind) func(next Handler) Handler {
 	return func(next Handler) Handler {
 		return func(w http.ResponseWriter, r *http.Request) error {
 			authHeader := r.Header.Get("Authorization")

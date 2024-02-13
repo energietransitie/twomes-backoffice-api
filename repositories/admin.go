@@ -3,7 +3,7 @@ package repositories
 import (
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/admin"
 	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -32,7 +32,7 @@ func NewAdminRepository(fileName string) (*AdminRepository, error) {
 	}, nil
 }
 
-// Database representation of a [twomes.Admin].
+// Database representation of a [admin.Admin].
 type AdminModel struct {
 	gorm.Model
 	Name        string `gorm:"unique;not null"`
@@ -45,8 +45,8 @@ func (AdminModel) TableName() string {
 	return "admin"
 }
 
-// Create a new AdminModel from a [twomes.Admin].
-func MakeAdminModel(admin twomes.Admin) AdminModel {
+// Create a new AdminModel from a [admin.Admin].
+func MakeAdminModel(admin admin.Admin) AdminModel {
 	return AdminModel{
 		Model:       gorm.Model{ID: admin.ID},
 		Name:        admin.Name,
@@ -55,9 +55,9 @@ func MakeAdminModel(admin twomes.Admin) AdminModel {
 	}
 }
 
-// Create a [twomes.Admin] from an AdminModel.
-func (m *AdminModel) fromModel() twomes.Admin {
-	return twomes.Admin{
+// Create a [admin.Admin] from an AdminModel.
+func (m *AdminModel) fromModel() admin.Admin {
+	return admin.Admin{
 		ID:          m.Model.ID,
 		Name:        m.Name,
 		ActivatedAt: m.ActivatedAt,
@@ -65,14 +65,14 @@ func (m *AdminModel) fromModel() twomes.Admin {
 	}
 }
 
-func (r *AdminRepository) Find(admin twomes.Admin) (twomes.Admin, error) {
+func (r *AdminRepository) Find(admin admin.Admin) (admin.Admin, error) {
 	adminModel := MakeAdminModel(admin)
 	err := r.db.Where(&adminModel).First(&adminModel).Error
 	return adminModel.fromModel(), err
 }
 
-func (r *AdminRepository) GetAll() ([]twomes.Admin, error) {
-	admins := make([]twomes.Admin, 0)
+func (r *AdminRepository) GetAll() ([]admin.Admin, error) {
+	admins := make([]admin.Admin, 0)
 
 	var adminModels []AdminModel
 	err := r.db.Find(&adminModels).Error
@@ -87,19 +87,19 @@ func (r *AdminRepository) GetAll() ([]twomes.Admin, error) {
 	return admins, nil
 }
 
-func (r *AdminRepository) Create(admin twomes.Admin) (twomes.Admin, error) {
+func (r *AdminRepository) Create(admin admin.Admin) (admin.Admin, error) {
 	adminModel := MakeAdminModel(admin)
 	err := r.db.Create(&adminModel).Error
 	return adminModel.fromModel(), err
 }
 
-func (r *AdminRepository) Update(admin twomes.Admin) (twomes.Admin, error) {
+func (r *AdminRepository) Update(admin admin.Admin) (admin.Admin, error) {
 	adminModel := MakeAdminModel(admin)
 	err := r.db.Model(&adminModel).Updates(adminModel).Error
 	return adminModel.fromModel(), err
 }
 
-func (r *AdminRepository) Delete(admin twomes.Admin) error {
+func (r *AdminRepository) Delete(admin admin.Admin) error {
 	adminModel := MakeAdminModel(admin)
 	return r.db.Where(&adminModel).Delete(&adminModel).Error
 }

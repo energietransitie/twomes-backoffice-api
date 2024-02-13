@@ -7,6 +7,8 @@ import (
 	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
 	"github.com/energietransitie/twomes-backoffice-api/ports"
 	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/measurement"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/upload"
 )
 
 var (
@@ -30,12 +32,12 @@ func NewUploadService(repository ports.UploadRepository, deviceRepo ports.Device
 	}
 }
 
-func (s *UploadService) Create(deviceID uint, deviceTime twomes.Time, measurements []twomes.Measurement) (twomes.Upload, error) {
+func (s *UploadService) Create(deviceID uint, deviceTime twomes.Time, measurements []measurement.Measurement) (upload.Upload, error) {
 	if len(measurements) <= 0 {
-		return twomes.Upload{}, ErrEmptyUpload
+		return upload.Upload{}, ErrEmptyUpload
 	}
 
-	upload := twomes.MakeUpload(deviceID, deviceTime, measurements)
+	upload := upload.MakeUpload(deviceID, deviceTime, measurements)
 
 	upload, err := s.repository.Create(upload)
 

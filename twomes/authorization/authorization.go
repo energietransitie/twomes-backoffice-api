@@ -1,4 +1,4 @@
-package twomes
+package authorization
 
 import (
 	"crypto"

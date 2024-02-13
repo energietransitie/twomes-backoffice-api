@@ -3,24 +3,24 @@ package ports
 import (
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/admin"
 )
 
 // An AccountRepository can load, store and delete admins.
 type AdminRepository interface {
-	Find(admin twomes.Admin) (twomes.Admin, error)
-	GetAll() ([]twomes.Admin, error)
-	Create(admin twomes.Admin) (twomes.Admin, error)
-	Update(admin twomes.Admin) (twomes.Admin, error)
-	Delete(admin twomes.Admin) error
+	Find(admin admin.Admin) (admin.Admin, error)
+	GetAll() ([]admin.Admin, error)
+	Create(admin admin.Admin) (admin.Admin, error)
+	Update(admin admin.Admin) (admin.Admin, error)
+	Delete(admin admin.Admin) error
 }
 
-// AdminService exposes all operations that can be performed on a [twomes.Admin]
+// AdminService exposes all operations that can be performed on a [admin.Admin]
 type AdminService interface {
-	Create(name string, expiry time.Time) (twomes.Admin, error)
-	Find(admin twomes.Admin) (twomes.Admin, error)
-	GetAll() ([]twomes.Admin, error)
-	Delete(admin twomes.Admin) error
-	Reactivate(admin twomes.Admin) (twomes.Admin, error)
-	SetExpiry(admin twomes.Admin, expiry time.Time) (twomes.Admin, error)
+	Create(name string, expiry time.Time) (admin.Admin, error)
+	Find(admin admin.Admin) (admin.Admin, error)
+	GetAll() ([]admin.Admin, error)
+	Delete(admin admin.Admin) error
+	Reactivate(admin admin.Admin) (admin.Admin, error)
+	SetExpiry(admin admin.Admin, expiry time.Time) (admin.Admin, error)
 }

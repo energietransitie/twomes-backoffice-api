@@ -2,7 +2,7 @@ package services
 
 import (
 	"github.com/energietransitie/twomes-backoffice-api/ports"
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeed"
 )
 
 type CloudFeedService struct {
@@ -16,15 +16,15 @@ func NewCloudFeedService(repository ports.CloudFeedRepository) *CloudFeedService
 	}
 }
 
-func (s *CloudFeedService) Create(name string, authorizationURL string, tokenURL string, clientID string, clientSecret string, scope string, redirectURL string) (twomes.CloudFeed, error) {
-	cloudFeed := twomes.MakeCloudFeed(name, authorizationURL, tokenURL, clientID, clientSecret, scope, redirectURL)
+func (s *CloudFeedService) Create(name string, authorizationURL string, tokenURL string, clientID string, clientSecret string, scope string, redirectURL string) (cloudfeed.CloudFeed, error) {
+	cloudFeed := cloudfeed.MakeCloudFeed(name, authorizationURL, tokenURL, clientID, clientSecret, scope, redirectURL)
 	return s.repository.Create(cloudFeed)
 }
 
-func (s *CloudFeedService) Find(cloudFeed twomes.CloudFeed) (twomes.CloudFeed, error) {
+func (s *CloudFeedService) Find(cloudFeed cloudfeed.CloudFeed) (cloudfeed.CloudFeed, error) {
 	return s.repository.Find(cloudFeed)
 }
 
-func (s *CloudFeedService) GetByID(id uint) (twomes.CloudFeed, error) {
-	return s.repository.Find(twomes.CloudFeed{ID: id})
+func (s *CloudFeedService) GetByID(id uint) (cloudfeed.CloudFeed, error) {
+	return s.repository.Find(cloudfeed.CloudFeed{ID: id})
 }

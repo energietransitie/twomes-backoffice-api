@@ -15,7 +15,7 @@ import (
 	"github.com/energietransitie/twomes-backoffice-api/repositories"
 	"github.com/energietransitie/twomes-backoffice-api/services"
 	"github.com/energietransitie/twomes-backoffice-api/swaggerdocs"
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/go-chi/chi/v5"
@@ -108,10 +108,10 @@ func main() {
 	adminService := services.NewAdminService(adminRepository, authService)
 	adminHandler := handlers.NewAdminHandler(adminService)
 
-	adminAuth := authHandler.Middleware(twomes.AdminToken)
-	accountActivationAuth := authHandler.Middleware(twomes.AccountActivationToken)
-	accountAuth := authHandler.Middleware(twomes.AccountToken)
-	deviceAuth := authHandler.Middleware(twomes.DeviceToken)
+	adminAuth := authHandler.Middleware(authorization.AdminToken)
+	accountActivationAuth := authHandler.Middleware(authorization.AccountActivationToken)
+	accountAuth := authHandler.Middleware(authorization.AccountToken)
+	deviceAuth := authHandler.Middleware(authorization.DeviceToken)
 
 	appRepository := repositories.NewAppRepository(db)
 	cloudFeedRepository := repositories.NewCloudFeedRepository(db)

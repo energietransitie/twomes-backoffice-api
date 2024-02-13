@@ -6,7 +6,7 @@ import (
 
 	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
 	"github.com/energietransitie/twomes-backoffice-api/ports"
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/app"
 	"github.com/sirupsen/logrus"
 )
 
@@ -21,7 +21,7 @@ func NewAppHandler(service ports.AppService) *AppHandler {
 }
 
 func (h *AppHandler) Create(w http.ResponseWriter, r *http.Request) error {
-	var request twomes.App
+	var request app.App
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)

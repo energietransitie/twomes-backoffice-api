@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/energietransitie/twomes-backoffice-api/ports"
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
 	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
 )
@@ -34,7 +34,7 @@ func (h *BuildingHandler) GetBuildingByID(w http.ResponseWriter, r *http.Request
 		return NewHandlerError(err, "building_id not a number", http.StatusBadRequest)
 	}
 
-	auth, ok := r.Context().Value(AuthorizationCtxKey).(*twomes.Authorization)
+	auth, ok := r.Context().Value(AuthorizationCtxKey).(*authorization.Authorization)
 	if !ok {
 		return NewHandlerError(nil, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting authentication context value")
 	}

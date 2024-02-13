@@ -1,7 +1,8 @@
 package repositories
 
 import (
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/building"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/device"
 	"gorm.io/gorm"
 )
 
@@ -15,7 +16,7 @@ func NewBuildingRepository(db *gorm.DB) *BuildingRepository {
 	}
 }
 
-// Database representation of a [twomes.Building].
+// Database representation of a [building.Building].
 type BuildingModel struct {
 	gorm.Model
 	AccountModelID uint `gorm:"column:account_id"`
@@ -30,8 +31,8 @@ func (BuildingModel) TableName() string {
 	return "building"
 }
 
-// Create a new BuildingModel from a [twomes.Building]
-func MakeBuildingModel(building twomes.Building) BuildingModel {
+// Create a new BuildingModel from a [building.Building]
+func MakeBuildingModel(building building.Building) BuildingModel {
 	var deviceModels []DeviceModel
 
 	for _, device := range building.Devices {
@@ -48,16 +49,16 @@ func MakeBuildingModel(building twomes.Building) BuildingModel {
 	}
 }
 
-// Create a [twomes.Building] from a BuildingModel.
-func (m *BuildingModel) fromModel() twomes.Building {
-	var devices []*twomes.Device
+// Create a [building.Building] from a BuildingModel.
+func (m *BuildingModel) fromModel() building.Building {
+	var devices []*device.Device
 
 	for _, deviceModel := range m.Devices {
 		device := deviceModel.fromModel()
 		devices = append(devices, &device)
 	}
 
-	return twomes.Building{
+	return building.Building{
 		ID:         m.Model.ID,
 		AccountID:  m.AccountModelID,
 		Longtitude: m.Longtitude,
@@ -67,14 +68,14 @@ func (m *BuildingModel) fromModel() twomes.Building {
 	}
 }
 
-func (r *BuildingRepository) Find(building twomes.Building) (twomes.Building, error) {
+func (r *BuildingRepository) Find(building building.Building) (building.Building, error) {
 	buildingModel := MakeBuildingModel(building)
 	err := r.db.Preload("Devices.DeviceType").Where(&buildingModel).First(&buildingModel).Error
 	return buildingModel.fromModel(), err
 }
 
-func (r *BuildingRepository) GetAll() ([]twomes.Building, error) {
-	buildings := make([]twomes.Building, 0)
+func (r *BuildingRepository) GetAll() ([]building.Building, error) {
+	buildings := make([]building.Building, 0)
 
 	var buildingModels []BuildingModel
 	err := r.db.Find(&buildingModels).Error
@@ -89,13 +90,13 @@ func (r *BuildingRepository) GetAll() ([]twomes.Building, error) {
 	return buildings, nil
 }
 
-func (r *BuildingRepository) Create(building twomes.Building) (twomes.Building, error) {
+func (r *BuildingRepository) Create(building building.Building) (building.Building, error) {
 	buildingModel := MakeBuildingModel(building)
 	err := r.db.Create(&buildingModel).Error
 	return buildingModel.fromModel(), err
 }
 
-func (r *BuildingRepository) Delete(building twomes.Building) error {
+func (r *BuildingRepository) Delete(building building.Building) error {
 	buildingModel := MakeBuildingModel(building)
 	return r.db.Delete(&buildingModel).Error
 }

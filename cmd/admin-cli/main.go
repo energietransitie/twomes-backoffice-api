@@ -7,7 +7,7 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/admin"
 	"github.com/urfave/cli/v2"
 )
 
@@ -82,7 +82,7 @@ func main() {
 }
 
 func listAdmins(ctx *cli.Context) error {
-	var admins []twomes.Admin
+	var admins []admin.Admin
 
 	client, err := getRPCClient()
 	if err != nil {
@@ -121,7 +121,7 @@ func createAdmin(ctx *cli.Context) error {
 		}
 	}
 
-	admin := twomes.Admin{
+	admin := admin.Admin{
 		Name:   ctx.String("name"),
 		Expiry: expiry,
 	}
@@ -142,7 +142,7 @@ func createAdmin(ctx *cli.Context) error {
 }
 
 func deleteAdmin(ctx *cli.Context) error {
-	admin := twomes.Admin{
+	admin := admin.Admin{
 		Name: ctx.String("name"),
 	}
 
@@ -161,7 +161,7 @@ func deleteAdmin(ctx *cli.Context) error {
 }
 
 func reactivateAdmin(ctx *cli.Context) error {
-	admin := twomes.Admin{
+	admin := admin.Admin{
 		Name: ctx.String("name"),
 	}
 
@@ -190,7 +190,7 @@ func setAdminExpiry(ctx *cli.Context) error {
 		}
 	}
 
-	admin := twomes.Admin{
+	admin := admin.Admin{
 		Name:   ctx.String("name"),
 		Expiry: expiry,
 	}

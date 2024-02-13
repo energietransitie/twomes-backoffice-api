@@ -4,7 +4,8 @@ package repositories
 import (
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/account"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/building"
 	"gorm.io/gorm"
 )
 
@@ -18,7 +19,7 @@ func NewAccountRepository(db *gorm.DB) *AccountRepository {
 	}
 }
 
-// Database representation of a [twomes.Account].
+// Database representation of a [account.Account].
 type AccountModel struct {
 	gorm.Model
 	CampaignModelID uint `gorm:"column:campaign_id"`
@@ -33,8 +34,8 @@ func (AccountModel) TableName() string {
 	return "account"
 }
 
-// Create a new AccountModel from a [twomes.Account].
-func MakeAccountModel(account twomes.Account) AccountModel {
+// Create a new AccountModel from a [account.Account].
+func MakeAccountModel(account account.Account) AccountModel {
 	var buildingModels []BuildingModel
 
 	for _, building := range account.Buildings {
@@ -52,15 +53,15 @@ func MakeAccountModel(account twomes.Account) AccountModel {
 	}
 }
 
-// Create a [twomes.Account] from an AccountModel.
-func (m *AccountModel) fromModel() twomes.Account {
-	var buildings []twomes.Building
+// Create a [account.Account] from an AccountModel.
+func (m *AccountModel) fromModel() account.Account {
+	var buildings []building.Building
 
 	for _, buildingModel := range m.Buildings {
 		buildings = append(buildings, buildingModel.fromModel())
 	}
 
-	return twomes.Account{
+	return account.Account{
 		ID:          m.Model.ID,
 		Campaign:    m.Campaign.fromModel(),
 		ActivatedAt: m.ActivatedAt,
@@ -68,14 +69,14 @@ func (m *AccountModel) fromModel() twomes.Account {
 	}
 }
 
-func (r *AccountRepository) Find(account twomes.Account) (twomes.Account, error) {
+func (r *AccountRepository) Find(account account.Account) (account.Account, error) {
 	accountModel := MakeAccountModel(account)
 	err := r.db.Preload("Campaign.App").Preload("Campaign.CloudFeeds").Preload("Buildings").Where(&accountModel).First(&accountModel).Error
 	return accountModel.fromModel(), err
 }
 
-func (r *AccountRepository) GetAll() ([]twomes.Account, error) {
-	accounts := make([]twomes.Account, 0)
+func (r *AccountRepository) GetAll() ([]account.Account, error) {
+	accounts := make([]account.Account, 0)
 
 	var accountModels []AccountModel
 	err := r.db.Preload("Campaign.App").Preload("Buildings").Find(&accountModels).Error
@@ -90,19 +91,19 @@ func (r *AccountRepository) GetAll() ([]twomes.Account, error) {
 	return accounts, nil
 }
 
-func (r *AccountRepository) Create(account twomes.Account) (twomes.Account, error) {
+func (r *AccountRepository) Create(account account.Account) (account.Account, error) {
 	accountModel := MakeAccountModel(account)
 	err := r.db.Create(&accountModel).Error
 	return accountModel.fromModel(), err
 }
 
-func (r *AccountRepository) Update(account twomes.Account) (twomes.Account, error) {
+func (r *AccountRepository) Update(account account.Account) (account.Account, error) {
 	accountModel := MakeAccountModel(account)
 	err := r.db.Model(&accountModel).Updates(accountModel).Error
 	return accountModel.fromModel(), err
 }
 
-func (r *AccountRepository) Delete(account twomes.Account) error {
+func (r *AccountRepository) Delete(account account.Account) error {
 	accountModel := MakeAccountModel(account)
 	return r.db.Delete(&accountModel).Error
 }

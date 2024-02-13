@@ -16,6 +16,8 @@ import (
 	"github.com/energietransitie/twomes-backoffice-api/ports"
 	"github.com/energietransitie/twomes-backoffice-api/services/cloudfeeds/enelogic"
 	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeed"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeedauth"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
@@ -49,10 +51,10 @@ func NewCloudFeedAuthService(cloudFeedAuthRepo ports.CloudFeedAuthRepository, cl
 
 // Create a new cloudFeedAuth.
 // This function exchanges the AuthGrantToken (Code) for a access and refresh token.
-func (s *CloudFeedAuthService) Create(ctx context.Context, accountID, cloudFeedID uint, authGrantToken string) (twomes.CloudFeedAuth, error) {
-	cloudFeed, err := s.cloudFeedRepo.Find(twomes.CloudFeed{ID: cloudFeedID})
+func (s *CloudFeedAuthService) Create(ctx context.Context, accountID, cloudFeedID uint, authGrantToken string) (cloudfeedauth.CloudFeedAuth, error) {
+	cloudFeed, err := s.cloudFeedRepo.Find(cloudfeed.CloudFeed{ID: cloudFeedID})
 	if err != nil {
-		return twomes.CloudFeedAuth{}, err
+		return cloudfeedauth.CloudFeedAuth{}, err
 	}
 
 	scopes := strings.Split(cloudFeed.Scope, " ")
@@ -70,10 +72,10 @@ func (s *CloudFeedAuthService) Create(ctx context.Context, accountID, cloudFeedI
 
 	accessToken, refreshToken, expiry, err := exchangeAuthCode(ctx, conf, authGrantToken)
 	if err != nil {
-		return twomes.CloudFeedAuth{}, err
+		return cloudfeedauth.CloudFeedAuth{}, err
 	}
 
-	cloudFeedAuth := twomes.MakeCloudFeedAuth(accountID, cloudFeedID, accessToken, refreshToken, expiry, authGrantToken)
+	cloudFeedAuth := cloudfeedauth.MakeCloudFeedAuth(accountID, cloudFeedID, accessToken, refreshToken, expiry, authGrantToken)
 
 	cloudFeedAuth, err = s.cloudFeedAuthRepo.Create(cloudFeedAuth)
 	if err != nil {
@@ -87,31 +89,31 @@ func (s *CloudFeedAuthService) Create(ctx context.Context, accountID, cloudFeedI
 }
 
 // Find a cloudFeedAuth using any field set in the cloudFeedAuth struct.
-func (s *CloudFeedAuthService) Find(cloudFeedAuth twomes.CloudFeedAuth) (twomes.CloudFeedAuth, error) {
+func (s *CloudFeedAuthService) Find(cloudFeedAuth cloudfeedauth.CloudFeedAuth) (cloudfeedauth.CloudFeedAuth, error) {
 	return s.cloudFeedAuthRepo.Find(cloudFeedAuth)
 }
 
 // Refresh the tokens for the CloudFeedAuth corresponding to accountID and cloudFeedID.
-func (s *CloudFeedAuthService) RefreshTokens(ctx context.Context, accountID uint, cloudFeedID uint) (twomes.CloudFeedAuth, error) {
+func (s *CloudFeedAuthService) RefreshTokens(ctx context.Context, accountID uint, cloudFeedID uint) (cloudfeedauth.CloudFeedAuth, error) {
 	logrus.Infoln("refreshing token for accountID", accountID, "cloudFeedID", cloudFeedID)
 
-	cloudFeedAuth, err := s.cloudFeedAuthRepo.Find(twomes.CloudFeedAuth{AccountID: accountID, CloudFeedID: cloudFeedID})
+	cloudFeedAuth, err := s.cloudFeedAuthRepo.Find(cloudfeedauth.CloudFeedAuth{AccountID: accountID, CloudFeedID: cloudFeedID})
 	if err != nil {
-		return twomes.CloudFeedAuth{}, err
+		return cloudfeedauth.CloudFeedAuth{}, err
 	}
 
 	tokenURL, refreshToken, clientID, clientSecret, err := s.cloudFeedAuthRepo.FindOAuthInfo(accountID, cloudFeedID)
 	if err != nil {
-		return twomes.CloudFeedAuth{}, err
+		return cloudfeedauth.CloudFeedAuth{}, err
 	}
 
 	if refreshToken == "" {
-		return twomes.CloudFeedAuth{}, errors.New("refresh token empty")
+		return cloudfeedauth.CloudFeedAuth{}, errors.New("refresh token empty")
 	}
 
 	u, err := url.Parse(tokenURL)
 	if err != nil {
-		return twomes.CloudFeedAuth{}, err
+		return cloudfeedauth.CloudFeedAuth{}, err
 	}
 
 	form := url.Values{}
@@ -122,19 +124,19 @@ func (s *CloudFeedAuthService) RefreshTokens(ctx context.Context, accountID uint
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, u.String(), strings.NewReader(form.Encode()))
 	if err != nil {
-		return twomes.CloudFeedAuth{}, err
+		return cloudfeedauth.CloudFeedAuth{}, err
 	}
 
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return twomes.CloudFeedAuth{}, err
+		return cloudfeedauth.CloudFeedAuth{}, err
 	}
 	defer resp.Body.Close()
 
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return twomes.CloudFeedAuth{}, errors.New("error reading response from token endpoint")
+		return cloudfeedauth.CloudFeedAuth{}, errors.New("error reading response from token endpoint")
 	}
 
 	response := struct {
@@ -147,20 +149,20 @@ func (s *CloudFeedAuthService) RefreshTokens(ctx context.Context, accountID uint
 	respBodyReader := bytes.NewReader(respBody)
 	err = json.NewDecoder(respBodyReader).Decode(&response)
 	if err != nil {
-		return twomes.CloudFeedAuth{}, err
+		return cloudfeedauth.CloudFeedAuth{}, err
 	}
 
 	if resp.StatusCode != http.StatusOK {
 		// Delete auth since we can not recover from "invalid_grant" error.
 		if response.Error == "invalid_grant" {
 			logrus.Warnln("deleting invalid cloud feed auth for accountID", accountID, "cloudFeedID", cloudFeedID)
-			err := s.cloudFeedAuthRepo.Delete(twomes.CloudFeedAuth{AccountID: accountID, CloudFeedID: cloudFeedID})
+			err := s.cloudFeedAuthRepo.Delete(cloudfeedauth.CloudFeedAuth{AccountID: accountID, CloudFeedID: cloudFeedID})
 			if err != nil {
-				return twomes.CloudFeedAuth{}, fmt.Errorf("error deleting invalid auth: %w", err)
+				return cloudfeedauth.CloudFeedAuth{}, fmt.Errorf("error deleting invalid auth: %w", err)
 			}
 		}
 
-		return twomes.CloudFeedAuth{}, fmt.Errorf("unsuccessful refresh request. request: %s", string(respBody))
+		return cloudfeedauth.CloudFeedAuth{}, fmt.Errorf("unsuccessful refresh request. request: %s", string(respBody))
 	}
 
 	cloudFeedAuth.AccessToken = response.AccessToken
