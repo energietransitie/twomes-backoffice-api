@@ -105,7 +105,6 @@ Campaign 1--* Account
 Account 1--* Building
 Building 1--* Device
 Device *--1 DeviceType
-DeviceType *--* Property
 Device 1--* Upload
 Upload 1--* Measurement
 Measurement *--1 Property

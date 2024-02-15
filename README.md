@@ -1,206 +1,144 @@
 # Twomes Backoffice API
-
-> **Warning**
-> This documentation may be out-of-date in several places, and will be updated soon.
-
-Twomes API based on FastAPI / SQLAlchemy / MariaDB 
+API for Twomes data collection platform to enable research.
 
 ## Table of contents
-
-- [Prerequisites](#prerequisites)
 - [Deploying](#deploying)
 - [Developing](#developing)
+- [Usage](#usage)
 - [Status](#status)
 - [License](#license)
 - [Credits](#credits)
 
+## Deploying
+For our process to deploy the API to our public server, or update it, see these links:
+- Deploy: https://github.com/energietransitie/twomes-backoffice-configuration#api
+- Update: https://github.com/energietransitie/twomes-backoffice-configuration#updating
 
-## Prerequisites
+### Prerequisites
+The Twomes API is available as a Docker image.
+You will need to [install Docker](https://docs.docker.com/engine/install/) to run it.
 
-Running, and further developing, the API requires a recent Docker setup.
-See https://www.docker.com/products/docker-desktop for installation.
+### Images
+See all [available images](https://github.com/energietransitie/twomes-backoffice-api/pkgs/container/twomes-backoffice-api):
+- Use the `latest` tag to get the latest stable release built from a tagged GitHub release. 
+- Use the `main` tag to get the latest development release, built directly from the `main` branch.
 
+### Docker Compose ([more information](https://docs.docker.com/compose/features-uses/))
+```yaml
+version: "3.8"
+services:
+  web:
+    container_name: twomes-api-web
+    image: ghcr.io/energietransitie/twomes-backoffice-api:latest
+    ports:
+      - 8080:8080
+    volumes:
+      - /path/to/data:/data
+    environment:
+      - TWOMES_DSN=root:password@tcp(db:3306)/twomes
+      - TWOMES_BASE_URL=http://localhost:8080
+    depends_on:
+      - db
 
-## Deploying 
+  db:
+    container_name: twomes-api-db
+    image: mariadb:latest
+    environment:
+      - MYSQL_DATABASE=twomes
+      - MYSQL_ROOT_PASSWORD=password
+```
 
-The Twomes API can be be deployed on a local test server or a server in the cloud.
+## Developing
 
-### Deploying on your local machine
+### Requirements
+- [Go (minimum 1.20)](https://go.dev/dl/)
+- [Docker](https://www.docker.com/products/docker-desktop)
 
-To try out the Twomes API, locally, on your machine, it is possible to run 
-the database and API server using Docker Compose. 
-
-Make sure Docker is running on your local machine, then start the service from a command line terminal, from the root directory 
-of this project.
+### Running
+Make sure Docker is running on your local machine, then start the service from a command line terminal from the root of this repository:
 ```shell
-docker-compose up
+docker compose up --build
 ```
 
 This generates log messages from both the `web` and the `db` component.
 Just keep this running in your terminal.
 
-Open another terminal, and fill the database with initial Property and 
-DeviceType instances. See also `src/data/loader.py`. This loads the data
-available in `src/data/sensors.csv`.
+The API is now available on http://localhost:8080/.
+
+Create a new admin account to use the admin endpoints:
 ```shell
-docker-compose run web python -c "from data.loader import csv_create_update; csv_create_update()"
+docker compose exec -i web admin-cli create -n <name>
+```
+> Substitute `<name>` with the name of the admin account you want to create.
+
+Example output of running the command, with `johndoe` as admin name:
+```text
+Admin "johndoe" created. Authorization token: eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJUd29tZXNBUEl2MiIsInN1YiI6IjQiLCJleHAiOjE3MTU3MzEyMDAsIm5iZiI6MTY4NDE1MjA4OSwiaWF0IjoxNjg0MTUyMDg5LCJraW5kIjoiYWRtaW5Ub2tlbiJ9.N_uhPhLsaTq0DVGVPhdfU6Hd2VD0Zb8QxesTaWeILlNkkjQ9Vuxpwe0sfi3Vj0GJgyin2ZilPE6AS-makGm2cg
 ```
 
-The API is now available on http://localhost:8000/ , but it is more convenient
-to try it out via http://localhost:8000/docs . Note: the `device create` API
-end point takes a `device_type` parameter as input. This is the name of one
-of the device types defined in `src/data/sensors.csv` - 'OpenTherm-Monitor' 
-for example.
+Copy the authorization token without any spaces.
 
+When finished, type the `Ctrl + C` key in the first terminal. The container state is 
+preserved, and to restart, simply run `docker compose up --build` again.
+
+To completely remove all docker containers created above:
+```shell
+docker compose rm
+```
+
+To delete the saved data, remove the data directory in the root of this repository.
+
+### Model diagram
+
+To re-generate the model diagram:
+```shell
+docker run -i --rm vranac/erd < docs/model.er > docs/model.pdf
+```
+
+## Usage
+
+### Tokens
 Most end points require a session token to be provided in an authorization
 bearer HTTP header. These end points are marked with a 'lock' symbol. Click
 on the 'Authorize' button at the upper right of the page, or click on the 
 'lock' symbol at the end point, and paste the session token in the value field.
-Subsequent calls done through http://localhost:8000/docs will then use the
+Subsequent calls done through http://localhost:8080/docs will then use the
 session token.
 
-There are currently three types of session tokens:
-- Admin: for creating accounts and devices, used by Twomes admins
-- Account: for account activation, and attaching devices to accounts
-- Device: for uploading device measurements
+There are currently three types of tokens:
+- Admin: Used by administrators to manage resources.
+- Account: Used by an account to manage its resources.
+- Device: Used by a measurement device to upload measurements.
 
-To add yourself, locally, as one of the administrator, first pull to make sure that your main branch is up do date and then:
-```shell
-docker-compose run web python -c "import user; user.create_admin()"
-```
-Type your name, and add the admin tuple in `src/user.py`.
-
-Example output of running `create_admin()`, providing `piet` as admin name:
-```text
-Admin name: piet
-Update user.admins with this tuple:
-  (2, 'piet', '$2b$12$3wMWc1PK4OqCWuFZGF5XieCTOFBbP6uBTZHtkc9vCFRlYUZciXOuu')
-Authorisation bearer token for admin "piet":
-  Mg.u6Rcx2fHl-lydbEiKZILGtd9i1hzCES1uXkcPFT-tw0
-```
-
-When finished, type the `Ctrl + C` key in the first terminal. The container state is 
-preserved, and to restart, simply run `docker-compose up` again.
-
-To completely remove all docker containers created above
-```shell
-docker-compose rm
-```
-
-### Deploying to `api.tst.energietransitiewindesheim.nl`
-
-Deployment of the Twomes API to `api.tst.energietransitiewindesheim.nl` is done automatically using the Docker image created after
-every commit into the `main` branch. The image is pushed to the Github
-docker registry (part of Github Packages).
-
-The image is available at
-```text
-docker.pkg.github.com/energietransitie/twomes-backoffice-api/api:latest
-```
-To deploy, recreate the container for `api.tst.energietransitiewindesheim.nl` while using the 'Pull latest image' option.
-
-### Creating new admin accounts to `api.tst.energietransitiewindesheim.nl`
-If you need the ability to create user accounts for testing purposes, first follow the procedure to create an admin account as described under [Deploying to a local test server](#deploying-to a-local-test-server) and test it locally via http://localhost:8000/docs. Then commit and push changes in the main branch to origin and ask the admin for the `api.tst.energietransitiewindesheim.nl` server (currently [@henriterhofte](https://github.com/henriterhofte)) to activate your newly created admin account. He will then recreate the container for `api.tst.energietransitiewindesheim.nl` while using the 'Pull latest image' option, which activates the new account.
-
-### Registering new properties to `api.tst.energietransitiewindesheim.nl`
-If you need a new property at `api.tst.energietransitiewindesheim.nl`, first update it in `src/data/sensors.csv` and test it locally as described under [Deploying on your local machine](#deploying-on-yourlocal-machine) and test it locally via http://localhost:8000/docs. Commit changes in a separate branch, push and create a Pull Request; ask admin for the `api.tst.energietransitiewindesheim.nl` server (currently [@henriterhofte](https://github.com/henriterhofte)) to review, merge and activate the new definitions of devices and properties in sensors.csv. 
-
-He will then log in via SSH to the [Twomes backoffice server](https://github.com/energietransitie/twomes-backoffice-configuration) at energietransitiewindesheim.nl  and execute the following command:
-```shell
-docker pull ghcr.io/energietransitie/twomes_api:latest && \
-cd /root/api/tst && \
-docker-compose up -d && \
-docker exec twomes-api-tst python3 -c "from data.loader import csv_create_update; csv_create_update()"
-```
-
-## Developing
-
-### Setup
-
-Create a python virtualenv with a recent python version (>= 3.9), and 
-activate this virtual environment.
-
-From within your virtualenv, install the required packages.
-```shell
-$ pip install -r requirements.txt
-```
-
-Run a MariaDB server on your local machine, e.g.:
-```shell
-docker run -p 127.0.0.1:3306:3306  --name mariadb -e MYSQL_DATABASE=twomes -e MYSQL_ROOT_PASSWORD=twomes -d mariadb:10.5.9
-```
-
-Set the MariaDB url in your environment:
-```shell
-export TWOMES_DB_URL="root:twomes@localhost/twomes"
-```
-
-### Running
-
-Run the API server on your local machine:
-```shell
-PYTHONPATH=src uvicorn api:app --reload
-```
-
-Open http://127.0.0.1:8000/docs in your browser, to see the API documentation.
-
-
-### Database migrations
-
-Database migrations are managed with Alembic (see https://alembic.sqlalchemy.org).
-
-To get an up-to-date database schema, at any time, run
-```shell
-PYTHONPATH=src alembic upgrade head
-```
-
-If you change the database models, create migrations
-```shell
-PYTHONPATH=src alembic revision --autogenerate -m "<short description of migration>"
-```
-
-The new revision is stored in `alembic/versions`: check that the newly 
-created revision file is correct, and commit to your development branch.
-Then run the `alembic upgrade` command again.
-
-
-### Model diagram
-
-To re-generate the model diagram
-```shell
-docker run -i --rm vranac/erd < docs/model.er > docs/model.pdf 
-```
-
+### Administrators on our servers
+Contact an administrator to get admin access to the API:
+- Nick van Ravenzwaaij
+- Henri ter Hofte
 
 ## Status
-
 Project is: _work in progress_
 
-
 ## License
-
 This software is available under the [Apache 2.0 license](./LICENSE), 
 Copyright 2021 [Research group Energy Transition, Windesheim University of 
 Applied Sciences](https://windesheim.nl/energietransitie) 
 
-
 ## Credits
-
 This software is created by:
-* Nick van Ravenzwaaij  ·  [@n-vr](https://github.com/n-vr)
+- Nick van Ravenzwaaij · [@n-vr](https://github.com/n-vr)
 
 Thanks also go to:
-* Arjan peddemors  ·  [@arpe](https://github.com/arpe)
+- Arjan peddemors · [@arpe](https://github.com/arpe)
 
 Product owner:
-* Henri ter Hofte  ·  [@henriterhofte](https://github.com/henriterhofte)
+- Henri ter Hofte · [@henriterhofte](https://github.com/henriterhofte)
 
 We use and gratefully aknowlegde the efforts of the makers of the following source code and libraries:
 
-* [chi](https://github.com/go-chi/chi), by Peter Kieltyka, Google Inc, licensed under [MIT license](https://github.com/go-chi/chi/blob/master/LICENSE)
-* [gorm](https://gorm.io), by Jinzhu, licensed under [MIT license](https://github.com/go-gorm/gorm/blob/master/License)
-* [go-sql-driver/mysql](https://github.com/go-sql-driver/mysql), by go-sql-driver, licensed under [Mozilla Public License 2.0](https://github.com/go-sql-driver/mysql/blob/master/LICENSE)
-* [logrus](https://github.com/sirupsen/logrus), by Simon Eskildsen, licensed under [MIT license](https://github.com/sirupsen/logrus/blob/master/LICENSE)
-* [golang-jwt/jwt](https://github.com/golang-jwt/jwt), by Dave Grijalva, licensed under [MIT license](https://github.com/golang-jwt/jwt/blob/main/LICENSE)
-* [swagger-ui](https://github.com/swagger-api/swagger-ui), swagger-api, licensed under [Apache 2.0 license](https://github.com/swagger-api/swagger-ui/blob/master/LICENSE)
-* [crc16](https://github.com/sigurn/crc16), by sigurn, licensed under [MIT license](https://github.com/sigurn/crc16/blob/master/LICENSE)
+- [chi](https://github.com/go-chi/chi), by Peter Kieltyka, Google Inc, licensed under [MIT license](https://github.com/go-chi/chi/blob/master/LICENSE)
+- [gorm](https://gorm.io), by Jinzhu, licensed under [MIT license](https://github.com/go-gorm/gorm/blob/master/License)
+- [go-sql-driver/mysql](https://github.com/go-sql-driver/mysql), by go-sql-driver, licensed under [Mozilla Public License 2.0](https://github.com/go-sql-driver/mysql/blob/master/LICENSE)
+- [logrus](https://github.com/sirupsen/logrus), by Simon Eskildsen, licensed under [MIT license](https://github.com/sirupsen/logrus/blob/master/LICENSE)
+- [golang-jwt/jwt](https://github.com/golang-jwt/jwt), by Dave Grijalva, licensed under [MIT license](https://github.com/golang-jwt/jwt/blob/main/LICENSE)
+- [crc16](https://github.com/sigurn/crc16), by sigurn, licensed under [MIT license](https://github.com/sigurn/crc16/blob/master/LICENSE)
+- [swagger-ui](https://github.com/swagger-api/swagger-ui), by SmartBear Software Inc., licensed under [Apache 2.0 license](https://github.com/swagger-api/swagger-ui/blob/master/LICENSE)
