@@ -20,7 +20,7 @@ var (
 )
 
 type DeviceService struct {
-	repository ports.DeviceRepository
+	repository device.DeviceRepository
 
 	// Services used when activating a device.
 	authService ports.AuthorizationService
@@ -34,7 +34,7 @@ type DeviceService struct {
 }
 
 // Create a new DeviceService.
-func NewDeviceService(repository ports.DeviceRepository, authService ports.AuthorizationService, deviceTypeService ports.DeviceTypeService, BuildingService ports.BuildingService, uploadService ports.UploadService) *DeviceService {
+func NewDeviceService(repository device.DeviceRepository, authService ports.AuthorizationService, deviceTypeService ports.DeviceTypeService, BuildingService ports.BuildingService, uploadService ports.UploadService) *DeviceService {
 	return &DeviceService{
 		repository:        repository,
 		authService:       authService,

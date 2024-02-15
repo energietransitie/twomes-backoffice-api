@@ -33,14 +33,14 @@ var (
 )
 
 type CloudFeedAuthService struct {
-	cloudFeedAuthRepo ports.CloudFeedAuthRepository
-	cloudFeedRepo     ports.CloudFeedRepository
+	cloudFeedAuthRepo cloudfeedauth.CloudFeedAuthRepository
+	cloudFeedRepo     cloudfeed.CloudFeedRepository
 	uploadService     ports.UploadService
 	updateChan        chan struct{}
 }
 
 // Create a new CloudFeedAuthService.
-func NewCloudFeedAuthService(cloudFeedAuthRepo ports.CloudFeedAuthRepository, cloudFeedRepo ports.CloudFeedRepository, uploadService ports.UploadService) *CloudFeedAuthService {
+func NewCloudFeedAuthService(cloudFeedAuthRepo cloudfeedauth.CloudFeedAuthRepository, cloudFeedRepo cloudfeed.CloudFeedRepository, uploadService ports.UploadService) *CloudFeedAuthService {
 	return &CloudFeedAuthService{
 		cloudFeedAuthRepo: cloudFeedAuthRepo,
 		cloudFeedRepo:     cloudFeedRepo,

@@ -23,7 +23,7 @@ var (
 )
 
 type AccountService struct {
-	repository ports.AccountRepository
+	repository account.AccountRepository
 
 	// Services used when activating an account.
 	authService     ports.AuthorizationService
@@ -39,7 +39,7 @@ type AccountService struct {
 }
 
 // Create a new AccountService
-func NewAccountService(repository ports.AccountRepository, authService ports.AuthorizationService, appService ports.AppService, campaignService ports.CampaignService, buildingService ports.BuildingService, cloudFeedAuthService ports.CloudFeedAuthService) *AccountService {
+func NewAccountService(repository account.AccountRepository, authService ports.AuthorizationService, appService ports.AppService, campaignService ports.CampaignService, buildingService ports.BuildingService, cloudFeedAuthService ports.CloudFeedAuthService) *AccountService {
 	activationTokenRegex, err := regexp.Compile(`<account_activation_token>`)
 	if err != nil {
 		logrus.WithField("error", err).Fatal("account activation token regex did not compile")

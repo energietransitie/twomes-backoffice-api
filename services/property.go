@@ -1,16 +1,15 @@
 package services
 
 import (
-	"github.com/energietransitie/twomes-backoffice-api/ports"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/property"
 )
 
 type PropertyService struct {
-	repository ports.PropertyRepository
+	repository property.PropertyRepository
 }
 
 // Create a new PropertyService.
-func NewPropertyService(repository ports.PropertyRepository) *PropertyService {
+func NewPropertyService(repository property.PropertyRepository) *PropertyService {
 	return &PropertyService{
 		repository: repository,
 	}

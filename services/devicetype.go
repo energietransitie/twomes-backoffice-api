@@ -15,7 +15,7 @@ var (
 )
 
 type DeviceTypeService struct {
-	repository ports.DeviceTypeRepository
+	repository devicetype.DeviceTypeRepository
 
 	// Service used when creating a device type.
 	propertyService ports.PropertyService
@@ -25,7 +25,7 @@ type DeviceTypeService struct {
 }
 
 // Create a new DeviceTypeService.
-func NewDeviceTypeService(repository ports.DeviceTypeRepository, propertyService ports.PropertyService) *DeviceTypeService {
+func NewDeviceTypeService(repository devicetype.DeviceTypeRepository, propertyService ports.PropertyService) *DeviceTypeService {
 	deviceTypeService := &DeviceTypeService{
 		repository:      repository,
 		propertyService: propertyService,

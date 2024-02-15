@@ -7,14 +7,7 @@ import (
 	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeedauthstatus"
 )
 
-// An AccountRepository can load, store and delete accounts.
-type AccountRepository interface {
-	Find(account account.Account) (account.Account, error)
-	GetAll() ([]account.Account, error)
-	Create(account.Account) (account.Account, error)
-	Update(account.Account) (account.Account, error)
-	Delete(account.Account) error
-}
+
 
 // An AccountService exposes all operations we can perform on a [account.Account]
 type AccountService interface {

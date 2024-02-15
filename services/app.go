@@ -1,16 +1,15 @@
 package services
 
 import (
-	"github.com/energietransitie/twomes-backoffice-api/ports"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/app"
 )
 
 type AppService struct {
-	repository ports.AppRepository
+	repository app.AppRepository
 }
 
 // Create a new AppService.
-func NewAppService(repository ports.AppRepository) *AppService {
+func NewAppService(repository app.AppRepository) *AppService {
 	return &AppService{
 		repository: repository,
 	}

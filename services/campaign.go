@@ -10,7 +10,7 @@ import (
 )
 
 type CampaignService struct {
-	repository ports.CampaignRepository
+	repository campaign.CampaignRepository
 
 	// Service used when creating a campaign.
 	appService       ports.AppService
@@ -18,7 +18,7 @@ type CampaignService struct {
 }
 
 // Create a new CampaignService.
-func NewCampaignService(repository ports.CampaignRepository, appService ports.AppService, cloudFeedService ports.CloudFeedService) *CampaignService {
+func NewCampaignService(repository campaign.CampaignRepository, appService ports.AppService, cloudFeedService ports.CloudFeedService) *CampaignService {
 	return &CampaignService{
 		repository:       repository,
 		appService:       appService,

@@ -6,15 +6,6 @@ import (
 	"github.com/energietransitie/twomes-backoffice-api/twomes/admin"
 )
 
-// An AccountRepository can load, store and delete admins.
-type AdminRepository interface {
-	Find(admin admin.Admin) (admin.Admin, error)
-	GetAll() ([]admin.Admin, error)
-	Create(admin admin.Admin) (admin.Admin, error)
-	Update(admin admin.Admin) (admin.Admin, error)
-	Delete(admin admin.Admin) error
-}
-
 // AdminService exposes all operations that can be performed on a [admin.Admin]
 type AdminService interface {
 	Create(name string, expiry time.Time) (admin.Admin, error)

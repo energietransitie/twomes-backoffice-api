@@ -9,14 +9,14 @@ import (
 )
 
 type AdminService struct {
-	repository ports.AdminRepository
+	repository admin.AdminRepository
 
 	// Services used when creating an admin.
 	authService ports.AuthorizationService
 }
 
 // Create a new AdminService.
-func NewAdminService(repository ports.AdminRepository, authService ports.AuthorizationService) *AdminService {
+func NewAdminService(repository admin.AdminRepository, authService ports.AuthorizationService) *AdminService {
 	return &AdminService{
 		repository:  repository,
 		authService: authService,

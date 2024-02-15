@@ -6,14 +6,14 @@ import (
 )
 
 type BuildingService struct {
-	repository ports.BuildingRepository
+	repository building.BuildingRepository
 
 	// Services used when getting device info.
 	uploadService ports.UploadService
 }
 
 // Create a new BuildingService.
-func NewBuildingService(repository ports.BuildingRepository, uploadService ports.UploadService) *BuildingService {
+func NewBuildingService(repository building.BuildingRepository, uploadService ports.UploadService) *BuildingService {
 	return &BuildingService{
 		repository:    repository,
 		uploadService: uploadService,

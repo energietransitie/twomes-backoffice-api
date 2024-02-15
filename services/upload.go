@@ -7,6 +7,7 @@ import (
 	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
 	"github.com/energietransitie/twomes-backoffice-api/ports"
 	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/device"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/measurement"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/upload"
 )
@@ -16,15 +17,15 @@ var (
 )
 
 type UploadService struct {
-	repository ports.UploadRepository
-	deviceRepo ports.DeviceRepository
+	repository upload.UploadRepository
+	deviceRepo device.DeviceRepository
 
 	// Service used when creating an upload.
 	propertyService ports.PropertyService
 }
 
 // Create a new UploadService.
-func NewUploadService(repository ports.UploadRepository, deviceRepo ports.DeviceRepository, propertyService ports.PropertyService) *UploadService {
+func NewUploadService(repository upload.UploadRepository, deviceRepo device.DeviceRepository, propertyService ports.PropertyService) *UploadService {
 	return &UploadService{
 		repository:      repository,
 		deviceRepo:      deviceRepo,

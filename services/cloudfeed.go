@@ -1,16 +1,15 @@
 package services
 
 import (
-	"github.com/energietransitie/twomes-backoffice-api/ports"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeed"
 )
 
 type CloudFeedService struct {
-	repository ports.CloudFeedRepository
+	repository cloudfeed.CloudFeedRepository
 }
 
 // Create a new CloudFeedService.
-func NewCloudFeedService(repository ports.CloudFeedRepository) *CloudFeedService {
+func NewCloudFeedService(repository cloudfeed.CloudFeedRepository) *CloudFeedService {
 	return &CloudFeedService{
 		repository: repository,
 	}

@@ -8,15 +8,6 @@ import (
 	"github.com/energietransitie/twomes-backoffice-api/twomes/upload"
 )
 
-// An UploadRepository can load, store and delete uploads.
-type UploadRepository interface {
-	Find(Upload upload.Upload) (upload.Upload, error)
-	GetAll() ([]upload.Upload, error)
-	Create(upload.Upload) (upload.Upload, error)
-	Delete(upload.Upload) error
-	GetLatestUploadForDeviceWithID(id uint) (upload.Upload, error)
-}
-
 // UploadService exposes all operations that can be performed on a [upload.Upload].
 type UploadService interface {
 	Create(deviceID uint, deviceTime twomes.Time, measurements []measurement.Measurement) (upload.Upload, error)
