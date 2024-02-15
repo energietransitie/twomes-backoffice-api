@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
-	"github.com/energietransitie/twomes-backoffice-api/ports"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/account"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/campaign"
@@ -26,20 +25,20 @@ type AccountService struct {
 	repository account.AccountRepository
 
 	// Services used when activating an account.
-	authService     ports.AuthorizationService
-	appService      ports.AppService
-	campaignService ports.CampaignService
-	buildingService ports.BuildingService
+	authService     *AuthorizationService
+	appService      *AppService
+	campaignService *CampaignService
+	buildingService *BuildingService
 
 	// Services used for getting cloud feed auth statuses.
-	cloudFeedAuthService ports.CloudFeedAuthService
+	cloudFeedAuthService *CloudFeedAuthService
 
 	// Regular expression used for pattern matching in a provisioning_url_template.
 	activationTokenRegex *regexp.Regexp
 }
 
 // Create a new AccountService
-func NewAccountService(repository account.AccountRepository, authService ports.AuthorizationService, appService ports.AppService, campaignService ports.CampaignService, buildingService ports.BuildingService, cloudFeedAuthService ports.CloudFeedAuthService) *AccountService {
+func NewAccountService(repository account.AccountRepository, authService *AuthorizationService, appService *AppService, campaignService *CampaignService, buildingService *BuildingService, cloudFeedAuthService *CloudFeedAuthService) *AccountService {
 	activationTokenRegex, err := regexp.Compile(`<account_activation_token>`)
 	if err != nil {
 		logrus.WithField("error", err).Fatal("account activation token regex did not compile")

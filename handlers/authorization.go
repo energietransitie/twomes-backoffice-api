@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/energietransitie/twomes-backoffice-api/ports"
+	"github.com/energietransitie/twomes-backoffice-api/services"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
 )
 
@@ -18,11 +18,11 @@ type contextKey int
 const AuthorizationCtxKey contextKey = 0
 
 type AuthorizationHandler struct {
-	service ports.AuthorizationService
+	service *services.AuthorizationService
 }
 
 // Create a new AuthorizationHandler.
-func NewAuthorizationHandler(service ports.AuthorizationService) *AuthorizationHandler {
+func NewAuthorizationHandler(service *services.AuthorizationService) *AuthorizationHandler {
 	return &AuthorizationHandler{
 		service: service,
 	}

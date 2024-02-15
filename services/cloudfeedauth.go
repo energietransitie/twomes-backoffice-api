@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
-	"github.com/energietransitie/twomes-backoffice-api/ports"
 	"github.com/energietransitie/twomes-backoffice-api/services/cloudfeeds/enelogic"
 	"github.com/energietransitie/twomes-backoffice-api/twomes"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeed"
@@ -35,12 +34,12 @@ var (
 type CloudFeedAuthService struct {
 	cloudFeedAuthRepo cloudfeedauth.CloudFeedAuthRepository
 	cloudFeedRepo     cloudfeed.CloudFeedRepository
-	uploadService     ports.UploadService
+	uploadService     *UploadService
 	updateChan        chan struct{}
 }
 
 // Create a new CloudFeedAuthService.
-func NewCloudFeedAuthService(cloudFeedAuthRepo cloudfeedauth.CloudFeedAuthRepository, cloudFeedRepo cloudfeed.CloudFeedRepository, uploadService ports.UploadService) *CloudFeedAuthService {
+func NewCloudFeedAuthService(cloudFeedAuthRepo cloudfeedauth.CloudFeedAuthRepository, cloudFeedRepo cloudfeed.CloudFeedRepository, uploadService *UploadService) *CloudFeedAuthService {
 	return &CloudFeedAuthService{
 		cloudFeedAuthRepo: cloudFeedAuthRepo,
 		cloudFeedRepo:     cloudFeedRepo,

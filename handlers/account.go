@@ -8,7 +8,7 @@ import (
 	"strconv"
 
 	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
-	"github.com/energietransitie/twomes-backoffice-api/ports"
+	"github.com/energietransitie/twomes-backoffice-api/services"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/account"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/building"
@@ -17,10 +17,10 @@ import (
 )
 
 type AccountHandler struct {
-	accountService ports.AccountService
+	accountService *services.AccountService
 }
 
-func NewAccountHandler(accountService ports.AccountService) *AccountHandler {
+func NewAccountHandler(accountService *services.AccountService) *AccountHandler {
 	return &AccountHandler{
 		accountService: accountService,
 	}

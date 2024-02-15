@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/ports"
+	"github.com/energietransitie/twomes-backoffice-api/services"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/admin"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
 	"github.com/sirupsen/logrus"
@@ -14,10 +14,10 @@ import (
 // AdminHandler can be used in an RPC server.
 // It also has an HTTP middleware to verify admin tokens with admin accounts.
 type AdminHandler struct {
-	service ports.AdminService
+	service *services.AdminService
 }
 
-func NewAdminHandler(service ports.AdminService) *AdminHandler {
+func NewAdminHandler(service *services.AdminService) *AdminHandler {
 	return &AdminHandler{
 		service: service,
 	}

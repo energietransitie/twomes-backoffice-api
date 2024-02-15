@@ -5,18 +5,18 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/energietransitie/twomes-backoffice-api/ports"
+	"github.com/energietransitie/twomes-backoffice-api/services"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
 	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
 )
 
 type BuildingHandler struct {
-	service ports.BuildingService
+	service *services.BuildingService
 }
 
 // Create a new BuildingHandler.
-func NewBuildingHandler(service ports.BuildingService) *BuildingHandler {
+func NewBuildingHandler(service *services.BuildingService) *BuildingHandler {
 	return &BuildingHandler{
 		service: service,
 	}

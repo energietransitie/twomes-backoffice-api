@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/energietransitie/twomes-backoffice-api/ports"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/devicetype"
 	"github.com/sigurn/crc16"
 	"github.com/sirupsen/logrus"
@@ -18,14 +17,14 @@ type DeviceTypeService struct {
 	repository devicetype.DeviceTypeRepository
 
 	// Service used when creating a device type.
-	propertyService ports.PropertyService
+	propertyService *PropertyService
 
 	// Hashed device types.
 	hashedDeviceTypes map[string]string
 }
 
 // Create a new DeviceTypeService.
-func NewDeviceTypeService(repository devicetype.DeviceTypeRepository, propertyService ports.PropertyService) *DeviceTypeService {
+func NewDeviceTypeService(repository devicetype.DeviceTypeRepository, propertyService *PropertyService) *DeviceTypeService {
 	deviceTypeService := &DeviceTypeService{
 		repository:      repository,
 		propertyService: propertyService,

@@ -3,7 +3,6 @@ package services
 import (
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/ports"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/app"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/campaign"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeed"
@@ -13,12 +12,12 @@ type CampaignService struct {
 	repository campaign.CampaignRepository
 
 	// Service used when creating a campaign.
-	appService       ports.AppService
-	cloudFeedService ports.CloudFeedService
+	appService       *AppService
+	cloudFeedService *CloudFeedService
 }
 
 // Create a new CampaignService.
-func NewCampaignService(repository campaign.CampaignRepository, appService ports.AppService, cloudFeedService ports.CloudFeedService) *CampaignService {
+func NewCampaignService(repository campaign.CampaignRepository, appService *AppService, cloudFeedService *CloudFeedService) *CampaignService {
 	return &CampaignService{
 		repository:       repository,
 		appService:       appService,

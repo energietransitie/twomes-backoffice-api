@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/ports"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/device"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/measurement"
@@ -23,18 +22,18 @@ type DeviceService struct {
 	repository device.DeviceRepository
 
 	// Services used when activating a device.
-	authService ports.AuthorizationService
+	authService *AuthorizationService
 
 	// Services used when creating a device.
-	deviceTypeService ports.DeviceTypeService
-	buildingService   ports.BuildingService
+	deviceTypeService *DeviceTypeService
+	buildingService   *BuildingService
 
 	// Services used when getting device info.
-	uploadService ports.UploadService
+	uploadService *UploadService
 }
 
 // Create a new DeviceService.
-func NewDeviceService(repository device.DeviceRepository, authService ports.AuthorizationService, deviceTypeService ports.DeviceTypeService, BuildingService ports.BuildingService, uploadService ports.UploadService) *DeviceService {
+func NewDeviceService(repository device.DeviceRepository, authService *AuthorizationService, deviceTypeService *DeviceTypeService, BuildingService *BuildingService, uploadService *UploadService) *DeviceService {
 	return &DeviceService{
 		repository:        repository,
 		authService:       authService,

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/energietransitie/twomes-backoffice-api/ports"
 	"github.com/energietransitie/twomes-backoffice-api/services"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/upload"
@@ -13,11 +12,11 @@ import (
 )
 
 type UploadHandler struct {
-	service ports.UploadService
+	service *services.UploadService
 }
 
 // Create a new UploadHandler.
-func NewUploadHandler(service ports.UploadService) *UploadHandler {
+func NewUploadHandler(service *services.UploadService) *UploadHandler {
 	return &UploadHandler{
 		service: service,
 	}

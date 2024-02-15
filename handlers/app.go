@@ -5,16 +5,16 @@ import (
 	"net/http"
 
 	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
-	"github.com/energietransitie/twomes-backoffice-api/ports"
+	"github.com/energietransitie/twomes-backoffice-api/services"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/app"
 	"github.com/sirupsen/logrus"
 )
 
 type AppHandler struct {
-	service ports.AppService
+	service *services.AppService
 }
 
-func NewAppHandler(service ports.AppService) *AppHandler {
+func NewAppHandler(service *services.AppService) *AppHandler {
 	return &AppHandler{
 		service: service,
 	}

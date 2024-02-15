@@ -3,7 +3,6 @@ package services
 import (
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/ports"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/admin"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
 )
@@ -12,11 +11,11 @@ type AdminService struct {
 	repository admin.AdminRepository
 
 	// Services used when creating an admin.
-	authService ports.AuthorizationService
+	authService *AuthorizationService
 }
 
 // Create a new AdminService.
-func NewAdminService(repository admin.AdminRepository, authService ports.AuthorizationService) *AdminService {
+func NewAdminService(repository admin.AdminRepository, authService *AuthorizationService) *AdminService {
 	return &AdminService{
 		repository:  repository,
 		authService: authService,

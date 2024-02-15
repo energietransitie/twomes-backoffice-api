@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
-	"github.com/energietransitie/twomes-backoffice-api/ports"
+	"github.com/energietransitie/twomes-backoffice-api/services"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeedauth"
 	"github.com/sirupsen/logrus"
@@ -13,11 +13,11 @@ import (
 )
 
 type CloudFeedAuthHandler struct {
-	service ports.CloudFeedAuthService
+	service *services.CloudFeedAuthService
 }
 
 // Create a new CloudFeedAuthHandler.
-func NewCloudFeedAuthHandler(service ports.CloudFeedAuthService) *CloudFeedAuthHandler {
+func NewCloudFeedAuthHandler(service *services.CloudFeedAuthService) *CloudFeedAuthHandler {
 	return &CloudFeedAuthHandler{
 		service: service,
 	}

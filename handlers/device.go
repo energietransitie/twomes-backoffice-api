@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
-	"github.com/energietransitie/twomes-backoffice-api/ports"
 	"github.com/energietransitie/twomes-backoffice-api/services"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/device"
@@ -16,11 +15,11 @@ import (
 )
 
 type DeviceHandler struct {
-	service ports.DeviceService
+	service *services.DeviceService
 }
 
 // Create a new DeviceHandler.
-func NewDeviceHandler(service ports.DeviceService) *DeviceHandler {
+func NewDeviceHandler(service *services.DeviceService) *DeviceHandler {
 	return &DeviceHandler{
 		service: service,
 	}

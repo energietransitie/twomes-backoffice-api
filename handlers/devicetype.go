@@ -5,17 +5,17 @@ import (
 	"net/http"
 
 	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
-	"github.com/energietransitie/twomes-backoffice-api/ports"
+	"github.com/energietransitie/twomes-backoffice-api/services"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/devicetype"
 	"github.com/sirupsen/logrus"
 )
 
 type DeviceTypeHandler struct {
-	service ports.DeviceTypeService
+	service *services.DeviceTypeService
 }
 
 // Create a new DeviceTypeHandler.
-func NewDeviceTypeHandler(service ports.DeviceTypeService) *DeviceTypeHandler {
+func NewDeviceTypeHandler(service *services.DeviceTypeService) *DeviceTypeHandler {
 	return &DeviceTypeHandler{
 		service: service,
 	}

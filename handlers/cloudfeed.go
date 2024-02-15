@@ -5,17 +5,17 @@ import (
 	"net/http"
 
 	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
-	"github.com/energietransitie/twomes-backoffice-api/ports"
+	"github.com/energietransitie/twomes-backoffice-api/services"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeed"
 	"github.com/sirupsen/logrus"
 )
 
 type CloudFeedHandler struct {
-	service ports.CloudFeedService
+	service *services.CloudFeedService
 }
 
 // Create a new CloudFeedHandler.
-func NewCloudFeedHandler(service ports.CloudFeedService) *CloudFeedHandler {
+func NewCloudFeedHandler(service *services.CloudFeedService) *CloudFeedHandler {
 	return &CloudFeedHandler{
 		service: service,
 	}
