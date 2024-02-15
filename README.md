@@ -88,6 +88,22 @@ docker compose rm
 
 To delete the saved data, remove the data directory in the root of this repository.
 
+### Folder structure
+
+This repository tries to implement a DDD approach. While some elements are still too tightly coupled to really call it DDD, the structure still tries te represent DDD as best as possible.
+
+| Folder       | Purpose                                                                   |
+|--------------|---------------------------------------------------------------------------|
+| .github      | GitHub Actions workflows and config files                                 |
+| cmd          | Each subfolder is an entrypoint for a binary                              |
+| docs         | Additional documentation                                                  |
+| handlers     | HTTP handlers for API endpoints                                           |
+| internal     | Utitilities that are not exposed outside of this package                  |
+| repositories | Repositories for domain models. Contains al DB logic                      |
+| services     | Services tie repositories and subservices together to perform operations. |
+| swaggerdocs  | Swagger UI and OpenAPI spec.                                              |
+| twomes       | Domain models and logic.                                                  |
+
 ### Model diagram
 
 To re-generate the model diagram:
