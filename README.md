@@ -152,6 +152,7 @@ Product owner:
 We use and gratefully aknowlegde the efforts of the makers of the following source code and libraries:
 
 - [chi](https://github.com/go-chi/chi), by Peter Kieltyka, Google Inc, licensed under [MIT license](https://github.com/go-chi/chi/blob/master/LICENSE)
+- [go-chi/cors](https://github.com/go-chi/cors), by Olivier Poitrey and https://github.com/go-chi authors, licensed under [MIT license](https://github.com/go-chi/cors/blob/76ca79794e02cd16a20fc57320d4930cacf591a2/LICENSE)
 - [gorm](https://gorm.io), by Jinzhu, licensed under [MIT license](https://github.com/go-gorm/gorm/blob/master/License)
 - [go-sql-driver/mysql](https://github.com/go-sql-driver/mysql), by go-sql-driver, licensed under [Mozilla Public License 2.0](https://github.com/go-sql-driver/mysql/blob/master/LICENSE)
 - [logrus](https://github.com/sirupsen/logrus), by Simon Eskildsen, licensed under [MIT license](https://github.com/sirupsen/logrus/blob/master/LICENSE)
