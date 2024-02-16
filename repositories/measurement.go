@@ -4,10 +4,11 @@ import (
 	"time"
 
 	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/measurement"
 	"gorm.io/gorm"
 )
 
-// Database representation of a [twomes.Measurement]
+// Database representation of a [measurement.Measurement]
 type MeasurementModel struct {
 	gorm.Model
 	PropertyModelID uint `gorm:"column:property_id"`
@@ -22,8 +23,8 @@ func (MeasurementModel) TableName() string {
 	return "measurement"
 }
 
-// Create a MeasurementModel from a [twomes.Measurement].
-func MakeMeasurementModel(measurement twomes.Measurement) MeasurementModel {
+// Create a MeasurementModel from a [measurement.Measurement].
+func MakeMeasurementModel(measurement measurement.Measurement) MeasurementModel {
 	return MeasurementModel{
 		Model:           gorm.Model{ID: measurement.ID},
 		PropertyModelID: measurement.Property.ID,
@@ -34,9 +35,9 @@ func MakeMeasurementModel(measurement twomes.Measurement) MeasurementModel {
 	}
 }
 
-// Create a [twomes.Measurement] from a MeasurementModel.
-func (m *MeasurementModel) fromModel() twomes.Measurement {
-	return twomes.Measurement{
+// Create a [measurement.Measurement] from a MeasurementModel.
+func (m *MeasurementModel) fromModel() measurement.Measurement {
+	return measurement.Measurement{
 		ID:       m.Model.ID,
 		UploadID: m.UploadModelID,
 		Property: m.Property.fromModel(),

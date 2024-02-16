@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/property"
 	"gorm.io/gorm"
 )
 
@@ -16,7 +16,7 @@ func NewPropertyRepository(db *gorm.DB) *PropertyRepository {
 	}
 }
 
-// Database representation of a [twomes.Property]
+// Database representation of a [property.Property]
 type PropertyModel struct {
 	gorm.Model
 	Name string `gorm:"unique;non null"`
@@ -27,30 +27,30 @@ func (PropertyModel) TableName() string {
 	return "property"
 }
 
-// Create a PropertyModel from a [twomes.Property].
-func MakePropertyModel(property twomes.Property) PropertyModel {
+// Create a PropertyModel from a [property.Property].
+func MakePropertyModel(property property.Property) PropertyModel {
 	return PropertyModel{
 		Model: gorm.Model{ID: property.ID},
 		Name:  property.Name,
 	}
 }
 
-// Create a [twomes.Property] from a PropertyModel.
-func (m *PropertyModel) fromModel() twomes.Property {
-	return twomes.Property{
+// Create a [property.Property] from a PropertyModel.
+func (m *PropertyModel) fromModel() property.Property {
+	return property.Property{
 		ID:   m.Model.ID,
 		Name: m.Name,
 	}
 }
 
-func (r *PropertyRepository) Find(property twomes.Property) (twomes.Property, error) {
+func (r *PropertyRepository) Find(property property.Property) (property.Property, error) {
 	propertyModel := MakePropertyModel(property)
 	err := r.db.Where(&propertyModel).First(&propertyModel).Error
 	return propertyModel.fromModel(), err
 }
 
-func (r *PropertyRepository) GetAll() ([]twomes.Property, error) {
-	var properties []twomes.Property
+func (r *PropertyRepository) GetAll() ([]property.Property, error) {
+	var properties []property.Property
 
 	var propertyModels []PropertyModel
 	err := r.db.Find(&propertyModels).Error
@@ -65,13 +65,13 @@ func (r *PropertyRepository) GetAll() ([]twomes.Property, error) {
 	return properties, nil
 }
 
-func (r *PropertyRepository) Create(property twomes.Property) (twomes.Property, error) {
+func (r *PropertyRepository) Create(property property.Property) (property.Property, error) {
 	propertyModel := MakePropertyModel(property)
 	err := r.db.Create(&propertyModel).Error
 	return propertyModel.fromModel(), err
 }
 
-func (r *PropertyRepository) Delete(property twomes.Property) error {
+func (r *PropertyRepository) Delete(property property.Property) error {
 	propertyModel := MakePropertyModel(property)
 	return r.db.Delete(&propertyModel).Error
 }

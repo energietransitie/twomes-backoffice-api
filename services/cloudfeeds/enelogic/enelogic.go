@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/measurement"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/property"
 	"github.com/sirupsen/logrus"
 )
 
@@ -197,14 +199,14 @@ type DataPoint struct {
 	Datetime EnelogicTime `json:"datetime"`
 }
 
-func (d DataPoint) Parse(unit UnitType) twomes.Measurement {
+func (d DataPoint) Parse(unit UnitType) measurement.Measurement {
 	t := twomes.Time(d.Date.Time)
 	if time.Time(t).IsZero() {
 		t = twomes.Time(d.Datetime.Time)
 	}
 
-	return twomes.Measurement{
-		Property: twomes.Property{
+	return measurement.Measurement{
+		Property: property.Property{
 			Name: d.Rate.Parse(unit),
 		},
 		Time:  t,
@@ -238,8 +240,8 @@ func newRequestArgs(measuringPointID int, from, to time.Time) RequestArgs {
 // A slice of measurements is returned, which can be saved to the database.
 //
 // StartPeriod is the start of the period from which data should be downloaded.
-func Download(ctx context.Context, token string, startPeriod time.Time) ([]twomes.Measurement, error) {
-	var measurements []twomes.Measurement
+func Download(ctx context.Context, token string, startPeriod time.Time) ([]measurement.Measurement, error) {
+	var measurements []measurement.Measurement
 	isFirstDownload := startPeriod.IsZero()
 
 	if isFirstDownload {
@@ -317,8 +319,8 @@ func Download(ctx context.Context, token string, startPeriod time.Time) ([]twome
 	return measurements, nil
 }
 
-func parseDatapoints(datapoints DatapointsResponse, unit UnitType) []twomes.Measurement {
-	var measurements []twomes.Measurement
+func parseDatapoints(datapoints DatapointsResponse, unit UnitType) []measurement.Measurement {
+	var measurements []measurement.Measurement
 
 	for _, datapoint := range datapoints {
 		measurements = append(measurements, datapoint.Parse(unit))

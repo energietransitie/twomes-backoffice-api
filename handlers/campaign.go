@@ -5,17 +5,17 @@ import (
 	"net/http"
 
 	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
-	"github.com/energietransitie/twomes-backoffice-api/ports"
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/services"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/campaign"
 	"github.com/sirupsen/logrus"
 )
 
 type CampaignHandler struct {
-	service ports.CampaignService
+	service *services.CampaignService
 }
 
 // Create a new CampaignHandler.
-func NewCampaignHandler(service ports.CampaignService) *CampaignHandler {
+func NewCampaignHandler(service *services.CampaignService) *CampaignHandler {
 	return &CampaignHandler{
 		service: service,
 	}
@@ -23,7 +23,7 @@ func NewCampaignHandler(service ports.CampaignService) *CampaignHandler {
 
 // Handle API endpoint for creating a new campaign.
 func (h *CampaignHandler) Create(w http.ResponseWriter, r *http.Request) error {
-	var request twomes.Campaign
+	var request campaign.Campaign
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)

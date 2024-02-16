@@ -7,19 +7,19 @@ import (
 	"strings"
 
 	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
-	"github.com/energietransitie/twomes-backoffice-api/ports"
 	"github.com/energietransitie/twomes-backoffice-api/services"
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/device"
 	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
 )
 
 type DeviceHandler struct {
-	service ports.DeviceService
+	service *services.DeviceService
 }
 
 // Create a new DeviceHandler.
-func NewDeviceHandler(service ports.DeviceService) *DeviceHandler {
+func NewDeviceHandler(service *services.DeviceService) *DeviceHandler {
 	return &DeviceHandler{
 		service: service,
 	}
@@ -27,18 +27,18 @@ func NewDeviceHandler(service ports.DeviceService) *DeviceHandler {
 
 // Handle API endpoint for creating a new device.
 func (h *DeviceHandler) Create(w http.ResponseWriter, r *http.Request) error {
-	var request twomes.Device
+	var request device.Device
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
 	}
 
-	auth, ok := r.Context().Value(AuthorizationCtxKey).(*twomes.Authorization)
+	auth, ok := r.Context().Value(AuthorizationCtxKey).(*authorization.Authorization)
 	if !ok {
 		return NewHandlerError(err, "unauthorized", http.StatusUnauthorized).WithMessage("failed when getting authentication context value").WithLevel(logrus.ErrorLevel)
 	}
 
-	if !auth.IsKind(twomes.AccountToken) {
+	if !auth.IsKind(authorization.AccountToken) {
 		return NewHandlerError(err, "wrong token kind", http.StatusForbidden).WithMessage("wrong token kind was used")
 	}
 
@@ -73,7 +73,7 @@ func (h *DeviceHandler) Create(w http.ResponseWriter, r *http.Request) error {
 
 // Handle API endpoint for activating a device.
 func (h *DeviceHandler) Activate(w http.ResponseWriter, r *http.Request) error {
-	var request twomes.Device
+	var request device.Device
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		return NewHandlerError(err, "unauthorized", http.StatusUnauthorized).WithMessage("device name present")
@@ -91,9 +91,9 @@ func (h *DeviceHandler) Activate(w http.ResponseWriter, r *http.Request) error {
 		return NewHandlerError(err, "unauthorized", http.StatusUnauthorized).WithMessage("authorization malformed")
 	}
 
-	device, err := h.service.Activate(request.Name, authHeader)
+	d, err := h.service.Activate(request.Name, authHeader)
 	if err != nil {
-		if errors.Is(err, twomes.ErrDeviceActivationSecretIncorrect) {
+		if errors.Is(err, device.ErrDeviceActivationSecretIncorrect) {
 			return NewHandlerError(err, "forbidden", http.StatusForbidden)
 		}
 
@@ -101,9 +101,9 @@ func (h *DeviceHandler) Activate(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	// We don't need to share all uploads.
-	device.Uploads = nil
+	d.Uploads = nil
 
-	err = json.NewEncoder(w).Encode(&device)
+	err = json.NewEncoder(w).Encode(&d)
 	if err != nil {
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
 	}
@@ -123,7 +123,7 @@ func (h *DeviceHandler) GetDeviceByName(w http.ResponseWriter, r *http.Request) 
 		return NewHandlerError(err, "device not found", http.StatusNotFound).WithMessage("device not found")
 	}
 
-	auth, ok := r.Context().Value(AuthorizationCtxKey).(*twomes.Authorization)
+	auth, ok := r.Context().Value(AuthorizationCtxKey).(*authorization.Authorization)
 	if !ok {
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting authentication context value")
 	}
@@ -152,7 +152,7 @@ func (h *DeviceHandler) GetDeviceByName(w http.ResponseWriter, r *http.Request) 
 func (h *DeviceHandler) GetDeviceMeasurements(w http.ResponseWriter, r *http.Request) error {
 	deviceName := chi.URLParam(r, "device_name")
 
-	auth, ok := r.Context().Value(AuthorizationCtxKey).(*twomes.Authorization)
+	auth, ok := r.Context().Value(AuthorizationCtxKey).(*authorization.Authorization)
 	if !ok {
 		return NewHandlerError(nil, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting authentication context value")
 	}
@@ -190,7 +190,7 @@ func (h *DeviceHandler) GetDeviceMeasurements(w http.ResponseWriter, r *http.Req
 func (h *DeviceHandler) GetDeviceProperties(w http.ResponseWriter, r *http.Request) error {
 	deviceName := chi.URLParam(r, "device_name")
 
-	auth, ok := r.Context().Value(AuthorizationCtxKey).(*twomes.Authorization)
+	auth, ok := r.Context().Value(AuthorizationCtxKey).(*authorization.Authorization)
 	if !ok {
 		return NewHandlerError(nil, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting authentication context value")
 	}
@@ -213,7 +213,7 @@ func (h *DeviceHandler) GetDeviceProperties(w http.ResponseWriter, r *http.Reque
 	return nil
 }
 
-func (h *DeviceHandler) getDeviceByName(deviceName string, accountId uint) (*twomes.Device, error) {
+func (h *DeviceHandler) getDeviceByName(deviceName string, accountId uint) (*device.Device, error) {
 	if deviceName == "" {
 		return nil, NewHandlerError(nil, "device_name not specified", http.StatusBadRequest)
 	}

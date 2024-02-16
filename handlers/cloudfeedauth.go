@@ -5,18 +5,19 @@ import (
 	"net/http"
 
 	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
-	"github.com/energietransitie/twomes-backoffice-api/ports"
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/services"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeedauth"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
 
 type CloudFeedAuthHandler struct {
-	service ports.CloudFeedAuthService
+	service *services.CloudFeedAuthService
 }
 
 // Create a new CloudFeedAuthHandler.
-func NewCloudFeedAuthHandler(service ports.CloudFeedAuthService) *CloudFeedAuthHandler {
+func NewCloudFeedAuthHandler(service *services.CloudFeedAuthService) *CloudFeedAuthHandler {
 	return &CloudFeedAuthHandler{
 		service: service,
 	}
@@ -24,13 +25,13 @@ func NewCloudFeedAuthHandler(service ports.CloudFeedAuthService) *CloudFeedAuthH
 
 // Handle API endpoint for creating a new cloud feed.
 func (h *CloudFeedAuthHandler) Create(w http.ResponseWriter, r *http.Request) error {
-	var request twomes.CloudFeedAuth
+	var request cloudfeedauth.CloudFeedAuth
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
 	}
 
-	auth, ok := r.Context().Value(AuthorizationCtxKey).(*twomes.Authorization)
+	auth, ok := r.Context().Value(AuthorizationCtxKey).(*authorization.Authorization)
 	if !ok {
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting authentication context value")
 	}

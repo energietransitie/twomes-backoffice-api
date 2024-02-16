@@ -5,7 +5,8 @@ import (
 
 	"github.com/energietransitie/twomes-backoffice-api/internal/encryption"
 	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeedauth"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/device"
 	"gorm.io/gorm"
 )
 
@@ -19,7 +20,7 @@ func NewCloudFeedAuthRepository(db *gorm.DB) *CloudFeedAuthRepository {
 	}
 }
 
-// Database representation of [twomes.CloudFeedAuth].
+// Database representation of [cloudfeedauth.CloudFeedAuth].
 type CloudFeedAuthModel struct {
 	AccountID   uint `gorm:"primaryKey;autoIncrement:false"`
 	CloudFeedID uint `gorm:"primaryKey;autoIncrement:false"`
@@ -39,7 +40,7 @@ func (CloudFeedAuthModel) TableName() string {
 }
 
 // Create a new CloudFeedAuthModel from a [twomes.cloudFeedAuth].
-func MakeCloudFeedAuthModel(cloudFeedAuth twomes.CloudFeedAuth) CloudFeedAuthModel {
+func MakeCloudFeedAuthModel(cloudFeedAuth cloudfeedauth.CloudFeedAuth) CloudFeedAuthModel {
 	return CloudFeedAuthModel{
 		AccountID:      cloudFeedAuth.AccountID,
 		CloudFeedID:    cloudFeedAuth.CloudFeedID,
@@ -50,9 +51,9 @@ func MakeCloudFeedAuthModel(cloudFeedAuth twomes.CloudFeedAuth) CloudFeedAuthMod
 	}
 }
 
-// Create a [twomes.CloudFeedAuth] from an CloudFeedAuthModel.
-func (m *CloudFeedAuthModel) fromModel() twomes.CloudFeedAuth {
-	return twomes.CloudFeedAuth{
+// Create a [cloudfeedauth.CloudFeedAuth] from an CloudFeedAuthModel.
+func (m *CloudFeedAuthModel) fromModel() cloudfeedauth.CloudFeedAuth {
+	return cloudfeedauth.CloudFeedAuth{
 		AccountID:      m.AccountID,
 		CloudFeedID:    m.CloudFeedID,
 		AccessToken:    string(m.AccessToken),
@@ -62,7 +63,7 @@ func (m *CloudFeedAuthModel) fromModel() twomes.CloudFeedAuth {
 	}
 }
 
-func (r *CloudFeedAuthRepository) Find(cloudFeedAuth twomes.CloudFeedAuth) (twomes.CloudFeedAuth, error) {
+func (r *CloudFeedAuthRepository) Find(cloudFeedAuth cloudfeedauth.CloudFeedAuth) (cloudfeedauth.CloudFeedAuth, error) {
 	cloudFeedAuthModel := MakeCloudFeedAuthModel(cloudFeedAuth)
 	err := r.db.Where(&cloudFeedAuthModel).First(&cloudFeedAuthModel).Error
 	return cloudFeedAuthModel.fromModel(), err
@@ -85,7 +86,7 @@ func (r *CloudFeedAuthRepository) FindFirstTokenToExpire() (uint, uint, time.Tim
 	return cloudFeedAuthModel.AccountID, cloudFeedAuthModel.CloudFeedID, cloudFeedAuthModel.Expiry, err
 }
 
-func (r *CloudFeedAuthRepository) FindDevice(cloudFeedAuth twomes.CloudFeedAuth) (*twomes.Device, error) {
+func (r *CloudFeedAuthRepository) FindDevice(cloudFeedAuth cloudfeedauth.CloudFeedAuth) (*device.Device, error) {
 	var device DeviceModel
 
 	// err := r.db.Table("cloud_feed_auth").
@@ -116,8 +117,8 @@ func (r *CloudFeedAuthRepository) FindDevice(cloudFeedAuth twomes.CloudFeedAuth)
 	return &d, nil
 }
 
-func (r *CloudFeedAuthRepository) GetAll() ([]twomes.CloudFeedAuth, error) {
-	var cloudFeedAuths []twomes.CloudFeedAuth
+func (r *CloudFeedAuthRepository) GetAll() ([]cloudfeedauth.CloudFeedAuth, error) {
+	var cloudFeedAuths []cloudfeedauth.CloudFeedAuth
 
 	var cloudFeedAuthModels []CloudFeedAuthModel
 	err := r.db.Find(&cloudFeedAuthModels).Error
@@ -132,7 +133,7 @@ func (r *CloudFeedAuthRepository) GetAll() ([]twomes.CloudFeedAuth, error) {
 	return cloudFeedAuths, nil
 }
 
-func (r *CloudFeedAuthRepository) Create(cloudFeedAuth twomes.CloudFeedAuth) (twomes.CloudFeedAuth, error) {
+func (r *CloudFeedAuthRepository) Create(cloudFeedAuth cloudfeedauth.CloudFeedAuth) (cloudfeedauth.CloudFeedAuth, error) {
 	// First check if a soft deleted entry exists.
 	// We need to do this because we can't create a new one if one exists.
 	cfaCheck := CloudFeedAuthModel{}
@@ -167,13 +168,13 @@ func (r *CloudFeedAuthRepository) Create(cloudFeedAuth twomes.CloudFeedAuth) (tw
 	return cloudFeedAuthModel.fromModel(), err
 }
 
-func (r *CloudFeedAuthRepository) Update(cloudFeedAuth twomes.CloudFeedAuth) (twomes.CloudFeedAuth, error) {
+func (r *CloudFeedAuthRepository) Update(cloudFeedAuth cloudfeedauth.CloudFeedAuth) (cloudfeedauth.CloudFeedAuth, error) {
 	cloudFeedAuthModel := MakeCloudFeedAuthModel(cloudFeedAuth)
 	err := r.db.Model(&cloudFeedAuthModel).Updates(cloudFeedAuthModel).Error
 	return cloudFeedAuthModel.fromModel(), err
 }
 
-func (r *CloudFeedAuthRepository) Delete(cloudFeedAuth twomes.CloudFeedAuth) error {
+func (r *CloudFeedAuthRepository) Delete(cloudFeedAuth cloudfeedauth.CloudFeedAuth) error {
 	CloudFeedAuthModel := MakeCloudFeedAuthModel(cloudFeedAuth)
 	return r.db.Delete(&CloudFeedAuthModel).Error
 }

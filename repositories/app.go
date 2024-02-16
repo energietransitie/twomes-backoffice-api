@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/app"
 	"gorm.io/gorm"
 )
 
@@ -15,7 +15,7 @@ func NewAppRepository(db *gorm.DB) *AppRepository {
 	}
 }
 
-// Database representation of a [twomes.App].
+// Database representation of a [app.App].
 type AppModel struct {
 	gorm.Model
 	Name                    string `gorm:"unique;not null"`
@@ -28,8 +28,8 @@ func (AppModel) TableName() string {
 	return "app"
 }
 
-// Create a new AppModel from a [twomes.App]
-func MakeAppModel(app twomes.App) AppModel {
+// Create a new AppModel from a [app.App]
+func MakeAppModel(app app.App) AppModel {
 	return AppModel{
 		Model:                   gorm.Model{ID: app.ID},
 		Name:                    app.Name,
@@ -38,9 +38,9 @@ func MakeAppModel(app twomes.App) AppModel {
 	}
 }
 
-// Create a [twomes.App] from an AppModel.
-func (m *AppModel) fromModel() twomes.App {
-	return twomes.App{
+// Create a [app.App] from an AppModel.
+func (m *AppModel) fromModel() app.App {
+	return app.App{
 		ID:                      m.Model.ID,
 		Name:                    m.Name,
 		ProvisioningURLTemplate: m.ProvisioningURLTemplate,
@@ -48,14 +48,14 @@ func (m *AppModel) fromModel() twomes.App {
 	}
 }
 
-func (r *AppRepository) Find(app twomes.App) (twomes.App, error) {
+func (r *AppRepository) Find(app app.App) (app.App, error) {
 	appModel := MakeAppModel(app)
 	err := r.db.Where(&appModel).First(&appModel).Error
 	return appModel.fromModel(), err
 }
 
-func (r *AppRepository) GetAll() ([]twomes.App, error) {
-	apps := make([]twomes.App, 0)
+func (r *AppRepository) GetAll() ([]app.App, error) {
+	apps := make([]app.App, 0)
 
 	var appModels []AppModel
 	err := r.db.Find(&appModels).Error
@@ -70,13 +70,13 @@ func (r *AppRepository) GetAll() ([]twomes.App, error) {
 	return apps, nil
 }
 
-func (r *AppRepository) Create(app twomes.App) (twomes.App, error) {
+func (r *AppRepository) Create(app app.App) (app.App, error) {
 	appModel := MakeAppModel(app)
 	err := r.db.Create(&appModel).Error
 	return appModel.fromModel(), err
 }
 
-func (r *AppRepository) Delete(app twomes.App) error {
+func (r *AppRepository) Delete(app app.App) error {
 	appModel := MakeAppModel(app)
 	return r.db.Delete(&appModel).Error
 }

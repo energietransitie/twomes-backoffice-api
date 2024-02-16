@@ -3,7 +3,8 @@ package repositories
 import (
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/campaign"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeed"
 	"gorm.io/gorm"
 )
 
@@ -17,7 +18,7 @@ func NewCampaignRepository(db *gorm.DB) *CampaignRepository {
 	}
 }
 
-// Database representation of [twomes.Campaign].
+// Database representation of [campaign.Campaign].
 type CampaignModel struct {
 	gorm.Model
 	Name       string `gorm:"unique;not null"`
@@ -35,7 +36,7 @@ func (CampaignModel) TableName() string {
 }
 
 // Create a new CampaignModel from a [twomes.campaign].
-func MakeCampaignModel(campaign twomes.Campaign) CampaignModel {
+func MakeCampaignModel(campaign campaign.Campaign) CampaignModel {
 	var cloudFeedModels []CloudFeedModel
 
 	for _, cloudFeed := range campaign.CloudFeeds {
@@ -56,15 +57,15 @@ func MakeCampaignModel(campaign twomes.Campaign) CampaignModel {
 	}
 }
 
-// Create a [twomes.Campaign] from an CampaignModel.
-func (m *CampaignModel) fromModel() twomes.Campaign {
-	var cloudFeeds []twomes.CloudFeed
+// Create a [campaign.Campaign] from an CampaignModel.
+func (m *CampaignModel) fromModel() campaign.Campaign {
+	var cloudFeeds []cloudfeed.CloudFeed
 
 	for _, cloudFeedModel := range m.CloudFeeds {
 		cloudFeeds = append(cloudFeeds, cloudFeedModel.fromModel())
 	}
 
-	return twomes.Campaign{
+	return campaign.Campaign{
 		ID:         m.ID,
 		Name:       m.Name,
 		App:        m.App.fromModel(),
@@ -75,14 +76,14 @@ func (m *CampaignModel) fromModel() twomes.Campaign {
 	}
 }
 
-func (r *CampaignRepository) Find(campaign twomes.Campaign) (twomes.Campaign, error) {
+func (r *CampaignRepository) Find(campaign campaign.Campaign) (campaign.Campaign, error) {
 	campaignModel := MakeCampaignModel(campaign)
 	err := r.db.Preload("App").Where(&campaignModel).First(&campaignModel).Error
 	return campaignModel.fromModel(), err
 }
 
-func (r *CampaignRepository) GetAll() ([]twomes.Campaign, error) {
-	var campaigns []twomes.Campaign
+func (r *CampaignRepository) GetAll() ([]campaign.Campaign, error) {
+	var campaigns []campaign.Campaign
 
 	var campaignModels []CampaignModel
 	err := r.db.Preload("App").Find(&campaignModels).Error
@@ -97,13 +98,13 @@ func (r *CampaignRepository) GetAll() ([]twomes.Campaign, error) {
 	return campaigns, nil
 }
 
-func (r *CampaignRepository) Create(campaign twomes.Campaign) (twomes.Campaign, error) {
+func (r *CampaignRepository) Create(campaign campaign.Campaign) (campaign.Campaign, error) {
 	campaignModel := MakeCampaignModel(campaign)
 	err := r.db.Create(&campaignModel).Error
 	return campaignModel.fromModel(), err
 }
 
-func (r *CampaignRepository) Delete(campaign twomes.Campaign) error {
+func (r *CampaignRepository) Delete(campaign campaign.Campaign) error {
 	CampaignModel := MakeCampaignModel(campaign)
 	return r.db.Delete(&CampaignModel).Error
 }

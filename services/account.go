@@ -8,8 +8,11 @@ import (
 	"time"
 
 	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
-	"github.com/energietransitie/twomes-backoffice-api/ports"
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/account"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/campaign"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeedauth"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeedauthstatus"
 	"github.com/sirupsen/logrus"
 )
 
@@ -19,23 +22,23 @@ var (
 )
 
 type AccountService struct {
-	repository ports.AccountRepository
+	repository account.AccountRepository
 
 	// Services used when activating an account.
-	authService     ports.AuthorizationService
-	appService      ports.AppService
-	campaignService ports.CampaignService
-	buildingService ports.BuildingService
+	authService     *AuthorizationService
+	appService      *AppService
+	campaignService *CampaignService
+	buildingService *BuildingService
 
 	// Services used for getting cloud feed auth statuses.
-	cloudFeedAuthService ports.CloudFeedAuthService
+	cloudFeedAuthService *CloudFeedAuthService
 
 	// Regular expression used for pattern matching in a provisioning_url_template.
 	activationTokenRegex *regexp.Regexp
 }
 
 // Create a new AccountService
-func NewAccountService(repository ports.AccountRepository, authService ports.AuthorizationService, appService ports.AppService, campaignService ports.CampaignService, buildingService ports.BuildingService, cloudFeedAuthService ports.CloudFeedAuthService) *AccountService {
+func NewAccountService(repository account.AccountRepository, authService *AuthorizationService, appService *AppService, campaignService *CampaignService, buildingService *BuildingService, cloudFeedAuthService *CloudFeedAuthService) *AccountService {
 	activationTokenRegex, err := regexp.Compile(`<account_activation_token>`)
 	if err != nil {
 		logrus.WithField("error", err).Fatal("account activation token regex did not compile")
@@ -53,84 +56,84 @@ func NewAccountService(repository ports.AccountRepository, authService ports.Aut
 }
 
 // Create a new account.
-func (s *AccountService) Create(campaign twomes.Campaign) (twomes.Account, error) {
+func (s *AccountService) Create(campaign campaign.Campaign) (account.Account, error) {
 	campaign, err := s.campaignService.Find(campaign)
 	if err != nil {
-		return twomes.Account{}, err
+		return account.Account{}, err
 	}
 
-	account := twomes.MakeAccount(campaign)
+	a := account.MakeAccount(campaign)
 
-	account, err = s.repository.Create(account)
+	a, err = s.repository.Create(a)
 	if err != nil {
-		return twomes.Account{}, err
+		return account.Account{}, err
 	}
 
-	account.InvitationToken, err = s.authService.CreateToken(twomes.AccountActivationToken, account.ID, time.Time{})
+	a.InvitationToken, err = s.authService.CreateToken(authorization.AccountActivationToken, a.ID, time.Time{})
 	if err != nil {
-		return twomes.Account{}, err
+		return account.Account{}, err
 	}
 
-	account.InvitationURL = s.activationTokenRegex.ReplaceAllString(campaign.App.ProvisioningURLTemplate, url.PathEscape(account.InvitationToken))
+	a.InvitationURL = s.activationTokenRegex.ReplaceAllString(campaign.App.ProvisioningURLTemplate, url.PathEscape(a.InvitationToken))
 
-	return account, nil
+	return a, nil
 }
 
 // Activate an account.
-func (s *AccountService) Activate(id uint, longtitude, latitude float32, tzName string) (twomes.Account, error) {
-	account, err := s.repository.Find(twomes.Account{ID: id})
+func (s *AccountService) Activate(id uint, longtitude, latitude float32, tzName string) (account.Account, error) {
+	a, err := s.repository.Find(account.Account{ID: id})
 	if err != nil {
-		return twomes.Account{}, err
+		return account.Account{}, err
 	}
 
-	err = account.Activate()
+	err = a.Activate()
 	if err != nil {
-		return account, err
+		return a, err
 	}
 
-	account, err = s.repository.Update(account)
+	a, err = s.repository.Update(a)
 	if err != nil {
-		return twomes.Account{}, err
+		return account.Account{}, err
 	}
 
-	if len(account.Buildings) < 1 {
-		building, err := s.buildingService.Create(account.ID, longtitude, latitude, tzName)
+	if len(a.Buildings) < 1 {
+		building, err := s.buildingService.Create(a.ID, longtitude, latitude, tzName)
 		if err != nil {
-			return twomes.Account{}, err
+			return account.Account{}, err
 		}
 
-		account.Buildings = append(account.Buildings, building)
+		a.Buildings = append(a.Buildings, building)
 	}
 
-	account.AuthorizationToken, err = s.authService.CreateToken(twomes.AccountToken, account.ID, time.Time{})
+	a.AuthorizationToken, err = s.authService.CreateToken(authorization.AccountToken, a.ID, time.Time{})
 	if err != nil {
-		return twomes.Account{}, err
+		return account.Account{}, err
 	}
 
-	return account, nil
+	return a, nil
 }
 
 // Get an account by ID.
-func (s *AccountService) GetByID(id uint) (twomes.Account, error) {
-	return s.repository.Find(twomes.Account{ID: id})
+func (s *AccountService) GetByID(id uint) (account.Account, error) {
+	return s.repository.Find(account.Account{ID: id})
 }
 
 // Get cloud feed auth statuses.
-func (s *AccountService) GetCloudFeedAuthStatuses(id uint) ([]twomes.CloudFeedAuthStatus, error) {
-	var cloudFeedAuthStatuses []twomes.CloudFeedAuthStatus
+func (s *AccountService) GetCloudFeedAuthStatuses(id uint) ([]cloudfeedauthstatus.CloudFeedAuthStatus, error) {
+	var cloudFeedAuthStatuses []cloudfeedauthstatus.CloudFeedAuthStatus
 
-	account, err := s.GetByID(id)
+	a, err := s.GetByID(id)
 	if err != nil {
 		return cloudFeedAuthStatuses, err
 	}
 
-	for _, cloudFeed := range account.Campaign.CloudFeeds {
-		cloudFeedAuth, err := s.cloudFeedAuthService.Find(twomes.CloudFeedAuth{AccountID: id, CloudFeedID: cloudFeed.ID})
+	for _, cloudFeed := range a.Campaign.CloudFeeds {
+		cloudFeedAuth, err := s.cloudFeedAuthService.Find(cloudfeedauth.CloudFeedAuth{AccountID: id, CloudFeedID: cloudFeed.ID})
 		if err != nil && !helpers.IsMySQLRecordNotFoundError(err) {
 			return cloudFeedAuthStatuses, err
 		}
 
-		cloudFeedAuthStatuses = append(cloudFeedAuthStatuses, twomes.MakeCloudFeedAuthStatus(cloudFeed, cloudFeedAuth))
+		cloudFeedAuthStatuses = append(cloudFeedAuthStatuses, cloudfeedauthstatus.MakeCloudFeedAuthStatus(cloudFeed, cloudFeedAuth))
 	}
 
 	return cloudFeedAuthStatuses, nil

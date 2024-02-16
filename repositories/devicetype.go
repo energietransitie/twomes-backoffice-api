@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/devicetype"
 	"gorm.io/gorm"
 )
 
@@ -16,7 +16,7 @@ func NewDeviceTypeRepository(db *gorm.DB) *DeviceTypeRepository {
 	}
 }
 
-// Database representation of a [twomes.DeviceType]
+// Database representation of a [devicetype.DeviceType]
 type DeviceTypeModel struct {
 	gorm.Model
 	Name                  string `gorm:"unique;non null"`
@@ -29,8 +29,8 @@ func (DeviceTypeModel) TableName() string {
 	return "device_type"
 }
 
-// Create a DeviceTypeModel from a [twomes.DeviceType].
-func MakeDeviceTypeModel(deviceType twomes.DeviceType) DeviceTypeModel {
+// Create a DeviceTypeModel from a [devicetype.DeviceType].
+func MakeDeviceTypeModel(deviceType devicetype.DeviceType) DeviceTypeModel {
 	return DeviceTypeModel{
 		Model:                 gorm.Model{ID: deviceType.ID},
 		Name:                  deviceType.Name,
@@ -39,9 +39,9 @@ func MakeDeviceTypeModel(deviceType twomes.DeviceType) DeviceTypeModel {
 	}
 }
 
-// Create a [twomes.DeviceType] from a DeviceTypeModel.
-func (m *DeviceTypeModel) fromModel() twomes.DeviceType {
-	return twomes.DeviceType{
+// Create a [devicetype.DeviceType] from a DeviceTypeModel.
+func (m *DeviceTypeModel) fromModel() devicetype.DeviceType {
+	return devicetype.DeviceType{
 		ID:                    m.Model.ID,
 		Name:                  m.Name,
 		InstallationManualURL: m.InstallationManualURL,
@@ -49,14 +49,14 @@ func (m *DeviceTypeModel) fromModel() twomes.DeviceType {
 	}
 }
 
-func (r *DeviceTypeRepository) Find(deviceType twomes.DeviceType) (twomes.DeviceType, error) {
+func (r *DeviceTypeRepository) Find(deviceType devicetype.DeviceType) (devicetype.DeviceType, error) {
 	deviceTypeModel := MakeDeviceTypeModel(deviceType)
 	err := r.db.Where(&deviceTypeModel).First(&deviceTypeModel).Error
 	return deviceTypeModel.fromModel(), err
 }
 
-func (r *DeviceTypeRepository) GetAll() ([]twomes.DeviceType, error) {
-	var deviceTypes []twomes.DeviceType
+func (r *DeviceTypeRepository) GetAll() ([]devicetype.DeviceType, error) {
+	var deviceTypes []devicetype.DeviceType
 
 	var deviceTypeModels []DeviceTypeModel
 	err := r.db.Find(&deviceTypeModels).Error
@@ -71,13 +71,13 @@ func (r *DeviceTypeRepository) GetAll() ([]twomes.DeviceType, error) {
 	return deviceTypes, nil
 }
 
-func (r *DeviceTypeRepository) Create(deviceType twomes.DeviceType) (twomes.DeviceType, error) {
+func (r *DeviceTypeRepository) Create(deviceType devicetype.DeviceType) (devicetype.DeviceType, error) {
 	deviceTypeModel := MakeDeviceTypeModel(deviceType)
 	err := r.db.Create(&deviceTypeModel).Error
 	return deviceTypeModel.fromModel(), err
 }
 
-func (r *DeviceTypeRepository) Delete(deviceType twomes.DeviceType) error {
+func (r *DeviceTypeRepository) Delete(deviceType devicetype.DeviceType) error {
 	deviceTypeModel := MakeDeviceTypeModel(deviceType)
 	return r.db.Delete(&deviceTypeModel).Error
 }

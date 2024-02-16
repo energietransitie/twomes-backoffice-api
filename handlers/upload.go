@@ -5,18 +5,18 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/energietransitie/twomes-backoffice-api/ports"
 	"github.com/energietransitie/twomes-backoffice-api/services"
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/upload"
 	"github.com/sirupsen/logrus"
 )
 
 type UploadHandler struct {
-	service ports.UploadService
+	service *services.UploadService
 }
 
 // Create a new UploadHandler.
-func NewUploadHandler(service ports.UploadService) *UploadHandler {
+func NewUploadHandler(service *services.UploadService) *UploadHandler {
 	return &UploadHandler{
 		service: service,
 	}
@@ -24,18 +24,18 @@ func NewUploadHandler(service ports.UploadService) *UploadHandler {
 
 // Handle API endpoint for creating a new upload.
 func (h *UploadHandler) Create(w http.ResponseWriter, r *http.Request) error {
-	var request twomes.Upload
+	var request upload.Upload
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
 	}
 
-	auth, ok := r.Context().Value(AuthorizationCtxKey).(*twomes.Authorization)
+	auth, ok := r.Context().Value(AuthorizationCtxKey).(*authorization.Authorization)
 	if !ok {
 		return NewHandlerError(err, "unauthorized", http.StatusUnauthorized).WithMessage("failed when getting authentication context value")
 	}
 
-	if !auth.IsKind(twomes.DeviceToken) {
+	if !auth.IsKind(authorization.DeviceToken) {
 		return NewHandlerError(err, "wrong token kind", http.StatusForbidden).WithMessage("wrong token kind was used")
 	}
 

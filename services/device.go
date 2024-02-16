@@ -5,8 +5,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/ports"
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/device"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/measurement"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/property"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/upload"
 )
 
 var (
@@ -16,21 +19,21 @@ var (
 )
 
 type DeviceService struct {
-	repository ports.DeviceRepository
+	repository device.DeviceRepository
 
 	// Services used when activating a device.
-	authService ports.AuthorizationService
+	authService *AuthorizationService
 
 	// Services used when creating a device.
-	deviceTypeService ports.DeviceTypeService
-	buildingService   ports.BuildingService
+	deviceTypeService *DeviceTypeService
+	buildingService   *BuildingService
 
 	// Services used when getting device info.
-	uploadService ports.UploadService
+	uploadService *UploadService
 }
 
 // Create a new DeviceService.
-func NewDeviceService(repository ports.DeviceRepository, authService ports.AuthorizationService, deviceTypeService ports.DeviceTypeService, BuildingService ports.BuildingService, uploadService ports.UploadService) *DeviceService {
+func NewDeviceService(repository device.DeviceRepository, authService *AuthorizationService, deviceTypeService *DeviceTypeService, BuildingService *BuildingService, uploadService *UploadService) *DeviceService {
 	return &DeviceService{
 		repository:        repository,
 		authService:       authService,
@@ -40,86 +43,86 @@ func NewDeviceService(repository ports.DeviceRepository, authService ports.Autho
 	}
 }
 
-func (s *DeviceService) Create(name string, buildingID, accountID uint, activationSecret string) (twomes.Device, error) {
+func (s *DeviceService) Create(name string, buildingID, accountID uint, activationSecret string) (device.Device, error) {
 	building, err := s.buildingService.GetByID(buildingID)
 	if err != nil {
-		return twomes.Device{}, err
+		return device.Device{}, err
 	}
 
 	if building.AccountID != accountID {
-		return twomes.Device{}, ErrBuildingDoesNotBelongToAccount
+		return device.Device{}, ErrBuildingDoesNotBelongToAccount
 	}
 
 	splitDeviceTypeName := strings.Split(name, "-")
 	if len(splitDeviceTypeName) != 2 {
-		return twomes.Device{}, ErrDeviceTypeNameInvalid
+		return device.Device{}, ErrDeviceTypeNameInvalid
 	}
 
 	deviceTypeHash := splitDeviceTypeName[0]
 	deviceType, err := s.deviceTypeService.GetByHash(deviceTypeHash)
 	if err != nil {
-		return twomes.Device{}, err
+		return device.Device{}, err
 	}
 
-	device := twomes.MakeDevice(name, deviceType, buildingID, activationSecret)
-	return s.repository.Create(device)
+	d := device.MakeDevice(name, deviceType, buildingID, activationSecret)
+	return s.repository.Create(d)
 }
 
-func (s *DeviceService) GetByID(id uint) (twomes.Device, error) {
-	return s.repository.Find(twomes.Device{ID: id})
+func (s *DeviceService) GetByID(id uint) (device.Device, error) {
+	return s.repository.Find(device.Device{ID: id})
 }
 
-func (s *DeviceService) GetByName(name string) (twomes.Device, error) {
-	device, err := s.repository.Find(twomes.Device{Name: name})
+func (s *DeviceService) GetByName(name string) (device.Device, error) {
+	d, err := s.repository.Find(device.Device{Name: name})
 	if err != nil {
-		return twomes.Device{}, err
+		return device.Device{}, err
 	}
 
-	device.LatestUpload, _, err = s.uploadService.GetLatestUploadTimeForDeviceWithID(device.ID)
+	d.LatestUpload, _, err = s.uploadService.GetLatestUploadTimeForDeviceWithID(d.ID)
 	if err != nil {
-		return twomes.Device{}, err
+		return device.Device{}, err
 	}
 
-	return device, nil
+	return d, nil
 }
 
-func (s *DeviceService) Activate(name, activationSecret string) (twomes.Device, error) {
-	device, err := s.repository.Find(twomes.Device{Name: name})
+func (s *DeviceService) Activate(name, activationSecret string) (device.Device, error) {
+	d, err := s.repository.Find(device.Device{Name: name})
 	if err != nil {
-		return twomes.Device{}, err
+		return device.Device{}, err
 	}
 
-	err = device.Activate(activationSecret)
+	err = d.Activate(activationSecret)
 	if err != nil {
-		return device, err
+		return d, err
 	}
 
-	device, err = s.repository.Update(device)
+	d, err = s.repository.Update(d)
 	if err != nil {
-		return device, err
+		return d, err
 	}
 
-	device.AuthorizationToken, err = s.authService.CreateToken(twomes.DeviceToken, device.ID, time.Time{})
+	d.AuthorizationToken, err = s.authService.CreateToken(authorization.DeviceToken, d.ID, time.Time{})
 	if err != nil {
-		return twomes.Device{}, err
+		return device.Device{}, err
 	}
 
-	return device, nil
+	return d, nil
 }
 
-func (s *DeviceService) AddUpload(id uint, upload twomes.Upload) (twomes.Device, error) {
-	device, err := s.repository.Find(twomes.Device{ID: id})
+func (s *DeviceService) AddUpload(id uint, upload upload.Upload) (device.Device, error) {
+	d, err := s.repository.Find(device.Device{ID: id})
 	if err != nil {
-		return twomes.Device{}, err
+		return device.Device{}, err
 	}
 
-	device.AddUpload(upload)
+	d.AddUpload(upload)
 
-	return s.repository.Update(device)
+	return s.repository.Update(d)
 }
 
 func (s *DeviceService) GetAccountByDeviceID(id uint) (uint, error) {
-	device, err := s.repository.Find(twomes.Device{ID: id})
+	device, err := s.repository.Find(device.Device{ID: id})
 	if err != nil {
 		return 0, err
 	}
@@ -132,8 +135,8 @@ func (s *DeviceService) GetAccountByDeviceID(id uint) (uint, error) {
 	return building.AccountID, nil
 }
 
-func (s *DeviceService) GetMeasurementsByDeviceID(id uint, filters map[string]string) ([]twomes.Measurement, error) {
-	measurements, err := s.repository.GetMeasurements(twomes.Device{ID: id}, filters)
+func (s *DeviceService) GetMeasurementsByDeviceID(id uint, filters map[string]string) ([]measurement.Measurement, error) {
+	measurements, err := s.repository.GetMeasurements(device.Device{ID: id}, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -141,8 +144,8 @@ func (s *DeviceService) GetMeasurementsByDeviceID(id uint, filters map[string]st
 	return measurements, nil
 }
 
-func (s *DeviceService) GetPropertiesByDeviceID(id uint) ([]twomes.Property, error) {
-	properties, err := s.repository.GetProperties(twomes.Device{ID: id})
+func (s *DeviceService) GetPropertiesByDeviceID(id uint) ([]property.Property, error) {
+	properties, err := s.repository.GetProperties(device.Device{ID: id})
 	if err != nil {
 		return nil, err
 	}

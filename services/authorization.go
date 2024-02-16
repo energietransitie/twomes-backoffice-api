@@ -12,7 +12,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
 	"github.com/sirupsen/logrus"
 )
 
@@ -107,18 +107,18 @@ func generateKeyFile(path string) error {
 	return nil
 }
 
-func (s *AuthorizationService) CreateToken(kind twomes.AuthKind, id uint, expiry time.Time) (string, error) {
-	return twomes.NewToken(kind, id, expiry, s.key)
+func (s *AuthorizationService) CreateToken(kind authorization.AuthKind, id uint, expiry time.Time) (string, error) {
+	return authorization.NewToken(kind, id, expiry, s.key)
 }
 
-func (s *AuthorizationService) CreateTokenFromAuthorization(auth twomes.Authorization, expiry time.Time) (string, error) {
-	return twomes.NewTokenFromAuthorization(auth, expiry, s.key)
+func (s *AuthorizationService) CreateTokenFromAuthorization(auth authorization.Authorization, expiry time.Time) (string, error) {
+	return authorization.NewTokenFromAuthorization(auth, expiry, s.key)
 }
 
-func (s *AuthorizationService) ParseToken(tokenString string) (twomes.AuthKind, uint, *twomes.Claims, error) {
-	return twomes.ParseToken(tokenString, s.key.Public())
+func (s *AuthorizationService) ParseToken(tokenString string) (authorization.AuthKind, uint, *authorization.Claims, error) {
+	return authorization.ParseToken(tokenString, s.key.Public())
 }
 
-func (s *AuthorizationService) ParseTokenToAuthorization(tokenString string) (*twomes.Authorization, error) {
-	return twomes.ParseTokenToAuthorization(tokenString, s.key.Public())
+func (s *AuthorizationService) ParseTokenToAuthorization(tokenString string) (*authorization.Authorization, error) {
+	return authorization.ParseTokenToAuthorization(tokenString, s.key.Public())
 }
