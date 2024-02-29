@@ -30,7 +30,6 @@ var client = &http.Client{
 }
 
 const (
-	baseURL                    = "https://enelogic.com/api"
 	endpointMeasuringPoints    = "/measuringpoints"
 	endpointDatapointsMonths   = "/measuringpoints/{{.MeasuringPointID}}/datapoint/months/{{.From}}/{{.To}}"
 	endpointDatapointsDays     = "/measuringpoints/{{.MeasuringPointID}}/datapoint/days/{{.From}}/{{.To}}"
@@ -43,6 +42,8 @@ const (
 )
 
 var (
+	baseURL = "https://enelogic.com/api"
+
 	ErrNoData = errors.New("no data from enelogic")
 )
 
@@ -165,29 +166,9 @@ func (q *Quantity) UnmarshalJSON(b []byte) error {
 type MeasuringsPointsResponse []MeasuringPoint
 
 type MeasuringPoint struct {
-	Timezone string       `json:"timezone"`
-	ID       int          `json:"id"`
-	UnitType UnitType     `json:"unitType"`
-	DayMin   EnelogicTime `json:"dayMin"`
-	DayMax   EnelogicTime `json:"dayMax"`
-	MonthMin EnelogicTime `json:"monthMin"`
-	MonthMax EnelogicTime `json:"monthMax"`
-	YearMin  EnelogicTime `json:"yearMin"`
-	YearMax  EnelogicTime `json:"yearMax"`
-	Active   bool         `json:"active"`
-}
-
-func (m *MeasuringPoint) UnmarshalJSON(b []byte) error {
-	// Set all EnelogicTime fields' LocationName to the timezone of the measuring point using a pointer.
-	m.DayMin.LocationName = &m.Timezone
-	m.DayMax.LocationName = &m.Timezone
-	m.MonthMin.LocationName = &m.Timezone
-	m.MonthMax.LocationName = &m.Timezone
-	m.YearMin.LocationName = &m.Timezone
-	m.YearMax.LocationName = &m.Timezone
-
-	type localMeasuringPoint *MeasuringPoint
-	return json.Unmarshal(b, localMeasuringPoint(m))
+	Timezone string   `json:"timezone"`
+	ID       int      `json:"id"`
+	UnitType UnitType `json:"unitType"`
 }
 
 type DatapointsResponse []DataPoint
