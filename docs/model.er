@@ -75,6 +75,8 @@ info_url {label: "String"}
 +cloud_feeds {label: "Integer"}
 start_time {label: "Timestamp"}
 end_time {label: "Timestamp"}
+shoppinglist {label: "Integer"}
+upload_schedules {label: "Integer[]"}
 
 
 [App]
@@ -100,8 +102,29 @@ access_token {label: "String"}
 refresh_token {label: "String"}
 auth_grant_token {label: "String, non-null"}
 
+[ShoppingList]
+*id {label: "Integer"}
+Items {label: "Integer[]"}
+
+[ShoppingItem]
+*id {label: "Integer"}
+*ActionID {label: "Integer"}
+*Type {label: "String"}
+
+[ShoppingItemType]
+*id {label: "Integer"}
+*Type {label: "String"}
+
+[UploadSchedule]
+*id {label: "Integer"}
+*Item {label: "Integer"}
+Schedule {label: "Time"}
+
+
 App *--1 Campaign
 Campaign 1--* Account
+Campaign *--1 ShoppingList
+Campaign *--1 UploadSchedule
 Account 1--* Building
 Building 1--* Device
 Device *--1 DeviceType
@@ -111,3 +134,7 @@ Measurement *--1 Property
 Campaign *--* CloudFeed
 CloudFeedAuth *--1 CloudFeed
 CloudFeedAuth *--1 Account
+UploadSchedule *--1 ShoppingItem
+ShoppingList *--* ShoppingItem
+ShoppingItem ?--* Device
+ShoppingItem ?--* CloudFeed
