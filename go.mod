@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/glebarez/sqlite v1.8.0
 	github.com/go-chi/chi/v5 v5.0.8
-	github.com/go-sql-driver/mysql v1.7.0
+	github.com/go-sql-driver/mysql v1.8.0
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/sigurn/crc16 v0.0.0-20211026045750-20ab5afb07e3
 	github.com/sirupsen/logrus v1.9.0
@@ -18,6 +18,7 @@ require (
 )
 
 require (
+	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/glebarez/go-sqlite v1.21.1 // indirect
