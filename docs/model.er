@@ -118,7 +118,7 @@ Items {label: "Integer[]"}
 [UploadSchedule]
 *id {label: "Integer"}
 *Item {label: "Integer"}
-Schedule {label: "Time"}
+Schedule {label: "[]String"}
 
 
 App *--1 Campaign
