@@ -105,6 +105,7 @@ auth_grant_token {label: "String, non-null"}
 [ShoppingList]
 *id {label: "Integer"}
 Items {label: "Integer[]"}
+Dependencies {label: "Integer[][2]"}
 
 [ShoppingItem]
 *id {label: "Integer"}
