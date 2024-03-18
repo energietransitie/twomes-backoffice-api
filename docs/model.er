@@ -113,7 +113,7 @@ Items {label: "Integer[]"}
 
 [ShoppingItemType]
 *id {label: "Integer"}
-*Type {label: "String"}
+*Name {label: "String"}
 
 [UploadSchedule]
 *id {label: "Integer"}
@@ -136,5 +136,6 @@ CloudFeedAuth *--1 CloudFeed
 CloudFeedAuth *--1 Account
 UploadSchedule *--1 ShoppingItem
 ShoppingList *--* ShoppingItem
-ShoppingItem ?--* Device
+ShoppingItem ?--* DeviceType
 ShoppingItem ?--* CloudFeed
+ShoppingItem *--1 ShoppingItemType
