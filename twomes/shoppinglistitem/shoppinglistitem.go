@@ -6,6 +6,6 @@ import "github.com/energietransitie/twomes-backoffice-api/twomes/shoppinglistite
 type ShoppingListItem struct {
 	ID       uint                                      `json:"id"`
 	SourceID uint                                      `json:"source_id"`
-	Type     shoppinglistitemtype.ShoppingListItemType `json:"type"`
 	Schedule []string                                  `json:"schedule"`
+	Type     shoppinglistitemtype.ShoppingListItemType `json:"type"`
 }

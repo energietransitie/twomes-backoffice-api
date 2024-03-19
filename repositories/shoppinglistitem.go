@@ -19,13 +19,13 @@ func NewShoppingListItemRepository(db *gorm.DB) *ShoppingListItemRepository {
 type ShoppingListItemModel struct {
 	gorm.Model
 	SourceID uint                      `gorm:"polymorphic:Type;polymorphicValue:device,cloud_feed"`
+	Schedule []string                  `gorm:"type:json"` //It will crash if we do not specify json here!
 	Type     ShoppingListItemTypeModel `gorm:"foreignKey:ID"`
-	Schedule []string                  //Cronjob format
 }
 
 // Set the name of the table in the database.
 func (ShoppingListItemModel) TableName() string {
-	return "shoppinglist_item"
+	return "shopping_list_item"
 }
 
 // Create a new ShoppingListItemModel from a [shoppinglistitem.ShoppinglistItem]
@@ -33,8 +33,8 @@ func MakeShoppingListItemModel(shoppinglistitem shoppinglistitem.ShoppingListIte
 	return ShoppingListItemModel{
 		Model:    gorm.Model{ID: shoppinglistitem.ID},
 		SourceID: shoppinglistitem.SourceID,
-		Type:     MakeShoppingListItemTypeModel(shoppinglistitem.Type),
 		Schedule: shoppinglistitem.Schedule,
+		Type:     MakeShoppingListItemTypeModel(shoppinglistitem.Type),
 	}
 }
 
@@ -43,8 +43,8 @@ func (m *ShoppingListItemModel) fromModel() shoppinglistitem.ShoppingListItem {
 	return shoppinglistitem.ShoppingListItem{
 		ID:       m.Model.ID,
 		SourceID: m.SourceID,
-		Type:     m.Type.fromModel(),
 		Schedule: m.Schedule,
+		Type:     m.Type.fromModel(),
 	}
 }
 

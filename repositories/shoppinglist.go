@@ -25,7 +25,7 @@ type ShoppingListModel struct {
 
 // Set the name of the table in the database.
 func (ShoppingListModel) TableName() string {
-	return "shoppinglist"
+	return "shopping_list"
 }
 
 // Create a new ShoppingListModel from a [shoppinglist.ShoppingList]

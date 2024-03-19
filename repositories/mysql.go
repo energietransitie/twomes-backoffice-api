@@ -50,6 +50,8 @@ func NewDatabaseConnectionAndMigrate(ctx context.Context, dsn string) (db *gorm.
 				&AppModel{},
 				&CloudFeedModel{},
 				&CampaignModel{},
+				&ShoppingListModel{},
+				&ShoppingListItemModel{},
 				&AccountModel{},
 				&CloudFeedAuthModel{},
 				&BuildingModel{},
@@ -58,9 +60,7 @@ func NewDatabaseConnectionAndMigrate(ctx context.Context, dsn string) (db *gorm.
 				&DeviceTypeModel{},
 				&DeviceModel{},
 				&MeasurementModel{},
-				&ShoppingListModel{},
 				&ShoppingListItemTypeModel{},
-				&ShoppingListItemModel{},
 			)
 		}
 
