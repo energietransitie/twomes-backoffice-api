@@ -43,6 +43,7 @@ func main() {
 		logrus.Fatal(err)
 	}
 
+	//Important services for admin and auth
 	authService, err := services.NewAuthorizationServiceFromFile("./data/key.pem")
 	if err != nil {
 		logrus.Fatal(err)
@@ -61,6 +62,7 @@ func main() {
 	accountAuth := authHandler.Middleware(authorization.AccountToken)
 	deviceAuth := authHandler.Middleware(authorization.DeviceToken)
 
+	//Repositories
 	appRepository := repositories.NewAppRepository(db)
 	cloudFeedRepository := repositories.NewCloudFeedRepository(db)
 	cloudFeedAuthRepository := repositories.NewCloudFeedAuthRepository(db)
@@ -71,18 +73,26 @@ func main() {
 	accountRepository := repositories.NewAccountRepository(db)
 	deviceTypeRepository := repositories.NewDeviceTypeRepository(db)
 	deviceRepository := repositories.NewDeviceRepository(db)
+	shoppingListRepository := repositories.NewShoppingListRepository(db)
+	shoppingListItemRepository := repositories.NewShoppingListItemRepository(db)
+	shoppingListItemTypeRepository := repositories.NewShoppingListItemTypeRepository(db)
 
+	//Services
 	appService := services.NewAppService(appRepository)
 	cloudFeedService := services.NewCloudFeedService(cloudFeedRepository)
-	campaignService := services.NewCampaignService(campaignRepository, appService, cloudFeedService)
+	shoppingListItemTypeService := services.NewShoppingListItemTypeService(shoppingListItemTypeRepository)
 	propertyService := services.NewPropertyService(propertyRepository)
+	deviceTypeService := services.NewDeviceTypeService(deviceTypeRepository, propertyService)
+	shoppingListItemService := services.NewShoppingListItemService(shoppingListItemRepository, shoppingListItemTypeService, deviceTypeService, cloudFeedService)
+	shoppingListService := services.NewShoppingListService(shoppingListRepository, shoppingListItemService)
+	campaignService := services.NewCampaignService(campaignRepository, appService, cloudFeedService, shoppingListService)
 	uploadService := services.NewUploadService(uploadRepository, deviceRepository, propertyService)
 	cloudFeedAuthService := services.NewCloudFeedAuthService(cloudFeedAuthRepository, cloudFeedRepository, uploadService)
 	buildingService := services.NewBuildingService(buildingRepository, uploadService)
 	accountService := services.NewAccountService(accountRepository, authService, appService, campaignService, buildingService, cloudFeedAuthService)
-	deviceTypeService := services.NewDeviceTypeService(deviceTypeRepository, propertyService)
 	deviceService := services.NewDeviceService(deviceRepository, authService, deviceTypeService, buildingService, uploadService)
 
+	//Handlers
 	appHandler := handlers.NewAppHandler(appService)
 	cloudFeedHandler := handlers.NewCloudFeedHandler(cloudFeedService)
 	cloudFeedAuthHandler := handlers.NewCloudFeedAuthHandler(cloudFeedAuthService)
@@ -92,10 +102,14 @@ func main() {
 	accountHandler := handlers.NewAccountHandler(accountService)
 	deviceTypeHandler := handlers.NewDeviceTypeHandler(deviceTypeService)
 	deviceHandler := handlers.NewDeviceHandler(deviceService)
+	shoppingListHandler := handlers.NewShoppingListHandler(shoppingListService)
+	shoppingListItemHandler := handlers.NewShoppingListItemHandler(shoppingListItemService)
+	shoppingListItemTypeHandler := handlers.NewShoppingListItemTypeHandler(shoppingListItemTypeService)
 
 	go cloudFeedAuthService.RefreshTokensInBackground(ctx, preRenewalDuration)
 	go cloudFeedAuthService.DownloadInBackground(ctx, config.downloadStartTime)
 
+	//Router
 	r := chi.NewRouter()
 
 	r.Use(middleware.Timeout(time.Second * 30))
@@ -132,6 +146,12 @@ func main() {
 	})
 
 	r.Method("POST", "/upload", deviceAuth(uploadHandler.Create)) // POST on /upload.
+
+	r.Route("/shoppinglist", func(r chi.Router) {
+		r.Method("POST", "/", adminAuth(shoppingListHandler.Create))             // POST on /shoppinglist
+		r.Method("POST", "/item", adminAuth(shoppingListItemHandler.Create))     // POST on /shoppinglist/item
+		r.Method("POST", "/type", adminAuth(shoppingListItemTypeHandler.Create)) // POST on /shoppinglist/type
+	})
 
 	setupSwaggerDocs(r, config.BaseURL)
 
