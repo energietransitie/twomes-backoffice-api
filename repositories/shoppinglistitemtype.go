@@ -52,3 +52,25 @@ func (r *ShoppingListItemTypeRepository) Delete(shoppinglistitemtype shoppinglis
 	shoppingListItemTypeModel := MakeShoppingListItemTypeModel(shoppinglistitemtype)
 	return r.db.Create(&shoppingListItemTypeModel).Error
 }
+
+func (r *ShoppingListItemTypeRepository) Find(shoppingListItemType shoppinglistitemtype.ShoppingListItemType) (shoppinglistitemtype.ShoppingListItemType, error) {
+	shoppingListItemTypeModel := MakeShoppingListItemTypeModel(shoppingListItemType)
+	err := r.db.Where(&shoppingListItemTypeModel).First(&shoppingListItemTypeModel).Error
+	return shoppingListItemTypeModel.fromModel(), err
+}
+
+func (r *ShoppingListItemTypeRepository) GetAll() ([]shoppinglistitemtype.ShoppingListItemType, error) {
+	var shoppingListItemTypes []shoppinglistitemtype.ShoppingListItemType
+
+	var shoppingListItemTypeModels []ShoppingListItemTypeModel
+	err := r.db.Find(&shoppingListItemTypeModels).Error
+	if err != nil {
+		return nil, err
+	}
+
+	for _, shoppingListItemTypeModel := range shoppingListItemTypeModels {
+		shoppingListItemTypes = append(shoppingListItemTypes, shoppingListItemTypeModel.fromModel())
+	}
+
+	return shoppingListItemTypes, nil
+}
