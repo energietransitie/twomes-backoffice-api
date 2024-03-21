@@ -9,3 +9,11 @@ type ShoppingListItem struct {
 	Schedule []string                                  `json:"schedule"`
 	Type     shoppinglistitemtype.ShoppingListItemType `json:"type"`
 }
+
+func MakeShoppingListItem(SourceID uint, Schedule []string, Type shoppinglistitemtype.ShoppingListItemType) ShoppingListItem {
+	return ShoppingListItem{
+		SourceID: SourceID,
+		Schedule: Schedule,
+		Type:     Type,
+	}
+}
