@@ -12,21 +12,28 @@ type CampaignService struct {
 	repository campaign.CampaignRepository
 
 	// Service used when creating a campaign.
-	appService       *AppService
-	cloudFeedService *CloudFeedService
+	appService          *AppService
+	cloudFeedService    *CloudFeedService
+	shoppingListService *ShoppingListService
 }
 
 // Create a new CampaignService.
-func NewCampaignService(repository campaign.CampaignRepository, appService *AppService, cloudFeedService *CloudFeedService) *CampaignService {
+func NewCampaignService(
+	repository campaign.CampaignRepository,
+	appService *AppService,
+	cloudFeedService *CloudFeedService,
+	shoppingListService *ShoppingListService,
+) *CampaignService {
 	return &CampaignService{
-		repository:       repository,
-		appService:       appService,
-		cloudFeedService: cloudFeedService,
+		repository:          repository,
+		appService:          appService,
+		cloudFeedService:    cloudFeedService,
+		shoppingListService: shoppingListService,
 	}
 }
 
 // Create a new campaign.
-func (s *CampaignService) Create(name string, app app.App, infoURL string, cloudFeeds []cloudfeed.CloudFeed, startTime, endTime *time.Time) (campaign.Campaign, error) {
+func (s *CampaignService) Create(name string, app app.App, infoURL string, cloudFeeds []cloudfeed.CloudFeed, startTime, endTime *time.Time, ) (campaign.Campaign, error) {
 	app, err := s.appService.Find(app)
 	if err != nil {
 		return campaign.Campaign{}, err
