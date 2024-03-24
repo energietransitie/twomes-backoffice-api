@@ -24,6 +24,8 @@ tags:
     description: Operations about buildings
   - name: Upload
     description: Operations about uploads
+  - name: ShoppingList
+    description: Operations about the shoppinglist
 
 paths:
   /app:
@@ -125,6 +127,9 @@ paths:
                       name:
                         type: string
                         example: 'Enelogic'
+                shopping_list_id:
+                  type: integer
+                  example: 1        
       responses:
         "200":
           description: OK
@@ -602,6 +607,90 @@ paths:
         "500":
           $ref: "#/components/responses/500InternalServerError"
 
+  /shoppinglist:
+    post:
+      tags:
+        - ShoppingList
+      summary: Create new ShoppingList
+      operationId: createShoppingList
+      security:
+        - AdminAuthorizationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShoppingList"
+      responses:
+        "200":
+          description: OK
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"       
+
+  /shoppinglist/item:
+    post:
+      tags:
+        - ShoppingList
+      summary: Create new ShoppingListItem
+      operationId: createShoppingListItem
+      security:
+        - AdminAuthorizationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShoppingListItem"  
+      responses:
+        "200":
+          description: OK
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"     
+
+  /shoppinglist/type:
+    post:
+      tags:
+        - ShoppingList
+      summary: Create new ShoppingListItemType
+      operationId: createShoppingListType
+      security:
+        - AdminAuthorizationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShoppingListItemType"             
+      responses:
+        "200":
+          description: OK
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"          
+
 components:
   schemas:
     App:
@@ -952,6 +1041,69 @@ components:
                 example: 12
           writeOnly: true
 
+    ShoppingList:
+      type: object
+      properties:
+        id:
+          type: integer
+        description:
+          type: string
+          example: "Test ShoppingList"
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+
+    ShoppingListItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        source_id:
+          type: integer
+          example: 1
+        type:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+        precedes:
+          type: array
+          items:
+           type: object
+           properties:
+              id:
+                type: integer
+                example: 1
+        upload_schedule:
+          type: array
+          items:
+            type: string
+            example: '* * * * *'
+        measurement_schedule:
+          type: array
+          items:
+            type: string
+            example: '* * * * *'    
+        notification_threshold:
+          type: string
+          example: '* * * * *' 
+
+    ShoppingListItemType:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          example: device_type
+              
     Error:
       type: object
       properties:

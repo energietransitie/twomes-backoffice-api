@@ -46,7 +46,6 @@ server_time {label: "Timestamp, non-null"}
 device_time {label: "Timestamp, non-null"}
 size {label: "Integer, non-null"}
 
-
 [Measurement]
 *id {label: "Integer"}
 +property_id {label: "Integer, non-null"}
@@ -62,7 +61,7 @@ info_url {label: "String"}
 +cloud_feeds {label: "Integer"}
 start_time {label: "Timestamp"}
 end_time {label: "Timestamp"}
-+shoppinglist {label: "Integer"}
++shopping_list_id {label: "Integer"}
 
 [App]
 *id {label: "Integer"}
@@ -94,22 +93,30 @@ formula {label: "String"}
 
 [ShoppingList]
 *id {label: "Integer"}
-+Items {label: "Integer[]"}
-+Dependencies {label: "Integer[][2]"}
+Description {label: "String"}
 
-[ShoppingItem]
+[ShoppingListItem]
 *id {label: "Integer"}
-+*SourceID {label: "Integer"}
-+*Type {label: "String"}
-Schedule {label: "String[]"}
++source_id {label: "Integer, non-null"}
++type_id {label: "Integer, non-null"}
+upload_schedule {label: "text"}
+measurement_schedule {label: "text"}
+notification_threshold {label: "string"}
 
-[ShoppingItemType]
+[ShoppingListItemType]
 *id {label: "Integer"}
-*Name {label: "String"}
+*name {label: "String"}
+
+[ShoppingListItems]
+*shopping_list_id {label: "Integer"}
+*shopping_list_item_id {label: "Integer"}
+
+[ShoppingListItemPrecedes]
+*shopping_list_item_id {label: "Integer"}
+*precede_id {label: "Integer"}
 
 App *--1 Campaign
 Campaign 1--* Account
-Campaign *--1 ShoppingList
 Account 1--* Building
 Building 1--* Device
 Device *--1 DeviceType
@@ -119,8 +126,13 @@ Measurement *--1 Property
 Campaign *--* CloudFeed
 CloudFeedAuth *--1 CloudFeed
 CloudFeedAuth *--1 Account
-ShoppingList *--* ShoppingItem
-ShoppingItem *--1 DeviceType
-ShoppingItem *--1 CloudFeed
-ShoppingItem *--1 EnergyQuery
-ShoppingItem *--1 ShoppingItemType
+
+Campaign *--? ShoppingList
+ShoppingListItems *--* ShoppingList
+ShoppingListItems *--* ShoppingListItem
+ShoppingListItem *--1 DeviceType
+ShoppingListItem *--1 CloudFeed
+ShoppingListItem *--1 EnergyQuery
+ShoppingListItem *--1 ShoppingListItemType
+ShoppingListItemPrecedes *--* ShoppingListItem
+ShoppingListItem *--* ShoppingListItemPrecedes
