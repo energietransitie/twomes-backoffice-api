@@ -39,6 +39,7 @@ func main() {
 	defer dbCancel()
 
 	db, err := repositories.NewDatabaseConnectionAndMigrate(dbCtx, config.DatabaseDSN)
+
 	if err != nil {
 		logrus.Fatal(err)
 	}

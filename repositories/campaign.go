@@ -21,13 +21,15 @@ func NewCampaignRepository(db *gorm.DB) *CampaignRepository {
 // Database representation of [campaign.Campaign].
 type CampaignModel struct {
 	gorm.Model
-	Name       string `gorm:"unique;not null"`
-	AppModelID uint   `gorm:"column:app_id"`
-	App        AppModel
-	InfoURL    string           `gorm:"unique;not null"`
-	CloudFeeds []CloudFeedModel `gorm:"many2many:campaign_cloud_feed"`
-	StartTime  *time.Time
-	EndTime    *time.Time
+	Name           string `gorm:"unique;not null"`
+	AppModelID     uint   `gorm:"column:app_id"`
+	App            AppModel
+	InfoURL        string           `gorm:"unique;not null"`
+	CloudFeeds     []CloudFeedModel `gorm:"many2many:campaign_cloud_feed"`
+	StartTime      *time.Time
+	EndTime        *time.Time
+	ShoppingListID uint
+	ShoppingList   ShoppingListModel `gorm:"foreignkey:ShoppingListID"`
 }
 
 // Set the name of the table in the database.
@@ -47,13 +49,15 @@ func MakeCampaignModel(campaign campaign.Campaign) CampaignModel {
 		Model: gorm.Model{
 			ID: campaign.ID,
 		},
-		Name:       campaign.Name,
-		AppModelID: campaign.App.ID,
-		App:        MakeAppModel(campaign.App),
-		InfoURL:    campaign.InfoURL,
-		CloudFeeds: cloudFeedModels,
-		StartTime:  campaign.StartTime,
-		EndTime:    campaign.EndTime,
+		Name:           campaign.Name,
+		AppModelID:     campaign.App.ID,
+		App:            MakeAppModel(campaign.App),
+		InfoURL:        campaign.InfoURL,
+		CloudFeeds:     cloudFeedModels,
+		StartTime:      campaign.StartTime,
+		EndTime:        campaign.EndTime,
+		ShoppingListID: campaign.ShoppingList.ID,
+		ShoppingList:   MakeShoppingListModel(campaign.ShoppingList),
 	}
 }
 
@@ -66,19 +70,20 @@ func (m *CampaignModel) fromModel() campaign.Campaign {
 	}
 
 	return campaign.Campaign{
-		ID:         m.ID,
-		Name:       m.Name,
-		App:        m.App.fromModel(),
-		InfoURL:    m.InfoURL,
-		CloudFeeds: cloudFeeds,
-		StartTime:  m.StartTime,
-		EndTime:    m.EndTime,
+		ID:           m.ID,
+		Name:         m.Name,
+		App:          m.App.fromModel(),
+		InfoURL:      m.InfoURL,
+		CloudFeeds:   cloudFeeds,
+		StartTime:    m.StartTime,
+		EndTime:      m.EndTime,
+		ShoppingList: m.ShoppingList.fromModel(),
 	}
 }
 
 func (r *CampaignRepository) Find(campaign campaign.Campaign) (campaign.Campaign, error) {
 	campaignModel := MakeCampaignModel(campaign)
-	err := r.db.Preload("App").Where(&campaignModel).First(&campaignModel).Error
+	err := r.db.Preload("App, ShoppingList").Where(&campaignModel).First(&campaignModel).Error
 	return campaignModel.fromModel(), err
 }
 
@@ -86,7 +91,7 @@ func (r *CampaignRepository) GetAll() ([]campaign.Campaign, error) {
 	var campaigns []campaign.Campaign
 
 	var campaignModels []CampaignModel
-	err := r.db.Preload("App").Find(&campaignModels).Error
+	err := r.db.Preload("App, ShoppingList").Find(&campaignModels).Error
 	if err != nil {
 		return nil, err
 	}

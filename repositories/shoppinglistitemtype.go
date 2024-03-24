@@ -18,7 +18,8 @@ func NewShoppingListItemTypeRepository(db *gorm.DB) *ShoppingListItemTypeReposit
 // Database representation of a [shoppinglistitemtype.ShoppingListItemType].
 type ShoppingListItemTypeModel struct {
 	gorm.Model
-	Name string
+	Name  string
+	Items []ShoppingListItemModel `gorm:"foreignKey:TypeID"`
 }
 
 // Set the name of the table in the database.

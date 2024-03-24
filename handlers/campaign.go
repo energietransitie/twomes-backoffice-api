@@ -29,7 +29,16 @@ func (h *CampaignHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
 	}
 
-	campaign, err := h.service.Create(request.Name, request.App, request.InfoURL, request.CloudFeeds, request.StartTime, request.EndTime)
+	campaign, _ := h.service.Create(
+		request.Name,
+		request.App,
+		request.InfoURL,
+		request.CloudFeeds,
+		request.StartTime,
+		request.EndTime,
+		request.ShoppingList,
+	)
+
 	if err != nil {
 		if helpers.IsMySQLRecordNotFoundError(err) {
 			return NewHandlerError(err, "not found", http.StatusNotFound)
@@ -41,7 +50,6 @@ func (h *CampaignHandler) Create(w http.ResponseWriter, r *http.Request) error {
 
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError)
 	}
-
 	err = json.NewEncoder(w).Encode(campaign)
 	if err != nil {
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)

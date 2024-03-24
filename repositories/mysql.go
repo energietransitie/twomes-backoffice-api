@@ -49,8 +49,8 @@ func NewDatabaseConnectionAndMigrate(ctx context.Context, dsn string) (db *gorm.
 			return db, db.AutoMigrate(
 				&AppModel{},
 				&CloudFeedModel{},
-				&CampaignModel{},
 				&ShoppingListModel{},
+				&CampaignModel{},
 				&ShoppingListItemModel{},
 				&AccountModel{},
 				&CloudFeedAuthModel{},

@@ -29,8 +29,8 @@ func (h *ShoppingListHandler) Create(w http.ResponseWriter, r *http.Request) err
 		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
 	}
 
-	shoppinglist, err := h.service.Create(request.Items, request.Dependencies)
-	
+	shoppinglist, err := h.service.Create(request.Description, request.Items)
+
 	if err != nil {
 		if helpers.IsMySQLRecordNotFoundError(err) {
 			return NewHandlerError(err, "not found", http.StatusNotFound)

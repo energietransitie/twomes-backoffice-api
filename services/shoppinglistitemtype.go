@@ -24,6 +24,10 @@ func (s *ShoppingListItemTypeService) Find(shoppingListItemType shoppinglistitem
 	return s.repository.Find(shoppingListItemType)
 }
 
+func (s *ShoppingListItemTypeService) FindById(id uint) (shoppinglistitemtype.ShoppingListItemType, error) {
+	return s.repository.Find(shoppinglistitemtype.ShoppingListItemType{ID: id})
+}
+
 func (s *ShoppingListItemTypeService) GetAll() ([]shoppinglistitemtype.ShoppingListItemType, error) {
 	return s.repository.GetAll()
 }

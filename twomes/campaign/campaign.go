@@ -17,17 +17,18 @@ type Campaign struct {
 	CloudFeeds   []cloudfeed.CloudFeed     `json:"cloud_feeds"`
 	StartTime    *time.Time                `json:"start_time,omitempty"`
 	EndTime      *time.Time                `json:"end_time,omitempty"`
-	ShoppingList shoppinglist.ShoppingList `json:"shoppinglist,omitempty"`
+	ShoppingList shoppinglist.ShoppingList `json:"shopping_list"`
 }
 
 // Create a new Campaign.
-func MakeCampaign(name string, app app.App, infoURL string, cloudFeeds []cloudfeed.CloudFeed, startTime, endTime *time.Time) Campaign {
+func MakeCampaign(name string, app app.App, infoURL string, cloudFeeds []cloudfeed.CloudFeed, startTime, endTime *time.Time, shoppingList shoppinglist.ShoppingList) Campaign {
 	return Campaign{
-		Name:       name,
-		App:        app,
-		InfoURL:    infoURL,
-		CloudFeeds: cloudFeeds,
-		StartTime:  startTime,
-		EndTime:    endTime,
+		Name:         name,
+		App:          app,
+		InfoURL:      infoURL,
+		CloudFeeds:   cloudFeeds,
+		StartTime:    startTime,
+		EndTime:      endTime,
+		ShoppingList: shoppingList,
 	}
 }

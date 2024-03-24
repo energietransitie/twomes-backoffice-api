@@ -4,16 +4,29 @@ import "github.com/energietransitie/twomes-backoffice-api/twomes/shoppinglistite
 
 // An item can be a device, cloudfeed or energyquery
 type ShoppingListItem struct {
-	ID       uint                                      `json:"id"`
-	SourceID uint                                      `json:"source_id"`
-	Schedule []string                                  `json:"schedule"`
-	Type     shoppinglistitemtype.ShoppingListItemType `json:"type"`
+	ID                    uint                                      `json:"id"`
+	SourceID              uint                                      `json:"source_id"`
+	Type                  shoppinglistitemtype.ShoppingListItemType `json:"type"`
+	Precedes              []ShoppingListItem                        `json:"precedes"`
+	UploadSchedule        []string                                  `json:"upload_schedule"`
+	MeasurementSchedule   []string                                  `json:"measurement_schedule"`
+	NotificationThreshold string                                    `json:"notification_threshold"`
 }
 
-func MakeShoppingListItem(SourceID uint, Schedule []string, Type shoppinglistitemtype.ShoppingListItemType) ShoppingListItem {
+func MakeShoppingListItem(
+	sourceID uint,
+	itemType shoppinglistitemtype.ShoppingListItemType,
+	precedes []ShoppingListItem,
+	uploadSchedule []string,
+	measurementSchedule []string,
+	notificationThreshold string,
+) ShoppingListItem {
 	return ShoppingListItem{
-		SourceID: SourceID,
-		Schedule: Schedule,
-		Type:     Type,
+		SourceID:              sourceID,
+		Type:                  itemType,
+		Precedes:              precedes,
+		UploadSchedule:        uploadSchedule,
+		MeasurementSchedule:   measurementSchedule,
+		NotificationThreshold: notificationThreshold,
 	}
 }

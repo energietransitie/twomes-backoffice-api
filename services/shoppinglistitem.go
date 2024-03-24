@@ -1,6 +1,8 @@
 package services
 
 import (
+	"fmt"
+
 	"github.com/energietransitie/twomes-backoffice-api/twomes/shoppinglistitem"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/shoppinglistitemtype"
 )
@@ -29,13 +31,40 @@ func NewShoppingListItemService(
 	}
 }
 
-func (s *ShoppingListItemService) Create(sourceID uint, schedule []string, itemType shoppinglistitemtype.ShoppingListItemType) (shoppinglistitem.ShoppingListItem, error) {
-	listitemType, err := s.shoppingListItemTypeService.Find(itemType)
+func (s *ShoppingListItemService) Create(
+	sourceID uint,
+	itemType shoppinglistitemtype.ShoppingListItemType,
+	precedes []shoppinglistitem.ShoppingListItem,
+	uploadSchedule []string,
+	measurementSchedule []string,
+	notificationThreshold string,
+) (shoppinglistitem.ShoppingListItem, error) {
+
+	//Check if sourceID and itemType exists. SourceID can be deviceType or cloudfeed, itemType has a Name field with the table name.
+	foundType, err := s.shoppingListItemTypeService.Find(itemType)
 	if err != nil {
 		return shoppinglistitem.ShoppingListItem{}, err
 	}
-	shoppingListItem := shoppinglistitem.MakeShoppingListItem(sourceID, schedule, listitemType)
-	return shoppingListItem, nil
+	var sourceName string
+
+	_, err = s.deviceTypeService.GetByID(sourceID)
+	if err == nil {
+		sourceName = "device_type"
+	} else {
+		_, err = s.cloudFeedService.GetByID(sourceID)
+		if err != nil {
+			return shoppinglistitem.ShoppingListItem{}, fmt.Errorf("sourceID not found")
+		}
+		sourceName = "cloud_feed"
+	}
+
+	if sourceName != foundType.Name {
+		return shoppinglistitem.ShoppingListItem{}, fmt.Errorf("sourceID %s does not match itemType %s", sourceName, foundType.Name)
+	}
+
+	shoppingListItem := shoppinglistitem.MakeShoppingListItem(sourceID, itemType, precedes, uploadSchedule, measurementSchedule, notificationThreshold)
+
+	return s.repository.Create(shoppingListItem)
 }
 
 func (s *ShoppingListItemService) Find(shoppingListItem shoppinglistitem.ShoppingListItem) (shoppinglistitem.ShoppingListItem, error) {

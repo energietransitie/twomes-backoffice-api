@@ -6,6 +6,7 @@ import (
 	"github.com/energietransitie/twomes-backoffice-api/twomes/app"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/campaign"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeed"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/shoppinglist"
 )
 
 type CampaignService struct {
@@ -33,7 +34,15 @@ func NewCampaignService(
 }
 
 // Create a new campaign.
-func (s *CampaignService) Create(name string, app app.App, infoURL string, cloudFeeds []cloudfeed.CloudFeed, startTime, endTime *time.Time, ) (campaign.Campaign, error) {
+func (s *CampaignService) Create(
+	name string,
+	app app.App,
+	infoURL string,
+	cloudFeeds []cloudfeed.CloudFeed,
+	startTime,
+	endTime *time.Time,
+	shoppingList shoppinglist.ShoppingList,
+) (campaign.Campaign, error) {
 	app, err := s.appService.Find(app)
 	if err != nil {
 		return campaign.Campaign{}, err
@@ -46,7 +55,12 @@ func (s *CampaignService) Create(name string, app app.App, infoURL string, cloud
 		}
 	}
 
-	campaign := campaign.MakeCampaign(name, app, infoURL, cloudFeeds, startTime, endTime)
+	foundShoppingList, err := s.shoppingListService.Find(shoppingList)
+	if err != nil {
+		return campaign.Campaign{}, err
+	}
+
+	campaign := campaign.MakeCampaign(name, app, infoURL, cloudFeeds, startTime, endTime, foundShoppingList)
 	return s.repository.Create(campaign)
 }
 

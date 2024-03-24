@@ -20,7 +20,7 @@ func NewShoppingListService(repository shoppinglist.ShoppingListRepository, shop
 	}
 }
 
-func (s *ShoppingListService) Create(items []shoppinglistitem.ShoppingListItem, dependencies [][2]shoppinglistitem.ShoppingListItem) (shoppinglist.ShoppingList, error) {
+func (s *ShoppingListService) Create(description string, items []shoppinglistitem.ShoppingListItem) (shoppinglist.ShoppingList, error) {
 	for i, item := range items {
 		listItem, err := s.shoppingListItemService.Find(item)
 		if err != nil {
@@ -29,19 +29,7 @@ func (s *ShoppingListService) Create(items []shoppinglistitem.ShoppingListItem, 
 		items[i] = listItem
 	}
 
-	for _, dependencyTupel := range dependencies {
-		var dependencyModels [2]shoppinglistitem.ShoppingListItem
-		for i, item := range dependencyTupel {
-			dependency, err := s.shoppingListItemService.Find(item)
-			if err != nil {
-				return shoppinglist.ShoppingList{}, err
-			}
-			dependencyModels[i] = dependency
-		}
-		dependencies = append(dependencies, dependencyModels)
-	}
-
-	shoppinglist := shoppinglist.MakeShoppingList(items, dependencies)
+	shoppinglist := shoppinglist.MakeShoppingList(items, description)
 	return s.repository.Create(shoppinglist)
 }
 

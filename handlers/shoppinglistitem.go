@@ -29,7 +29,14 @@ func (h *ShoppingListItemHandler) Create(w http.ResponseWriter, r *http.Request)
 		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
 	}
 
-	shoppinglistitem, err := h.service.Create(request.SourceID, request.Schedule, request.Type)
+	shoppinglistitem, err := h.service.Create(
+		request.SourceID,
+		request.Type,
+		request.Precedes,
+		request.UploadSchedule,
+		request.MeasurementSchedule,
+		request.NotificationThreshold,
+	)
 
 	if err != nil {
 		if helpers.IsMySQLRecordNotFoundError(err) {
