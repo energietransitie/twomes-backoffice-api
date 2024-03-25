@@ -27,3 +27,11 @@ func (s *CloudFeedService) Find(cloudFeed cloudfeed.CloudFeed) (cloudfeed.CloudF
 func (s *CloudFeedService) GetByID(id uint) (cloudfeed.CloudFeed, error) {
 	return s.repository.Find(cloudfeed.CloudFeed{ID: id})
 }
+
+func (s *CloudFeedService) GetByIDForShoppingList(id uint) (interface{}, error) {
+	return s.repository.Find(cloudfeed.CloudFeed{ID: id})
+}
+
+func (s *CloudFeedService) GetTableName() string {
+	return "cloud_feed"
+}

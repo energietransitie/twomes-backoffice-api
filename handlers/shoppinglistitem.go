@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
 	"github.com/energietransitie/twomes-backoffice-api/services"
@@ -45,6 +46,10 @@ func (h *ShoppingListItemHandler) Create(w http.ResponseWriter, r *http.Request)
 
 		if helpers.IsMySQLDuplicateError(err) {
 			return NewHandlerError(err, "duplicate", http.StatusBadRequest)
+		}
+
+		if strings.Contains(err.Error(), "circular reference detected") {
+			return NewHandlerError(err, "circular reference detected", http.StatusBadRequest)
 		}
 
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError)

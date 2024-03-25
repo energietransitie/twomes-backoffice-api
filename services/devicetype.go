@@ -65,8 +65,16 @@ func (s *DeviceTypeService) GetByID(id uint) (devicetype.DeviceType, error) {
 	return s.repository.Find(devicetype.DeviceType{ID: id})
 }
 
+func (s *DeviceTypeService) GetByIDForShoppingList(id uint) (interface{}, error) {
+	return s.repository.Find(devicetype.DeviceType{ID: id})
+}
+
 func (s *DeviceTypeService) GetByName(name string) (devicetype.DeviceType, error) {
 	return s.repository.Find(devicetype.DeviceType{Name: name})
+}
+
+func (s *DeviceTypeService) GetTableName() string {
+	return "device_type"
 }
 
 // Update the map of hashes to device types.

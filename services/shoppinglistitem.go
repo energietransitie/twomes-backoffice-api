@@ -31,6 +31,12 @@ func NewShoppingListItemService(
 	}
 }
 
+// Used so we do not have to hardcode the check as much
+type Source interface {
+	GetByIDForShoppingList(id uint) (interface{}, error)
+	GetTableName() string
+}
+
 func (s *ShoppingListItemService) Create(
 	sourceID uint,
 	itemType shoppinglistitemtype.ShoppingListItemType,
@@ -40,27 +46,21 @@ func (s *ShoppingListItemService) Create(
 	notificationThreshold string,
 ) (shoppinglistitem.ShoppingListItem, error) {
 
-	//Check if sourceID and itemType exists. SourceID can be deviceType or cloudfeed, itemType has a Name field with the table name.
+	//Ensures that the source associated with a given sourceID matches the expected item type
 	foundType, err := s.shoppingListItemTypeService.Find(itemType)
 	if err != nil {
 		return shoppinglistitem.ShoppingListItem{}, err
 	}
-	var sourceName string
 
-	_, err = s.deviceTypeService.GetByID(sourceID)
-	if err == nil {
-		sourceName = "device_type"
-	} else {
-		_, err = s.cloudFeedService.GetByID(sourceID)
-		if err != nil {
-			return shoppinglistitem.ShoppingListItem{}, fmt.Errorf("sourceID not found")
-		}
-		sourceName = "cloud_feed"
+	source, err := s.GetSourceByID(sourceID)
+	if err != nil {
+		return shoppinglistitem.ShoppingListItem{}, fmt.Errorf("error retrieving source: %w", err)
 	}
 
-	if sourceName != foundType.Name {
-		return shoppinglistitem.ShoppingListItem{}, fmt.Errorf("sourceID %s does not match itemType %s", sourceName, foundType.Name)
+	if source.GetTableName() != foundType.Name {
+		return shoppinglistitem.ShoppingListItem{}, fmt.Errorf("sourceID %s does not match itemType %s", source.GetTableName(), foundType.Name)
 	}
+	//
 
 	shoppingListItem := shoppinglistitem.MakeShoppingListItem(sourceID, itemType, precedes, uploadSchedule, measurementSchedule, notificationThreshold)
 
@@ -77,4 +77,21 @@ func (s *ShoppingListItemService) GetAll() ([]shoppinglistitem.ShoppingListItem,
 
 func (s *ShoppingListItemService) Delete(shoppingListItem shoppinglistitem.ShoppingListItem) error {
 	return s.repository.Delete(shoppingListItem)
+}
+
+func (s *ShoppingListItemService) GetSourceByID(sourceID uint) (Source, error) {
+	sources := []Source{
+		s.deviceTypeService,
+		s.cloudFeedService,
+		//&EnergyQueryService{},
+	}
+
+	for _, src := range sources {
+		_, err := src.GetByIDForShoppingList(sourceID)
+		if err == nil {
+			return src, nil
+		}
+	}
+
+	return nil, fmt.Errorf("sourceID not found")
 }
