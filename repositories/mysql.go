@@ -62,6 +62,9 @@ func NewDatabaseConnectionAndMigrate(ctx context.Context, dsn string) (db *gorm.
 				&MeasurementModel{},
 				&ShoppingListItemTypeModel{},
 				&EnergyQueryModel{},
+				&EnergyQueryUploadModel{},
+				&EnergyQueryValueModel{},
+				&EnergyQueryPropertyModel{},
 			)
 		}
 

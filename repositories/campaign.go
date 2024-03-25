@@ -83,7 +83,7 @@ func (m *CampaignModel) fromModel() campaign.Campaign {
 
 func (r *CampaignRepository) Find(campaign campaign.Campaign) (campaign.Campaign, error) {
 	campaignModel := MakeCampaignModel(campaign)
-	err := r.db.Preload("App, ShoppingList").Where(&campaignModel).First(&campaignModel).Error
+	err := r.db.Preload("App").Preload("ShoppingList").Where(&campaignModel).First(&campaignModel).Error
 	return campaignModel.fromModel(), err
 }
 
@@ -91,7 +91,7 @@ func (r *CampaignRepository) GetAll() ([]campaign.Campaign, error) {
 	var campaigns []campaign.Campaign
 
 	var campaignModels []CampaignModel
-	err := r.db.Preload("App, ShoppingList").Find(&campaignModels).Error
+	err := r.db.Preload("App").Preload("ShoppingList").Find(&campaignModels).Error
 	if err != nil {
 		return nil, err
 	}
