@@ -19,11 +19,11 @@ func NewBuildingRepository(db *gorm.DB) *BuildingRepository {
 // Database representation of a [building.Building].
 type BuildingModel struct {
 	gorm.Model
-	AccountModelID uint `gorm:"column:account_id"`
-	Longitude      float32
-	Latitude       float32
-	TZName         string
-	Devices        []DeviceModel
+	AccountModelID  uint `gorm:"column:account_id"`
+	Longitude       float32
+	Latitude        float32
+	TZName          string
+	Devices         []DeviceModel
 }
 
 // Set the name of the table in the database.
