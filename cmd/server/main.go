@@ -77,6 +77,7 @@ func main() {
 	shoppingListRepository := repositories.NewShoppingListRepository(db)
 	shoppingListItemRepository := repositories.NewShoppingListItemRepository(db)
 	shoppingListItemTypeRepository := repositories.NewShoppingListItemTypeRepository(db)
+	energyQueryRepository := repositories.NewEnergyQueryRepository(db)
 
 	//Services
 	appService := services.NewAppService(appRepository)
@@ -84,7 +85,14 @@ func main() {
 	shoppingListItemTypeService := services.NewShoppingListItemTypeService(shoppingListItemTypeRepository)
 	propertyService := services.NewPropertyService(propertyRepository)
 	deviceTypeService := services.NewDeviceTypeService(deviceTypeRepository, propertyService)
-	shoppingListItemService := services.NewShoppingListItemService(shoppingListItemRepository, shoppingListItemTypeService, deviceTypeService, cloudFeedService)
+	energyQueryService := services.NewEnergyQueryService(energyQueryRepository)
+	shoppingListItemService := services.NewShoppingListItemService(
+		shoppingListItemRepository,
+		shoppingListItemTypeService,
+		deviceTypeService,
+		cloudFeedService,
+		energyQueryService,
+	)
 	shoppingListService := services.NewShoppingListService(shoppingListRepository, shoppingListItemService)
 	campaignService := services.NewCampaignService(campaignRepository, appService, cloudFeedService, shoppingListService)
 	uploadService := services.NewUploadService(uploadRepository, deviceRepository, propertyService)
@@ -106,6 +114,7 @@ func main() {
 	shoppingListHandler := handlers.NewShoppingListHandler(shoppingListService)
 	shoppingListItemHandler := handlers.NewShoppingListItemHandler(shoppingListItemService)
 	shoppingListItemTypeHandler := handlers.NewShoppingListItemTypeHandler(shoppingListItemTypeService)
+	energyQueryHandler := handlers.NewEnergyQueryHandler(energyQueryService)
 
 	go cloudFeedAuthService.RefreshTokensInBackground(ctx, preRenewalDuration)
 	go cloudFeedAuthService.DownloadInBackground(ctx, config.downloadStartTime)
@@ -152,6 +161,10 @@ func main() {
 		r.Method("POST", "/", adminAuth(shoppingListHandler.Create))             // POST on /shoppinglist
 		r.Method("POST", "/item", adminAuth(shoppingListItemHandler.Create))     // POST on /shoppinglist/item
 		r.Method("POST", "/type", adminAuth(shoppingListItemTypeHandler.Create)) // POST on /shoppinglist/type
+	})
+
+	r.Route("/energyquery", func(r chi.Router) {
+		r.Method("POST", "/", adminAuth(energyQueryHandler.Create)) // POST on /energyquery
 	})
 
 	setupSwaggerDocs(r, config.BaseURL)

@@ -14,6 +14,7 @@ type ShoppingListItemService struct {
 	shoppingListItemTypeService *ShoppingListItemTypeService
 	deviceTypeService           *DeviceTypeService
 	cloudFeedService            *CloudFeedService
+	energyQueryService          *EnergyQueryService
 }
 
 // Create a new ShoppingListItemService.
@@ -22,12 +23,14 @@ func NewShoppingListItemService(
 	shoppingListItemTypeService *ShoppingListItemTypeService,
 	deviceTypeService *DeviceTypeService,
 	cloudFeedService *CloudFeedService,
+	energyQueryService *EnergyQueryService,
 ) *ShoppingListItemService {
 	return &ShoppingListItemService{
 		repository:                  repository,
 		shoppingListItemTypeService: shoppingListItemTypeService,
 		deviceTypeService:           deviceTypeService,
 		cloudFeedService:            cloudFeedService,
+		energyQueryService:          energyQueryService,
 	}
 }
 
@@ -83,7 +86,7 @@ func (s *ShoppingListItemService) GetSourceByID(sourceID uint) (Source, error) {
 	sources := []Source{
 		s.deviceTypeService,
 		s.cloudFeedService,
-		//&EnergyQueryService{},
+		s.energyQueryService,
 	}
 
 	for _, src := range sources {
