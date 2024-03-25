@@ -72,7 +72,7 @@ func (h *AccountHandler) Activate(w http.ResponseWriter, r *http.Request) error 
 		return NewHandlerError(err, "wrong token kind", http.StatusForbidden).WithMessage("wrong token kind was used")
 	}
 
-	a, err := h.accountService.Activate(auth.ID, request.Longtitude, request.Latitude, request.TZName)
+	a, err := h.accountService.Activate(auth.ID, request.Longitude, request.Latitude, request.TZName)
 	if err != nil {
 		if errors.Is(err, account.ErrAccountAlreadyActivated) {
 			return NewHandlerError(err, "account already activated", http.StatusBadRequest)

@@ -80,7 +80,7 @@ func (s *AccountService) Create(campaign campaign.Campaign) (account.Account, er
 }
 
 // Activate an account.
-func (s *AccountService) Activate(id uint, longtitude, latitude float32, tzName string) (account.Account, error) {
+func (s *AccountService) Activate(id uint, longitude, latitude float32, tzName string) (account.Account, error) {
 	a, err := s.repository.Find(account.Account{ID: id})
 	if err != nil {
 		return account.Account{}, err
@@ -97,7 +97,7 @@ func (s *AccountService) Activate(id uint, longtitude, latitude float32, tzName 
 	}
 
 	if len(a.Buildings) < 1 {
-		building, err := s.buildingService.Create(a.ID, longtitude, latitude, tzName)
+		building, err := s.buildingService.Create(a.ID, longitude, latitude, tzName)
 		if err != nil {
 			return account.Account{}, err
 		}
