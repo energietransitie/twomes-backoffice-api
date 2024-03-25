@@ -26,6 +26,8 @@ tags:
     description: Operations about uploads
   - name: ShoppingList
     description: Operations about the shoppinglist
+  - name: EnergyQuery
+    description: Operations about energyqueries
 
 paths:
   /app:
@@ -689,7 +691,35 @@ paths:
         "404":
           $ref: "#/components/responses/404NotFound"
         "500":
-          $ref: "#/components/responses/500InternalServerError"          
+          $ref: "#/components/responses/500InternalServerError"   
+
+  /energyquery:
+    post:
+      tags:
+        - EnergyQuery
+      summary: Create a new EnergyQuery
+      operationId: createEnergyQuery
+      security:
+        - AdminAuthorizationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EnergyQuery"
+      responses:
+        "200":
+          description: OK
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"           
 
 components:
   schemas:
@@ -1103,6 +1133,18 @@ components:
         name:
           type: string
           example: device_type
+
+    EnergyQuery:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          example: "WeatherInterpolationData"
+        formula:
+          type: string
+          example: "x + 10"      
               
     Error:
       type: object
