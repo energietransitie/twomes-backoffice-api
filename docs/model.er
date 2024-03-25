@@ -12,19 +12,12 @@ activated_at {label: "Timestamp"}
 [Building]
 *id {label: "Integer"}
 +account_id {label: "Integer, non-null"}
-longitude {label: "Numeric(15, 10), non-null"}
-latitude {label: "Numeric(15, 10), non-null"}
-
-# Time zone name, being a value as specified in the TZ database name column in
-# https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
-tz_name {label: "String, non-null"}
 
 [DeviceType]
 *id {label: "Integer"}
 name {label: "String, unique, non-null"}
 installation_manual_url {label: "String, non-null"}
 info_url {label: "String"}
-upload_interval {label: "Integer"}
 
 [Device]
 *id {label: "Integer"}
@@ -91,6 +84,23 @@ auth_grant_token {label: "String, non-null"}
 name {label: "String, unique, non-null"}
 formula {label: "String"}
 
+[EnergyQueryUpload]
+*id {label: "Integer"}
++query_id {label: "Integer"}
++building_id {label: "Integer"}
+size {label: "Integer, non-null"}
+
+[EnergyQueryValue]
+*id {label: "Integer"}
++query_upload_id {label: "Integer"}
++query_property_id {label: "Integer"}
+value {label: "String, unique, non-null"}
+
+[EnergyQueryProperty]
+*id {label: "Integer"}
+name {label: "String, non-null"}
+unit {label: "String"}
+
 [ShoppingList]
 *id {label: "Integer"}
 Description {label: "String"}
@@ -127,12 +137,16 @@ Campaign *--* CloudFeed
 CloudFeedAuth *--1 CloudFeed
 CloudFeedAuth *--1 Account
 
-Campaign *--? ShoppingList
-ShoppingListItems *--* ShoppingList
-ShoppingListItems *--* ShoppingListItem
-ShoppingListItem *--1 DeviceType
-ShoppingListItem *--1 CloudFeed
-ShoppingListItem *--1 EnergyQuery
-ShoppingListItem *--1 ShoppingListItemType
+Campaign                 *--1 ShoppingList
+ShoppingListItems        *--* ShoppingList
+ShoppingListItems        *--* ShoppingListItem
+ShoppingListItem         *--1 DeviceType
+ShoppingListItem         *--1 CloudFeed
+ShoppingListItem         *--1 EnergyQuery
+EnergyQuery              1--* EnergyQueryUpload
+EnergyQueryUpload        *--1 Building
+EnergyQueryValue         *--1 EnergyQueryUpload
+EnergyQueryValue         *--1 EnergyQueryProperty
+ShoppingListItem         *--1 ShoppingListItemType
 ShoppingListItemPrecedes *--* ShoppingListItem
-ShoppingListItem *--* ShoppingListItemPrecedes
+ShoppingListItem         *--* ShoppingListItemPrecedes

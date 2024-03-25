@@ -719,7 +719,35 @@ paths:
         "404":
           $ref: "#/components/responses/404NotFound"
         "500":
-          $ref: "#/components/responses/500InternalServerError"           
+          $ref: "#/components/responses/500InternalServerError"
+
+  /energyquery/upload:
+    post:
+      tags:
+        - EnergyQuery
+      summary: Upload EnergyQuery data
+      operationId: uploadEnergyQuery
+      security:
+        - AccountAuthorizationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EnergyQueryUpload"
+      responses:
+        "200":
+          description: OK
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"            
 
 components:
   schemas:
@@ -1144,8 +1172,31 @@ components:
           example: "WeatherInterpolationData"
         formula:
           type: string
-          example: "x + 10"      
-              
+          example: "x + 10"  
+
+    EnergyQueryUpload:
+      type: object
+      properties:
+        id:
+          type: integer
+        query_id:
+          type: integer
+        building_id:
+          type: integer
+        values:
+          type: array
+          items:
+            type: object
+            properties:
+              property:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: longitude
+              value:
+                type: string
+                example: 12
     Error:
       type: object
       properties:

@@ -78,6 +78,7 @@ func main() {
 	shoppingListItemRepository := repositories.NewShoppingListItemRepository(db)
 	shoppingListItemTypeRepository := repositories.NewShoppingListItemTypeRepository(db)
 	energyQueryRepository := repositories.NewEnergyQueryRepository(db)
+	energyQueryUploadRepository := repositories.NewEnergyQueryUploadRepository(db)
 
 	//Services
 	appService := services.NewAppService(appRepository)
@@ -86,6 +87,7 @@ func main() {
 	propertyService := services.NewPropertyService(propertyRepository)
 	deviceTypeService := services.NewDeviceTypeService(deviceTypeRepository, propertyService)
 	energyQueryService := services.NewEnergyQueryService(energyQueryRepository)
+	energyQueryUploadService := services.NewEnergyQueryUploadService(energyQueryUploadRepository)
 	shoppingListItemService := services.NewShoppingListItemService(
 		shoppingListItemRepository,
 		shoppingListItemTypeService,
@@ -115,6 +117,7 @@ func main() {
 	shoppingListItemHandler := handlers.NewShoppingListItemHandler(shoppingListItemService)
 	shoppingListItemTypeHandler := handlers.NewShoppingListItemTypeHandler(shoppingListItemTypeService)
 	energyQueryHandler := handlers.NewEnergyQueryHandler(energyQueryService)
+	energyQueryUploadHandler := handlers.NewEnergyQueryUploadHandler(energyQueryUploadService)
 
 	go cloudFeedAuthService.RefreshTokensInBackground(ctx, preRenewalDuration)
 	go cloudFeedAuthService.DownloadInBackground(ctx, config.downloadStartTime)
@@ -164,7 +167,8 @@ func main() {
 	})
 
 	r.Route("/energyquery", func(r chi.Router) {
-		r.Method("POST", "/", adminAuth(energyQueryHandler.Create)) // POST on /energyquery
+		r.Method("POST", "/", adminAuth(energyQueryHandler.Create))               // POST on /energyquery
+		r.Method("POST", "/upload", accountAuth(energyQueryUploadHandler.Create)) // POST on /energyquery/upload.
 	})
 
 	setupSwaggerDocs(r, config.BaseURL)
