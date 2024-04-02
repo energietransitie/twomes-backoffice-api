@@ -34,7 +34,8 @@ unit {label: "String"}
 
 [Upload]
 *id {label: "Integer"}
-+device_id {label: "Integer, non-null"}
++device_id {label: "Integer"}
++building_id {label: "Integer"}
 server_time {label: "Timestamp, non-null"}
 device_time {label: "Timestamp, non-null"}
 size {label: "Integer, non-null"}
@@ -84,23 +85,6 @@ auth_grant_token {label: "String, non-null"}
 name {label: "String, unique, non-null"}
 formula {label: "String"}
 
-[EnergyQueryUpload]
-*id {label: "Integer"}
-+query_id {label: "Integer"}
-+building_id {label: "Integer"}
-size {label: "Integer, non-null"}
-
-[EnergyQueryValue]
-*id {label: "Integer"}
-+query_upload_id {label: "Integer"}
-+query_property_id {label: "Integer"}
-value {label: "String, unique, non-null"}
-
-[EnergyQueryProperty]
-*id {label: "Integer"}
-name {label: "String, non-null"}
-unit {label: "String"}
-
 [ShoppingList]
 *id {label: "Integer"}
 Description {label: "String"}
@@ -130,7 +114,7 @@ Campaign 1--* Account
 Account 1--* Building
 Building 1--* Device
 Device *--1 DeviceType
-Device 1--* Upload
+Device ?--* Upload
 Upload 1--* Measurement
 Measurement *--1 Property
 Campaign *--* CloudFeed
@@ -143,10 +127,8 @@ ShoppingListItems        *--* ShoppingListItem
 ShoppingListItem         *--1 DeviceType
 ShoppingListItem         *--1 CloudFeed
 ShoppingListItem         *--1 EnergyQuery
-EnergyQuery              1--* EnergyQueryUpload
-EnergyQueryUpload        *--1 Building
-EnergyQueryValue         *--1 EnergyQueryUpload
-EnergyQueryValue         *--1 EnergyQueryProperty
+EnergyQuery              1--* Upload
+Upload                   *--? Building
 ShoppingListItem         *--1 ShoppingListItemType
 ShoppingListItemPrecedes *--* ShoppingListItem
 ShoppingListItem         *--* ShoppingListItemPrecedes
