@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
 	"github.com/energietransitie/twomes-backoffice-api/services"
@@ -50,4 +52,21 @@ func (h *CloudFeedAuthHandler) Create(w http.ResponseWriter, r *http.Request) er
 	}
 
 	return nil
+}
+
+type DownloadArgs struct {
+	AccountID   uint
+	CloudFeedID uint
+	StartPeriod time.Time
+	EndPeriod   time.Time
+}
+
+// Handle RPC endpoint for downloading data from a cloud feed.
+func (h *CloudFeedAuthHandler) Download(args DownloadArgs, reply *string) error {
+	cfa, err := h.service.Find(cloudfeedauth.CloudFeedAuth{AccountID: args.AccountID, CloudFeedID: args.CloudFeedID})
+	if err != nil {
+		return err
+	}
+
+	return h.service.Download(context.Background(), cfa, args.StartPeriod, args.EndPeriod)
 }

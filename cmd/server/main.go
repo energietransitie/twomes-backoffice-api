@@ -135,7 +135,7 @@ func main() {
 
 	setupSwaggerDocs(r, config.BaseURL)
 
-	go setupRPCHandler(adminHandler)
+	go setupRPCHandler(adminHandler, cloudFeedAuthHandler)
 
 	server := &http.Server{
 		Addr:    ":8080",
