@@ -67,7 +67,7 @@ The API is now available on http://localhost:8080/.
 
 Create a new admin account to use the admin endpoints:
 ```shell
-docker compose exec -i web admin-cli create -n <name>
+docker compose exec -i web twomes-backoffice-api admin create -n <name>
 ```
 > Substitute `<name>` with the name of the admin account you want to create.
 
@@ -86,16 +86,16 @@ To completely remove all docker containers created above:
 docker compose rm
 ```
 
-To delete the saved data, remove the data directory in the root of this repository.
+To delete the saved data, remove the `data` directory in the root of this repository.
 
 ### Folder structure
 
 This repository tries to implement a DDD approach. While some elements are still too tightly coupled to really call it DDD, the structure still tries te represent DDD as best as possible.
 
 | Folder       | Purpose                                                                   |
-|--------------|---------------------------------------------------------------------------|
+| ------------ | ------------------------------------------------------------------------- |
 | .github      | GitHub Actions workflows and config files                                 |
-| cmd          | Each subfolder is an entrypoint for a binary                              |
+| cmd          | CLI commands                                                              |
 | docs         | Additional documentation                                                  |
 | handlers     | HTTP handlers for API endpoints                                           |
 | internal     | Utitilities that are not exposed outside of this package                  |
@@ -125,6 +125,19 @@ There are currently three types of tokens:
 - Admin: Used by administrators to manage resources.
 - Account: Used by an account to manage its resources.
 - Device: Used by a measurement device to upload measurements.
+
+### Managing admins and cloudfeeds
+When the container is running, lookup it's name.
+
+Run the following command to see info about how to manage admins:
+```shell
+docker exec <container-name> twomes-backoffice-api admin --help
+```
+
+Run the following command to see info about how to manage cloudfeeds:
+```shell
+docker exec <container-name> twomes-backoffice-api cloudfeed --help
+```
 
 ### Administrators on our servers
 Contact an administrator to get admin access to the API:

@@ -1,8 +1,11 @@
-package main
+package cmd
 
 import (
 	"context"
+	"io/fs"
+	"net"
 	"net/http"
+	"net/rpc"
 	"os"
 	"os/signal"
 	"syscall"
@@ -11,20 +14,31 @@ import (
 	"github.com/energietransitie/twomes-backoffice-api/handlers"
 	"github.com/energietransitie/twomes-backoffice-api/repositories"
 	"github.com/energietransitie/twomes-backoffice-api/services"
+	"github.com/energietransitie/twomes-backoffice-api/swaggerdocs"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
-	"golang.org/x/sync/errgroup"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/cobra"
+	"golang.org/x/sync/errgroup"
 )
+
+func init() {
+	serveCmd := &cobra.Command{
+		Use:   "serve",
+		Short: "Start the twomes backoffice API server",
+		RunE:  handleServe,
+	}
+
+	rootCmd.AddCommand(serveCmd)
+}
 
 const (
 	shutdownTimeout    = 30 * time.Second
 	preRenewalDuration = 12 * time.Hour
 )
 
-func main() {
+func handleServe(cmd *cobra.Command, args []string) error {
 	config := getConfiguration()
 
 	logrus.SetFormatter(&logrus.TextFormatter{
@@ -135,7 +149,7 @@ func main() {
 
 	setupSwaggerDocs(r, config.BaseURL)
 
-	go setupAdminRPCHandler(adminHandler)
+	go setupRPCHandler(adminHandler, cloudFeedAuthHandler)
 
 	server := &http.Server{
 		Addr:    ":8080",
@@ -144,9 +158,56 @@ func main() {
 
 	err = listenAndServe(ctx, server)
 	if err != nil {
+		return err
+	}
+	return nil
+}
+
+const (
+	day                 = time.Hour * 24
+	defaultDownloadTime = "04h00s"
+)
+
+type Configuration struct {
+	DatabaseDSN       string
+	BaseURL           string
+	downloadStartTime time.Time
+}
+
+func getConfiguration() Configuration {
+	dsn, ok := os.LookupEnv("TWOMES_DSN")
+	if !ok {
+		logrus.Fatal("TWOMES_DSN was not set")
+	}
+
+	baseURL, ok := os.LookupEnv("TWOMES_BASE_URL")
+	if !ok {
+		logrus.Fatal("TWOMES_BASE_URL was not set")
+	}
+
+	downloadTime, ok := os.LookupEnv("TWOMES_DOWNLOAD_TIME")
+	if !ok {
+		logrus.Warning("TWOMES_DOWNLOAD_TIME was not set. defaulting to", defaultDownloadTime)
+		downloadTime = defaultDownloadTime
+	}
+
+	duration, err := time.ParseDuration(downloadTime)
+	if err != nil {
 		logrus.Fatal(err)
 	}
-	logrus.Infoln("server exited gracefully")
+
+	downloadStartTime := time.Now().Truncate(day)
+	downloadStartTime = downloadStartTime.Add(duration)
+	// If time is in the past, add 1 day.
+	if downloadStartTime.Before(time.Now()) {
+		downloadStartTime = downloadStartTime.Add(day)
+	}
+
+	return Configuration{
+		DatabaseDSN:       dsn,
+		BaseURL:           baseURL,
+		downloadStartTime: downloadStartTime,
+	}
 }
 
 func listenAndServe(ctx context.Context, server *http.Server) error {
@@ -175,4 +236,40 @@ func listenAndServe(ctx context.Context, server *http.Server) error {
 		return err
 	}
 	return nil
+}
+
+func setupSwaggerDocs(r *chi.Mux, baseURL string) {
+	swaggerUI, err := fs.Sub(swaggerdocs.StaticFiles, "swagger-ui")
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	docsHandler, err := handlers.NewDocsHandler(swaggerdocs.StaticFiles, baseURL)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	r.Method("GET", "/openapi.yml", handlers.Handler(docsHandler.OpenAPISpec))                        // Serve openapi.yml
+	r.Method("GET", "/docs/*", http.StripPrefix("/docs/", http.FileServer(http.FS(swaggerUI))))       // Serve static files.
+	r.Method("GET", "/docs", handlers.Handler(docsHandler.RedirectDocs(http.StatusMovedPermanently))) // Redirect /docs to /docs/
+	r.Method("GET", "/", handlers.Handler(docsHandler.RedirectDocs(http.StatusSeeOther)))             // Redirect / to /docs/
+}
+
+func setupRPCHandler(handlers ...any) {
+
+	for _, handler := range handlers {
+		rpc.Register(handler)
+	}
+
+	rpc.HandleHTTP()
+
+	listener, err := net.Listen("tcp4", "127.0.0.1:8081")
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	err = http.Serve(listener, nil)
+	if err != nil {
+		logrus.Fatal(err)
+	}
 }
