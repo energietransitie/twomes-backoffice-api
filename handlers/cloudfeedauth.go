@@ -68,5 +68,12 @@ func (h *CloudFeedAuthHandler) Download(args DownloadArgs, reply *string) error 
 		return err
 	}
 
-	return h.service.Download(context.Background(), cfa, args.StartPeriod, args.EndPeriod)
+	err = h.service.Download(context.Background(), cfa, args.StartPeriod, args.EndPeriod)
+	if err != nil {
+		return err
+	}
+
+	*reply = "Downloaded data from cloud feed. Check server logs for more information."
+
+	return nil
 }

@@ -149,7 +149,7 @@ func handleServe(cmd *cobra.Command, args []string) error {
 
 	setupSwaggerDocs(r, config.BaseURL)
 
-	go setupRPCHandler(adminHandler)
+	go setupRPCHandler(adminHandler, cloudFeedAuthHandler)
 
 	server := &http.Server{
 		Addr:    ":8080",

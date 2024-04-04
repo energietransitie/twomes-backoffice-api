@@ -126,6 +126,19 @@ There are currently three types of tokens:
 - Account: Used by an account to manage its resources.
 - Device: Used by a measurement device to upload measurements.
 
+### Managing admins and cloudfeeds
+When the container is running, lookup it's name.
+
+Run the following command to see info about how to manage admins:
+```shell
+docker exec <container-name> twomes-backoffice-api admin --help
+```
+
+Run the following command to see info about how to manage cloudfeeds:
+```shell
+docker exec <container-name> twomes-backoffice-api cloudfeed --help
+```
+
 ### Administrators on our servers
 Contact an administrator to get admin access to the API:
 - Nick van Ravenzwaaij
