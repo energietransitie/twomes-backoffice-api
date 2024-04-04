@@ -135,7 +135,7 @@ func main() {
 
 	setupSwaggerDocs(r, config.BaseURL)
 
-	go setupAdminRPCHandler(adminHandler)
+	go setupRPCHandler(adminHandler)
 
 	server := &http.Server{
 		Addr:    ":8080",

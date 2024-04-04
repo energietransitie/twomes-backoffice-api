@@ -5,14 +5,16 @@ import (
 	"net/http"
 	"net/rpc"
 
-	"github.com/energietransitie/twomes-backoffice-api/handlers"
 	"github.com/sirupsen/logrus"
 )
 
 // Setup Admin GRPC Handler.
-func setupAdminRPCHandler(adminHandler *handlers.AdminHandler) {
+func setupRPCHandler(handlers ...any) {
 
-	rpc.Register(adminHandler)
+	for _, handler := range handlers {
+		rpc.Register(handler)
+	}
+
 	rpc.HandleHTTP()
 
 	listener, err := net.Listen("tcp4", "127.0.0.1:8081")
