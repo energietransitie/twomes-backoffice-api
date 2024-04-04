@@ -67,7 +67,7 @@ The API is now available on http://localhost:8080/.
 
 Create a new admin account to use the admin endpoints:
 ```shell
-docker compose exec -i web admin-cli create -n <name>
+docker compose exec -i web twomes-backoffice-api admin create -n <name>
 ```
 > Substitute `<name>` with the name of the admin account you want to create.
 
@@ -86,16 +86,16 @@ To completely remove all docker containers created above:
 docker compose rm
 ```
 
-To delete the saved data, remove the data directory in the root of this repository.
+To delete the saved data, remove the `data` directory in the root of this repository.
 
 ### Folder structure
 
 This repository tries to implement a DDD approach. While some elements are still too tightly coupled to really call it DDD, the structure still tries te represent DDD as best as possible.
 
 | Folder       | Purpose                                                                   |
-|--------------|---------------------------------------------------------------------------|
+| ------------ | ------------------------------------------------------------------------- |
 | .github      | GitHub Actions workflows and config files                                 |
-| cmd          | Each subfolder is an entrypoint for a binary                              |
+| cmd          | CLI commands                                                              |
 | docs         | Additional documentation                                                  |
 | handlers     | HTTP handlers for API endpoints                                           |
 | internal     | Utitilities that are not exposed outside of this package                  |
