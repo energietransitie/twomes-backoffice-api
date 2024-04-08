@@ -43,9 +43,6 @@ func (h *AccountHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError)
 	}
 
-	// We don't need to return cloud feed auths.
-	account.CloudFeedAuths = nil
-
 	err = json.NewEncoder(w).Encode(account)
 	if err != nil {
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)

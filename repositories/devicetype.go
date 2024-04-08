@@ -19,9 +19,7 @@ func NewDeviceTypeRepository(db *gorm.DB) *DeviceTypeRepository {
 // Database representation of a [devicetype.DeviceType]
 type DeviceTypeModel struct {
 	gorm.Model
-	Name                  string `gorm:"unique;non null"`
-	InstallationManualURL string
-	InfoURL               string
+	Name string `gorm:"unique;non null"`
 }
 
 // Set the name of the table in the database.
@@ -32,20 +30,16 @@ func (DeviceTypeModel) TableName() string {
 // Create a DeviceTypeModel from a [devicetype.DeviceType].
 func MakeDeviceTypeModel(deviceType devicetype.DeviceType) DeviceTypeModel {
 	return DeviceTypeModel{
-		Model:                 gorm.Model{ID: deviceType.ID},
-		Name:                  deviceType.Name,
-		InstallationManualURL: deviceType.InstallationManualURL,
-		InfoURL:               deviceType.InfoURL,
+		Model: gorm.Model{ID: deviceType.ID},
+		Name:  deviceType.Name,
 	}
 }
 
 // Create a [devicetype.DeviceType] from a DeviceTypeModel.
 func (m *DeviceTypeModel) fromModel() devicetype.DeviceType {
 	return devicetype.DeviceType{
-		ID:                    m.Model.ID,
-		Name:                  m.Name,
-		InstallationManualURL: m.InstallationManualURL,
-		InfoURL:               m.InfoURL,
+		ID:   m.Model.ID,
+		Name: m.Name,
 	}
 }
 

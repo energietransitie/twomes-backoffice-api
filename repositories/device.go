@@ -30,7 +30,7 @@ type DeviceModel struct {
 	BuildingModelID      uint `gorm:"column:building_id"`
 	ActivationSecretHash string
 	ActivatedAt          *time.Time
-	Uploads              []UploadModel
+	Uploads              []UploadModel `gorm:"foreignKey:InstanceID"`
 }
 
 // Set the name of the table in the database.

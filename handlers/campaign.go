@@ -29,14 +29,13 @@ func (h *CampaignHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
 	}
 
-	campaign, _ := h.service.Create(
+	campaign, err := h.service.Create(
 		request.Name,
 		request.App,
 		request.InfoURL,
-		request.CloudFeeds,
 		request.StartTime,
 		request.EndTime,
-		request.ShoppingList,
+		request.DataSourceList,
 	)
 
 	if err != nil {

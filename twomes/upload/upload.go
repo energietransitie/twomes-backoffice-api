@@ -10,7 +10,7 @@ import (
 // An Upload is a collection of measurements, with additional information.
 type Upload struct {
 	ID           uint                      `json:"id"`
-	DeviceID     uint                      `json:"device_id"`
+	InstanceID   uint                      `json:"instance_id"`
 	ServerTime   twomes.Time               `json:"server_time"`
 	DeviceTime   twomes.Time               `json:"device_time"`
 	Size         int                       `json:"size"`
@@ -18,9 +18,9 @@ type Upload struct {
 }
 
 // Create a new Upload.
-func MakeUpload(deviceID uint, deviceTime twomes.Time, measurements []measurement.Measurement) Upload {
+func MakeUpload(instanceID uint, deviceTime twomes.Time, measurements []measurement.Measurement) Upload {
 	return Upload{
-		DeviceID:     deviceID,
+		InstanceID:   instanceID,
 		ServerTime:   twomes.Time(time.Now().UTC()),
 		DeviceTime:   deviceTime,
 		Size:         len(measurements),

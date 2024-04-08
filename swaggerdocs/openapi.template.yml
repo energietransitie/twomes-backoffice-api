@@ -24,8 +24,8 @@ tags:
     description: Operations about buildings
   - name: Upload
     description: Operations about uploads
-  - name: ShoppingList
-    description: Operations about the shoppinglist
+  - name: DataSource
+    description: Operations about datasources
   - name: EnergyQuery
     description: Operations about energyqueries
 
@@ -609,12 +609,12 @@ paths:
         "500":
           $ref: "#/components/responses/500InternalServerError"
 
-  /shoppinglist:
+  /datasource/list:
     post:
       tags:
-        - ShoppingList
-      summary: Create new ShoppingList
-      operationId: createShoppingList
+        - datasource
+      summary: Create a new DataSourceList
+      operationId: createDataSourceList
       security:
         - AdminAuthorizationToken: []
       requestBody:
@@ -622,7 +622,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ShoppingList"
+              $ref: "#/components/schemas/DataSourceList"
       responses:
         "200":
           description: OK

@@ -26,7 +26,8 @@ type AccountModel struct {
 	Campaign        CampaignModel
 	ActivatedAt     *time.Time
 	Buildings       []BuildingModel
-	CloudFeedAuths  []CloudFeedAuthModel `gorm:"foreignKey:AccountID"`
+	CloudFeeds      []CloudFeedModel   `gorm:"foreignKey:AccountID"`
+	EnergyQueries   []EnergyQueryModel `gorm:"foreignKey:AccountID"`
 }
 
 // Set the name of the table in the database.
@@ -71,7 +72,7 @@ func (m *AccountModel) fromModel() account.Account {
 
 func (r *AccountRepository) Find(account account.Account) (account.Account, error) {
 	accountModel := MakeAccountModel(account)
-	err := r.db.Preload("Campaign.App").Preload("Campaign.CloudFeeds").Preload("Buildings").Where(&accountModel).First(&accountModel).Error
+	err := r.db.Preload("Campaign.App").Preload("Buildings").Where(&accountModel).First(&accountModel).Error
 	return accountModel.fromModel(), err
 }
 

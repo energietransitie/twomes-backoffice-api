@@ -23,11 +23,11 @@ func NewUploadRepository(db *gorm.DB) *UploadRepository {
 // Database representation of a [upload.Upload]
 type UploadModel struct {
 	gorm.Model
-	DeviceModelID uint `gorm:"column:device_id"`
-	ServerTime    time.Time
-	DeviceTime    time.Time
-	Size          int
-	Measurements  []MeasurementModel
+	InstanceID   uint `gorm:"column:instance_id"`
+	ServerTime   time.Time
+	DeviceTime   time.Time
+	Size         int
+	Measurements []MeasurementModel
 }
 
 // Set the name of the table in the database.
@@ -44,12 +44,12 @@ func MakeUploadModel(upload upload.Upload) UploadModel {
 	}
 
 	return UploadModel{
-		Model:         gorm.Model{ID: upload.ID},
-		DeviceModelID: upload.DeviceID,
-		ServerTime:    time.Time(upload.ServerTime),
-		DeviceTime:    time.Time(upload.DeviceTime),
-		Size:          upload.Size,
-		Measurements:  measurementModels,
+		Model:        gorm.Model{ID: upload.ID},
+		InstanceID:   upload.InstanceID,
+		ServerTime:   time.Time(upload.ServerTime),
+		DeviceTime:   time.Time(upload.DeviceTime),
+		Size:         upload.Size,
+		Measurements: measurementModels,
 	}
 }
 
@@ -63,7 +63,7 @@ func (m *UploadModel) fromModel() upload.Upload {
 
 	return upload.Upload{
 		ID:           m.Model.ID,
-		DeviceID:     m.DeviceModelID,
+		InstanceID:   m.InstanceID,
 		ServerTime:   twomes.Time(m.ServerTime),
 		DeviceTime:   twomes.Time(m.DeviceTime),
 		Size:         m.Size,
@@ -106,6 +106,6 @@ func (r *UploadRepository) Delete(upload upload.Upload) error {
 
 func (r *UploadRepository) GetLatestUploadForDeviceWithID(id uint) (upload.Upload, error) {
 	var uploadModel UploadModel
-	err := r.db.Where(UploadModel{DeviceModelID: id}).Order("server_time desc").First(&uploadModel).Error
+	err := r.db.Where(UploadModel{InstanceID: id}).Order("server_time desc").First(&uploadModel).Error
 	return uploadModel.fromModel(), err
 }

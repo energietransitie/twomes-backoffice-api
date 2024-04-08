@@ -35,8 +35,8 @@ func NewDeviceTypeService(repository devicetype.DeviceTypeRepository, propertySe
 	return deviceTypeService
 }
 
-func (s *DeviceTypeService) Create(name, installationManualURL, infoURL string) (devicetype.DeviceType, error) {
-	deviceType := devicetype.MakeDeviceType(name, installationManualURL, infoURL)
+func (s *DeviceTypeService) Create(name string) (devicetype.DeviceType, error) {
+	deviceType := devicetype.MakeDeviceType(name)
 
 	deviceType, err := s.repository.Create(deviceType)
 	if err != nil {
@@ -65,7 +65,7 @@ func (s *DeviceTypeService) GetByID(id uint) (devicetype.DeviceType, error) {
 	return s.repository.Find(devicetype.DeviceType{ID: id})
 }
 
-func (s *DeviceTypeService) GetByIDForShoppingList(id uint) (interface{}, error) {
+func (s *DeviceTypeService) GetByIDForDataSourceType(id uint) (interface{}, error) {
 	return s.repository.Find(devicetype.DeviceType{ID: id})
 }
 

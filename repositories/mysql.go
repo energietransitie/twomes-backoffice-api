@@ -48,23 +48,21 @@ func NewDatabaseConnectionAndMigrate(ctx context.Context, dsn string) (db *gorm.
 		if err == nil {
 			return db, db.AutoMigrate(
 				&AppModel{},
-				&CloudFeedModel{},
-				&ShoppingListModel{},
+				&CloudFeedTypeModel{},
+				&DataSourceListModel{},
 				&CampaignModel{},
-				&ShoppingListItemModel{},
+				&DataSourceTypeModel{},
 				&AccountModel{},
-				&CloudFeedAuthModel{},
+				&CloudFeedModel{},
 				&BuildingModel{},
 				&PropertyModel{},
 				&UploadModel{},
 				&DeviceTypeModel{},
 				&DeviceModel{},
 				&MeasurementModel{},
-				&ShoppingListItemTypeModel{},
+				&EnergyQueryVarietyModel{},
+				&EnergyQueryTypeModel{},
 				&EnergyQueryModel{},
-				&EnergyQueryUploadModel{},
-				&EnergyQueryValueModel{},
-				&EnergyQueryPropertyModel{},
 			)
 		}
 
