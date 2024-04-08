@@ -82,11 +82,12 @@ name {label: "String"}
 *id {label: "Integer"}
 +type_instance_id {label: "Integer, non-null"} # This ID can be any of the 3 types, we use the type-field to distinguish the table. 
 +category {label: "String, non-null, enum"}
-installation_manual_url {label: "String, non-null"}
+installation_url {label: "String, non-null"}
+faq_url {label: "String"}
 info_url {label: "String"}
-upload_schedule {label: "string"}
-measurement_schedule {label: "string"}
-notification_threshold_duration {label: "string"}
+upload_schedule {label: "String"}
+measurement_schedule {label: "String"}
+notification_threshold_duration {label: "String"}
 
 [DataSource]
 *id {label: "Integer"}
@@ -97,6 +98,7 @@ activated_at {label: "Timestamp"}
 [DataSourceListItems]
 *data_source_list_id {label: "Integer"}
 *data_source_type_id {label: "Integer"}
+order {label: "Integer"}
 
 [DataSourcePrecedence]
 *data_source_type_id {label: "Integer"}
