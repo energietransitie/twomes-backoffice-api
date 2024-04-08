@@ -69,13 +69,9 @@ access_token {label: "String"}
 refresh_token {label: "String"}
 auth_grant_token {label: "String, non-null"}
 
-[EnergyQueryVariety]
-*id {label: "Integer"}
-name {label: "String, unique, non-null"}
-
 [EnergyQueryType]
 *id {label: "Integer"}
-*energy_query_variety_id {label: "integer"}
+energy_query_variety {label: "String, non-null, enum"}
 formula {label: "String"}
 
 [DataSourceList]
@@ -84,12 +80,12 @@ name {label: "String"}
 
 [DataSourceType]
 *id {label: "Integer"}
-+data_source_type_id {label: "Integer, non-null"} # This ID can be any of the 3 types, we use the type-field to distinguish the table. 
-+type {label: "String, non-null, enum"}
++type_instance_id {label: "Integer, non-null"} # This ID can be any of the 3 types, we use the type-field to distinguish the table. 
++category {label: "String, non-null, enum"}
 installation_manual_url {label: "String, non-null"}
 info_url {label: "String"}
-upload_schedule {label: "text"}
-measurement_schedule {label: "text"}
+upload_schedule {label: "string"}
+measurement_schedule {label: "string"}
 notification_threshold_duration {label: "string"}
 
 [DataSource]
@@ -106,7 +102,7 @@ activated_at {label: "Timestamp"}
 *data_source_type_id {label: "Integer"}
 *preceding_id {label: "Integer"}
 
-App *--1 Campaign
+App 1--* Campaign
 Campaign 1--* Account
 Device *--1 DeviceType
 Upload 1--* Measurement
@@ -115,8 +111,8 @@ CloudFeed *--1 CloudFeedType
 
 # Gorm (apparently) supports duplicates
 Campaign *--1 DataSourceList
-DataSourceList *--* DataSourceListItems
-DataSourceType *--* DataSourceListItems
+DataSourceList 1--* DataSourceListItems
+DataSourceType 1--* DataSourceListItems
 
 DataSourceType *--1 DeviceType {label: "type id"}
 DataSourceType *--1 CloudFeedType {label: "type id"}
@@ -126,7 +122,5 @@ DataSource *--1 DataSourceType
 DataSource *--1 Account
 DataSource 1--* Upload
 
-DataSourceType *--* DataSourcePrecedence
-DataSourcePrecedence *--* DataSourceType
-
-EnergyQueryVariety 1--* EnergyQueryType
+DataSourceType 1--* DataSourcePrecedence
+DataSourcePrecedence *--1 DataSourceType
