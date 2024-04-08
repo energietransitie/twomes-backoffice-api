@@ -34,31 +34,33 @@ type Source interface {
 }
 
 func (s *DataSourceTypeService) Create(
-	typeSourceID uint,
-	itemType datasourcetype.CategoryType,
+	typeInstanceID uint,
+	category datasourcetype.Category,
 	precedes []datasourcetype.DataSourceType,
 	installationManualUrl string,
+	faqURL string,
 	infoUrl string,
-	uploadSchedule []string,
-	measurementSchedule []string,
+	uploadSchedule string,
+	measurementSchedule string,
 	notificationThreshold string,
 ) (datasourcetype.DataSourceType, error) {
 
 	//Ensures that the source associated with a given sourceID matches the expected item type
-	source, err := s.GetSourceByID(typeSourceID)
+	source, err := s.GetSourceByID(typeInstanceID)
 	if err != nil {
 		return datasourcetype.DataSourceType{}, fmt.Errorf("error retrieving source: %w", err)
 	}
 
-	if source.GetTableName() != string(itemType) {
-		return datasourcetype.DataSourceType{}, fmt.Errorf("sourceID %s does not match itemType %s", source.GetTableName(), itemType)
+	if source.GetTableName() != string(category) {
+		return datasourcetype.DataSourceType{}, fmt.Errorf("InstanceID %s does not match Category %s", source.GetTableName(), category)
 	}
 	//
 
 	dataSourceType := datasourcetype.MakeDataSourceType(
-		typeSourceID,
-		itemType,
+		typeInstanceID,
+		category,
 		installationManualUrl,
+		faqURL,
 		infoUrl,
 		precedes,
 		uploadSchedule,

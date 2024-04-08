@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"errors"
-	"strings"
 
 	"github.com/energietransitie/twomes-backoffice-api/twomes/datasourcetype"
 	"gorm.io/gorm"
@@ -21,9 +20,10 @@ func NewDataSourceTypeRepository(db *gorm.DB) *DataSourceTypeRepository {
 // Database representation of a [datasourcetype.DataSourceType].
 type DataSourceTypeModel struct {
 	gorm.Model
-	TypeSourceID          uint
-	Type                  datasourcetype.CategoryType
+	TypeInstanceID        uint
+	Category              datasourcetype.Category
 	InstallationManualURL string
+	FAQURL                string
 	InfoURL               string
 	Precedes              []DataSourceTypeModel `gorm:"many2many:data_source_precedence;"`
 	UploadSchedule        string                `gorm:"type:text"`
@@ -45,13 +45,14 @@ func MakeDataSourceTypeModel(datasourcetype datasourcetype.DataSourceType) DataS
 
 	return DataSourceTypeModel{
 		Model:                 gorm.Model{ID: datasourcetype.ID},
-		TypeSourceID:          datasourcetype.TypeSourceID,
-		Type:                  datasourcetype.Type,
+		TypeInstanceID:        datasourcetype.TypeInstanceID,
+		Category:              datasourcetype.Category,
 		InstallationManualURL: datasourcetype.InstallationManualURL,
+		FAQURL:                datasourcetype.FAQURL,
 		InfoURL:               datasourcetype.InfoURL,
 		Precedes:              shoppingListItemModels,
-		UploadSchedule:        ConvertScheduleToModel(datasourcetype.UploadSchedule),
-		MeasurementSchedule:   ConvertScheduleToModel(datasourcetype.UploadSchedule),
+		UploadSchedule:        datasourcetype.UploadSchedule,
+		MeasurementSchedule:   datasourcetype.MeasurementSchedule,
 		NotificationThreshold: datasourcetype.NotificationThreshold,
 	}
 }
@@ -65,13 +66,14 @@ func (m *DataSourceTypeModel) fromModel() datasourcetype.DataSourceType {
 
 	return datasourcetype.DataSourceType{
 		ID:                    m.Model.ID,
-		TypeSourceID:          m.TypeSourceID,
-		Type:                  m.Type,
+		TypeInstanceID:        m.TypeInstanceID,
+		Category:              m.Category,
 		InstallationManualURL: m.InstallationManualURL,
+		FAQURL:                m.FAQURL,
 		InfoURL:               m.InfoURL,
 		Precedes:              items,
-		UploadSchedule:        ConvertScheduleToArray(m.UploadSchedule),
-		MeasurementSchedule:   ConvertScheduleToArray(m.MeasurementSchedule),
+		UploadSchedule:        m.UploadSchedule,
+		MeasurementSchedule:   m.MeasurementSchedule,
 		NotificationThreshold: m.NotificationThreshold,
 	}
 }
@@ -107,22 +109,6 @@ func (r *DataSourceTypeRepository) GetAll() ([]datasourcetype.DataSourceType, er
 	}
 
 	return shoppingListItems, nil
-}
-
-func ConvertScheduleToModel(jsonArray []string) string {
-	var convertedString string
-
-	for _, item := range jsonArray {
-		convertedString += item + ","
-	}
-	convertedString = strings.TrimSuffix(convertedString, ",")
-
-	return convertedString
-}
-
-func ConvertScheduleToArray(modelString string) []string {
-	convertedArray := strings.Split(modelString, ",")
-	return convertedArray
 }
 
 // Check if we did not make a loop that can softlock the app

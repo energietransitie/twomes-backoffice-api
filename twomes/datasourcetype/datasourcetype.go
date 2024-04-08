@@ -3,38 +3,41 @@ package datasourcetype
 // An datasourcetype can be a device, cloudfeed or energyquery
 type DataSourceType struct {
 	ID                    uint             `json:"id"`
-	TypeSourceID          uint             `json:"type_source_id"`
-	Type                  CategoryType     `json:"type"`
-	InstallationManualURL string           `json:"installation_manual_url"`
+	TypeInstanceID        uint             `json:"type_instance_id"`
+	Category              Category         `json:"category"`
+	InstallationManualURL string           `json:"installation_url"`
+	FAQURL                string           `json:"faq_url"`
 	InfoURL               string           `json:"info_url"`
 	Precedes              []DataSourceType `json:"precedes"`
-	UploadSchedule        []string         `json:"upload_schedule"`
-	MeasurementSchedule   []string         `json:"measurement_schedule"`
+	UploadSchedule        string           `json:"upload_schedule"`
+	MeasurementSchedule   string           `json:"measurement_schedule"`
 	NotificationThreshold string           `json:"notification_threshold"`
 }
 
-type CategoryType string
+type Category string
 
 const (
-	Device_Type       CategoryType = "device_type"
-	Cloud_Feed_Type   CategoryType = "cloud_feed_type"
-	Energy_Query_Type CategoryType = "energy_query_type"
+	Device_Type       Category = "device_type"
+	Cloud_Feed_Type   Category = "cloud_feed_type"
+	Energy_Query_Type Category = "energy_query_type"
 )
 
 func MakeDataSourceType(
-	dataSourceTypeID uint,
-	itemType CategoryType,
+	typeInstanceID uint,
+	category Category,
 	installationManualURL string,
+	faqURL string,
 	infoURL string,
 	precedes []DataSourceType,
-	uploadSchedule []string,
-	measurementSchedule []string,
+	uploadSchedule string,
+	measurementSchedule string,
 	notificationThreshold string,
 ) DataSourceType {
 	return DataSourceType{
-		TypeSourceID:          dataSourceTypeID,
-		Type:                  itemType,
+		TypeInstanceID:        typeInstanceID,
+		Category:              category,
 		InstallationManualURL: installationManualURL,
+		FAQURL:                faqURL,
 		InfoURL:               infoURL,
 		Precedes:              precedes,
 		UploadSchedule:        uploadSchedule,

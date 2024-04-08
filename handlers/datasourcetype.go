@@ -31,10 +31,11 @@ func (h *DataSourceTypeHandler) Create(w http.ResponseWriter, r *http.Request) e
 	}
 
 	DataSourceType, err := h.service.Create(
-		request.TypeSourceID,
-		request.Type,
+		request.TypeInstanceID,
+		request.Category,
 		request.Precedes,
 		request.InstallationManualURL,
+		request.FAQURL,
 		request.InfoURL,
 		request.UploadSchedule,
 		request.MeasurementSchedule,
