@@ -120,7 +120,7 @@ func main() {
 
 	r.Method("POST", "/app", adminAuth(adminHandler.Middleware(appHandler.Create))) // POST on /app.
 
-	r.Method("POST", "/cloud_feed", adminAuth(adminHandler.Middleware(cloudFeedTypeHandler.Create))) // POST on /cloud_feed.
+	r.Method("POST", "/cloud_feed_type", adminAuth(adminHandler.Middleware(cloudFeedTypeHandler.Create))) // POST on /cloud_feed.
 
 	r.Method("POST", "/campaign", adminAuth(adminHandler.Middleware(campaignHandler.Create))) // POST on /campaign.
 
@@ -129,9 +129,9 @@ func main() {
 		r.Method("POST", "/activate", accountActivationAuth(accountHandler.Activate))    // POST on /account/activate.
 
 		r.Route("/{account_id}", func(r chi.Router) {
-			r.Method("GET", "/", accountAuth(accountHandler.GetAccountByID))                          // GET on /account/{account_id}.
-			r.Method("POST", "/cloud_feed_auth", accountAuth(cloudFeedHandler.Create))                // POST on /account/{account_id}/cloud_feed_auth.
-			r.Method("GET", "/cloud_feed_auth", accountAuth(accountHandler.GetCloudFeedAuthStatuses)) // GET on /account/{account_id}/cloud_feed_auth.
+			r.Method("GET", "/", accountAuth(accountHandler.GetAccountByID))                     // GET on /account/{account_id}.
+			r.Method("POST", "/cloud_feed", accountAuth(cloudFeedHandler.Create))                // POST on /account/{account_id}/cloud_feed_auth.
+			r.Method("GET", "/cloud_feed", accountAuth(accountHandler.GetCloudFeedAuthStatuses)) // GET on /account/{account_id}/cloud_feed_auth.
 		})
 	})
 
