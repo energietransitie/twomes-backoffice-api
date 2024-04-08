@@ -1,5 +1,5 @@
 #
-# Overview of NeedForHeat API data model
+# Overview of a future NeedForHeat API data model
 # Format as specified by https://github.com/BurntSushi/erd
 #
 entity {bgcolor: "#ececfc"}
@@ -17,8 +17,8 @@ name {label: "String, unique, non-null"}
 *id {label: "Integer"}
 name {label: "String, unique, non-null"}
 +device_type_id {label: "Integer, non-null"}
++data_source_id {label: "Integer, non-null"}
 activation_secret_hash {label: "String, unique, non-null"}
-activated_at {label: "Timestamp"}
 
 [Property]
 *id {label: "Integer"}
@@ -26,8 +26,7 @@ name {label: "String, non-null"}
 
 [Upload]
 *id {label: "Integer"}
-+instance_id {label: "Integer, non-null"}
-+instance_type {label: ""}
++data_source_id {label: "Integer, non-null"}
 server_time {label: "Timestamp, non-null"}
 device_time {label: "Timestamp, non-null"}
 size {label: "Integer, non-null"}
@@ -65,12 +64,10 @@ scope {label: "String, non-null"}
 redirect_url {label: "String, non-null"}
 
 [CloudFeed]
-*account_id {label: "Integer"}
 *cloud_feed_id {label: "Integer"}
 access_token {label: "String"}
 refresh_token {label: "String"}
 auth_grant_token {label: "String, non-null"}
-activated_at {label: "Timestamp"}
 
 [EnergyQueryVariety]
 *id {label: "Integer"}
@@ -80,12 +77,6 @@ name {label: "String, unique, non-null"}
 *id {label: "Integer"}
 *energy_query_variety_id {label: "integer"}
 formula {label: "String"}
-
-[EnergyQuery]
-*id {label: "Integer"}
-+energy_query_type_id {label: "integer"}
-+account_id {label: "integer"}
-activated_at {label: "Timestamp"}
 
 [DataSourceList]
 *id {label: "Integer"}
@@ -101,6 +92,12 @@ upload_schedule {label: "text"}
 measurement_schedule {label: "text"}
 notification_threshold_duration {label: "string"}
 
+[DataSource]
+*id {label: "Integer"}
++data_source_type_id {label: "Integer, non-null"}
++account_id {label: "Integer, non-null"}
+activated_at {label: "Timestamp"}
+
 [DataSourceListItems]
 *data_source_list_id {label: "Integer"}
 *data_source_type_id {label: "Integer"}
@@ -111,13 +108,10 @@ notification_threshold_duration {label: "string"}
 
 App *--1 Campaign
 Campaign 1--* Account
-Account 1--* Device
 Device *--1 DeviceType
-Device 1--* Upload
 Upload 1--* Measurement
 Measurement *--1 Property
 CloudFeed *--1 CloudFeedType
-CloudFeed *--1 Account
 
 # Gorm (apparently) supports duplicates
 Campaign *--1 DataSourceList
@@ -128,10 +122,11 @@ DataSourceType *--1 DeviceType {label: "type id"}
 DataSourceType *--1 CloudFeedType {label: "type id"}
 DataSourceType *--1 EnergyQueryType {label: "type id"}
 
+DataSource *--1 DataSourceType
+DataSource *--1 Account
+DataSource 1--* Upload
+
 DataSourceType *--* DataSourcePrecedence
 DataSourcePrecedence *--* DataSourceType
 
 EnergyQueryVariety 1--* EnergyQueryType
-EnergyQuery *--1 EnergyQueryType
-EnergyQuery 1--* Upload
-EnergyQuery *--1 Account
