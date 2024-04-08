@@ -7,33 +7,35 @@ import (
 
 	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
 	"github.com/energietransitie/twomes-backoffice-api/services"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/shoppinglistitem"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/datasourcetype"
 	"github.com/sirupsen/logrus"
 )
 
-type ShoppingListItemHandler struct {
-	service *services.ShoppingListItemService
+type DataSourceTypeHandler struct {
+	service *services.DataSourceTypeService
 }
 
-// Create a new ShoppingListItemHandler.
-func NewShoppingListItemHandler(service *services.ShoppingListItemService) *ShoppingListItemHandler {
-	return &ShoppingListItemHandler{
+// Create a new DataSourceTypeHandler.
+func NewDataSourceTypeHandler(service *services.DataSourceTypeService) *DataSourceTypeHandler {
+	return &DataSourceTypeHandler{
 		service: service,
 	}
 }
 
-// Handle API endpoint for creating a new ShoppingListItem.
-func (h *ShoppingListItemHandler) Create(w http.ResponseWriter, r *http.Request) error {
-	var request shoppinglistitem.ShoppingListItem
+// Handle API endpoint for creating a new DataSourceType.
+func (h *DataSourceTypeHandler) Create(w http.ResponseWriter, r *http.Request) error {
+	var request datasourcetype.DataSourceType
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
 	}
 
-	shoppinglistitem, err := h.service.Create(
-		request.SourceID,
+	DataSourceType, err := h.service.Create(
+		request.TypeSourceID,
 		request.Type,
 		request.Precedes,
+		request.InstallationManualURL,
+		request.InfoURL,
 		request.UploadSchedule,
 		request.MeasurementSchedule,
 		request.NotificationThreshold,
@@ -55,7 +57,7 @@ func (h *ShoppingListItemHandler) Create(w http.ResponseWriter, r *http.Request)
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError)
 	}
 
-	err = json.NewEncoder(w).Encode(shoppinglistitem)
+	err = json.NewEncoder(w).Encode(DataSourceType)
 	if err != nil {
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
 	}
