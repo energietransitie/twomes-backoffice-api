@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"time"
+
 	"github.com/energietransitie/twomes-backoffice-api/twomes/energyquery"
 	"gorm.io/gorm"
 )
@@ -19,8 +21,10 @@ func NewEnergyQueryRepository(db *gorm.DB) *EnergyQueryRepository {
 // Database representation of a [energyquery.EnergyQuery]
 type EnergyQueryModel struct {
 	gorm.Model
-	Name    string `gorm:"unique;non null"`
-	Formula string
+	EnergyQueryTypeID uint
+	AccountID         uint
+	ActivatedAt       *time.Time
+	Uploads           []UploadModel `gorm:"foreignKey:InstanceID"`
 }
 
 // Set the name of the table in the database.
@@ -31,18 +35,14 @@ func (EnergyQueryModel) TableName() string {
 // Create a EnergyQueryModel from a [energyquery.EnergyQuery].
 func MakeEnergyQueryModel(energyQuery energyquery.EnergyQuery) EnergyQueryModel {
 	return EnergyQueryModel{
-		Model:   gorm.Model{ID: energyQuery.ID},
-		Name:    energyQuery.Name,
-		Formula: energyQuery.Formula,
+		Model: gorm.Model{ID: energyQuery.ID},
 	}
 }
 
 // Create a [energyquery.EnergyQuery] from a EnergyQueryModel.
 func (m *EnergyQueryModel) fromModel() energyquery.EnergyQuery {
 	return energyquery.EnergyQuery{
-		ID:      m.Model.ID,
-		Name:    m.Name,
-		Formula: m.Formula,
+		ID: m.Model.ID,
 	}
 }
 
