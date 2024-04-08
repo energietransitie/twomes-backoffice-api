@@ -6,7 +6,7 @@ import (
 
 	"github.com/energietransitie/twomes-backoffice-api/twomes/building"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/campaign"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeedauth"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeed"
 )
 
 var (
@@ -15,14 +15,14 @@ var (
 
 // An Account is registered to a research subject.
 type Account struct {
-	ID                 uint                          `json:"id"`
-	Campaign           campaign.Campaign             `json:"campaign"`
-	ActivatedAt        *time.Time                    `json:"activated_at"`
-	InvitationToken    string                        `json:"invitation_token,omitempty"`
-	InvitationURL      string                        `json:"invitation_url,omitempty"`
-	AuthorizationToken string                        `json:"authorization_token,omitempty"`
-	Buildings          []building.Building           `json:"buildings,omitempty"`
-	CloudFeedAuths     []cloudfeedauth.CloudFeedAuth `json:"cloud_feed_auths,omitempty"`
+	ID                 uint                  `json:"id"`
+	Campaign           campaign.Campaign     `json:"campaign"`
+	ActivatedAt        *time.Time            `json:"activated_at"`
+	InvitationToken    string                `json:"invitation_token,omitempty"`
+	InvitationURL      string                `json:"invitation_url,omitempty"`
+	AuthorizationToken string                `json:"authorization_token,omitempty"`
+	Buildings          []building.Building   `json:"buildings,omitempty"`
+	CloudFeeds         []cloudfeed.CloudFeed `json:"cloud_feeds,omitempty"`
 	// Maybe use separate pseudonym field,
 	// but right now we can derive a pseudonym
 	// using the ID or the campaign ID + account ID.

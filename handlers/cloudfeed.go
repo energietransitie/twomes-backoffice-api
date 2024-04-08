@@ -6,8 +6,10 @@ import (
 
 	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
 	"github.com/energietransitie/twomes-backoffice-api/services"
+	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeed"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/oauth2"
 )
 
 type CloudFeedHandler struct {
@@ -29,18 +31,22 @@ func (h *CloudFeedHandler) Create(w http.ResponseWriter, r *http.Request) error 
 		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
 	}
 
-	cloudFeed, err := h.service.Create(request.Name, request.AuthorizationURL, request.TokenURL, request.ClientID, request.ClientSecret, request.Scope, request.RedirectURL)
+	auth, ok := r.Context().Value(AuthorizationCtxKey).(*authorization.Authorization)
+	if !ok {
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting authentication context value")
+	}
+
+	_, err = h.service.Create(r.Context(), auth.ID, request.CloudFeedTypeID, request.AuthGrantToken)
 	if err != nil {
 		if helpers.IsMySQLDuplicateError(err) {
 			return NewHandlerError(err, "duplicate", http.StatusBadRequest)
 		}
 
-		return NewHandlerError(err, "internal server error", http.StatusInternalServerError)
-	}
+		if _, ok := err.(*oauth2.RetrieveError); ok {
+			return NewHandlerError(err, "invalid auth code exchange", http.StatusBadRequest)
+		}
 
-	err = json.NewEncoder(w).Encode(&cloudFeed)
-	if err != nil {
-		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError)
 	}
 
 	return nil
