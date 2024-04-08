@@ -1,6 +1,9 @@
 package repositories
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/energietransitie/twomes-backoffice-api/twomes/datasourcelist"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/datasourcetype"
 	"gorm.io/gorm"
@@ -58,10 +61,43 @@ func (m *DataSourceListModel) fromModel() datasourcelist.DataSourceList {
 	}
 }
 
-func (r *DataSourceListRepository) Create(datasourcelist datasourcelist.DataSourceList) (datasourcelist.DataSourceList, error) {
-	datasourceListModel := MakeDataSourceListModel(datasourcelist)
-	err := r.db.Create(&datasourceListModel).Error
-	return datasourceListModel.fromModel(), err
+func (r *DataSourceListRepository) Create(dataSourceList datasourcelist.DataSourceList) (datasourcelist.DataSourceList, error) {
+	dataSourceListModel := MakeDataSourceListModel(dataSourceList)
+	tx := r.db.Begin()
+	if err := tx.Create(&dataSourceListModel).Error; err != nil {
+		tx.Rollback()
+		return datasourcelist.DataSourceList{}, fmt.Errorf("failed to create DataSourceListModel: %w", err)
+	}
+
+	// Update order in join table
+	for _, item := range dataSourceList.Items {
+		// Find existing DataSourceTypeModel by ID
+		var dataSourceTypeModel DataSourceTypeModel
+		if err := tx.First(&dataSourceTypeModel, item.ID).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				tx.Rollback()
+				return datasourcelist.DataSourceList{}, fmt.Errorf("DataSourceTypeModel with ID %d not found: %w", item.ID, err)
+			}
+			tx.Rollback()
+			return datasourcelist.DataSourceList{}, fmt.Errorf("failed to find DataSourceTypeModel: %w", err)
+		}
+
+		//Update order
+		var existingDataSourceListItem DataSourceListItems
+		if err := tx.Where("data_source_list_model_id = ? AND data_source_type_model_id = ?", dataSourceListModel.ID, dataSourceTypeModel.ID).First(&existingDataSourceListItem).Update("order", item.Order).Error; err != nil {
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				tx.Rollback()
+				return datasourcelist.DataSourceList{}, fmt.Errorf("failed to update existing DataSourceListItems: %w", err)
+			}
+		}
+	}
+
+	// Commit the transaction
+	if err := tx.Commit().Error; err != nil {
+		return datasourcelist.DataSourceList{}, fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return dataSourceListModel.fromModel(), nil
 }
 
 func (r *DataSourceListRepository) Delete(datasourcelist datasourcelist.DataSourceList) error {

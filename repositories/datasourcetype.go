@@ -22,6 +22,7 @@ type DataSourceTypeModel struct {
 	gorm.Model
 	TypeInstanceID        uint
 	Category              datasourcetype.Category
+	Order                 uint `gorm:"-"` // Custom order for DataSourceListItems
 	InstallationManualURL string
 	FAQURL                string
 	InfoURL               string
@@ -47,6 +48,7 @@ func MakeDataSourceTypeModel(datasourcetype datasourcetype.DataSourceType) DataS
 		Model:                 gorm.Model{ID: datasourcetype.ID},
 		TypeInstanceID:        datasourcetype.TypeInstanceID,
 		Category:              datasourcetype.Category,
+		Order:                 datasourcetype.Order,
 		InstallationManualURL: datasourcetype.InstallationManualURL,
 		FAQURL:                datasourcetype.FAQURL,
 		InfoURL:               datasourcetype.InfoURL,
@@ -68,6 +70,7 @@ func (m *DataSourceTypeModel) fromModel() datasourcetype.DataSourceType {
 		ID:                    m.Model.ID,
 		TypeInstanceID:        m.TypeInstanceID,
 		Category:              m.Category,
+		Order:                 m.Order,
 		InstallationManualURL: m.InstallationManualURL,
 		FAQURL:                m.FAQURL,
 		InfoURL:               m.InfoURL,

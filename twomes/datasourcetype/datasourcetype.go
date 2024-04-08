@@ -5,6 +5,7 @@ type DataSourceType struct {
 	ID                    uint             `json:"id"`
 	TypeInstanceID        uint             `json:"type_instance_id"`
 	Category              Category         `json:"category"`
+	Order                 uint             `json:"order"`
 	InstallationManualURL string           `json:"installation_url"`
 	FAQURL                string           `json:"faq_url"`
 	InfoURL               string           `json:"info_url"`

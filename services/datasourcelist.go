@@ -26,9 +26,9 @@ func (s *DataSourceListService) Create(name string, items []datasourcetype.DataS
 		if err != nil {
 			return datasourcelist.DataSourceList{}, err
 		}
+		listItem.Order = item.Order
 		items[i] = listItem
 	}
-
 	datasourcelist := datasourcelist.MakeDataSourceList(items, name)
 	return s.repository.Create(datasourcelist)
 }
