@@ -149,8 +149,8 @@ func main() {
 
 	r.Method("POST", "/upload", deviceAuth(uploadHandler.Create)) // POST on /upload.
 
-	r.Route("/datasourcelist", func(r chi.Router) {
-		r.Method("POST", "/", adminAuth(dataSourceListHandler.Create))     // POST on /datasourcelist
+	r.Route("/datasource", func(r chi.Router) {
+		r.Method("POST", "/list", adminAuth(dataSourceListHandler.Create)) // POST on /datasourcelist
 		r.Method("POST", "/type", adminAuth(dataSourceTypeHandler.Create)) // POST on /datasourcelist/item
 	})
 
