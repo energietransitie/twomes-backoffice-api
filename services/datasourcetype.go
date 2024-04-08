@@ -10,9 +10,8 @@ type DataSourceTypeService struct {
 	repository datasourcetype.DataSourceTypeRepository
 
 	//Service for setting item types
-	deviceTypeService      *DeviceTypeService
-	cloudFeedTypeService   *CloudFeedTypeService
-	energyQueryTypeService *EnergyQueryTypeService
+	deviceTypeService    *DeviceTypeService
+	cloudFeedTypeService *CloudFeedTypeService
 }
 
 // Create a new DataSourceTypeService.
@@ -20,13 +19,11 @@ func NewDataSourceTypeService(
 	repository datasourcetype.DataSourceTypeRepository,
 	deviceTypeService *DeviceTypeService,
 	cloudFeedTypeService *CloudFeedTypeService,
-	energyQueryTypeService *EnergyQueryTypeService,
 ) *DataSourceTypeService {
 	return &DataSourceTypeService{
-		repository:             repository,
-		deviceTypeService:      deviceTypeService,
-		cloudFeedTypeService:   cloudFeedTypeService,
-		energyQueryTypeService: energyQueryTypeService,
+		repository:           repository,
+		deviceTypeService:    deviceTypeService,
+		cloudFeedTypeService: cloudFeedTypeService,
 	}
 }
 
@@ -88,7 +85,6 @@ func (s *DataSourceTypeService) GetSourceByID(sourceID uint) (Source, error) {
 	sources := []Source{
 		s.deviceTypeService,
 		s.cloudFeedTypeService,
-		s.energyQueryTypeService,
 	}
 
 	for _, src := range sources {
@@ -105,7 +101,6 @@ func (s *DataSourceTypeService) GetSourceByIDAndTable(sourceID uint, table strin
 	sources := []Source{
 		s.deviceTypeService,
 		s.cloudFeedTypeService,
-		s.energyQueryTypeService,
 	}
 
 	var selectedSource Source

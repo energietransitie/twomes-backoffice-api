@@ -76,22 +76,16 @@ func main() {
 	deviceRepository := repositories.NewDeviceRepository(db)
 	dataSourceListRepository := repositories.NewDataSourceListRepository(db)
 	dataSourceTypeRepository := repositories.NewDataSourceTypeRepository(db)
-	energyQueryRepository := repositories.NewEnergyQueryRepository(db)
-	energyQueryTypeRepository := repositories.NewEnergyQueryTypeRepository(db)
-	energyQueryVarietyRepository := repositories.NewEnergyQueryVarietyRepository(db)
 
 	//Services
 	appService := services.NewAppService(appRepository)
 	cloudFeedTypeService := services.NewCloudFeedTypeService(cloudFeedTypeRepository)
 	propertyService := services.NewPropertyService(propertyRepository)
 	deviceTypeService := services.NewDeviceTypeService(deviceTypeRepository, propertyService)
-	energyQueryTypeService := services.NewEnergyQueryTypeService(energyQueryTypeRepository)
-	energyQueryVarietyService := services.NewEnergyQueryVarietyService(energyQueryVarietyRepository)
 	dataSourceTypeService := services.NewDataSourceTypeService(
 		dataSourceTypeRepository,
 		deviceTypeService,
 		cloudFeedTypeService,
-		energyQueryTypeService,
 	)
 	dataSourceListService := services.NewDataSourceListService(dataSourceListRepository, dataSourceTypeService)
 	campaignService := services.NewCampaignService(campaignRepository, appService, dataSourceListService)
@@ -99,7 +93,6 @@ func main() {
 	cloudFeedService := services.NewCloudFeedService(cloudFeedRepository, cloudFeedTypeRepository, uploadService)
 	buildingService := services.NewBuildingService(buildingRepository, uploadService)
 	accountService := services.NewAccountService(accountRepository, authService, appService, campaignService, buildingService, cloudFeedService, dataSourceTypeService)
-	energyQueryService := services.NewEnergyQueryService(energyQueryRepository, accountService, energyQueryTypeService, uploadService)
 	deviceService := services.NewDeviceService(deviceRepository, authService, deviceTypeService, buildingService, uploadService)
 
 	//Handlers
@@ -114,9 +107,6 @@ func main() {
 	deviceHandler := handlers.NewDeviceHandler(deviceService)
 	dataSourceListHandler := handlers.NewDataSourceListHandler(dataSourceListService)
 	dataSourceTypeHandler := handlers.NewDataSourceTypeHandler(dataSourceTypeService)
-	energyQueryHandler := handlers.NewEnergyQueryHandler(energyQueryService)
-	energyQueryTypeHandler := handlers.NewEnergyQueryTypeHandler(energyQueryTypeService)
-	energyQueryVarietyhandler := handlers.NewEnergyQueryVarietyHandler(energyQueryVarietyService)
 
 	go cloudFeedService.RefreshTokensInBackground(ctx, preRenewalDuration)
 	go cloudFeedService.DownloadInBackground(ctx, config.downloadStartTime)
@@ -162,13 +152,6 @@ func main() {
 	r.Route("/datasourcelist", func(r chi.Router) {
 		r.Method("POST", "/", adminAuth(dataSourceListHandler.Create))     // POST on /datasourcelist
 		r.Method("POST", "/type", adminAuth(dataSourceTypeHandler.Create)) // POST on /datasourcelist/item
-	})
-
-	r.Route("/energyquery", func(r chi.Router) {
-		r.Method("POST", "/", adminAuth(energyQueryHandler.Create)) // POST on /energyquery
-		//r.Method("POST", "/upload", accountAuth(energyQueryUploadHandler.Create)) // POST on /energyquery/upload.
-		r.Method("POST", "/type", adminAuth(energyQueryTypeHandler.Create))       // POST on /energyquery/upload.
-		r.Method("POST", "/variety", adminAuth(energyQueryVarietyhandler.Create)) // POST on /energyquery/upload.
 	})
 
 	setupSwaggerDocs(r, config.BaseURL)
