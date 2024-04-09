@@ -63,6 +63,17 @@ func (m *DataSourceListModel) fromModel() datasourcelist.DataSourceList {
 
 func (r *DataSourceListRepository) Create(dataSourceList datasourcelist.DataSourceList) (datasourcelist.DataSourceList, error) {
 	dataSourceListModel := MakeDataSourceListModel(dataSourceList)
+
+	// Check for duplicate orders
+	orderMap := make(map[uint]bool)
+	orderMap[0] = true
+	for _, item := range dataSourceList.Items {
+		if orderMap[item.Order] && item.Order != 0 {
+			return datasourcelist.DataSourceList{}, fmt.Errorf("duplicate order found: %d", item.Order)
+		}
+		orderMap[item.Order] = true
+	}
+
 	tx := r.db.Begin()
 	if err := tx.Create(&dataSourceListModel).Error; err != nil {
 		tx.Rollback()
@@ -82,12 +93,30 @@ func (r *DataSourceListRepository) Create(dataSourceList datasourcelist.DataSour
 			return datasourcelist.DataSourceList{}, fmt.Errorf("failed to find DataSourceTypeModel: %w", err)
 		}
 
+		orderNumber, _ := findMaxKey(orderMap)
+		//Autoincrement if order is set to 0
+		if item.Order == 0 {
+			orderNumber = orderNumber + 1
+			orderMap[orderNumber] = true
+			item.Order = orderNumber
+		} else {
+			orderNumber = item.Order
+		}
+
 		//Update order
 		var existingDataSourceListItem DataSourceListItems
-		if err := tx.Where("data_source_list_model_id = ? AND data_source_type_model_id = ?", dataSourceListModel.ID, dataSourceTypeModel.ID).First(&existingDataSourceListItem).Update("order", item.Order).Error; err != nil {
+		if err := tx.Where("data_source_list_model_id = ? AND data_source_type_model_id = ?", dataSourceListModel.ID, dataSourceTypeModel.ID).First(&existingDataSourceListItem).Update("order", orderNumber).Error; err != nil {
 			if !errors.Is(err, gorm.ErrRecordNotFound) {
 				tx.Rollback()
 				return datasourcelist.DataSourceList{}, fmt.Errorf("failed to update existing DataSourceListItems: %w", err)
+			}
+		}
+
+		// Update order directly in dataSourceListModel.Items so we can return it in the response
+		for idx := range dataSourceListModel.Items {
+			if dataSourceListModel.Items[idx].ID == dataSourceTypeModel.ID {
+				dataSourceListModel.Items[idx].Order = orderNumber
+				break
 			}
 		}
 	}
@@ -125,4 +154,20 @@ func (r *DataSourceListRepository) GetAll() ([]datasourcelist.DataSourceList, er
 	}
 
 	return datasourceLists, nil
+}
+
+func findMaxKey(orderMap map[uint]bool) (uint, error) {
+	if len(orderMap) == 0 {
+		return 0, fmt.Errorf("map is empty")
+	}
+
+	var maxKey uint
+
+	for key := range orderMap {
+		if key > maxKey {
+			maxKey = key
+		}
+	}
+
+	return maxKey, nil
 }
