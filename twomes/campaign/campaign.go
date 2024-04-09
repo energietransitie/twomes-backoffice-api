@@ -15,7 +15,7 @@ type Campaign struct {
 	InfoURL        string                        `json:"info_url"`
 	StartTime      *time.Time                    `json:"start_time,omitempty"`
 	EndTime        *time.Time                    `json:"end_time,omitempty"`
-	DataSourceList datasourcelist.DataSourceList `json:"data_sources_list"`
+	DataSourceList datasourcelist.DataSourceList `json:"data_source_list"`
 }
 
 // Create a new Campaign.
