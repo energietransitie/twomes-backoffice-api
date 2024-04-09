@@ -44,7 +44,8 @@ const (
 var (
 	baseURL = "https://enelogic.com/api"
 
-	ErrNoData = errors.New("no data from enelogic")
+	ErrNoData        = errors.New("no data from enelogic")
+	ErrInvalidPeriod = errors.New("invalid period")
 )
 
 // EnelogicTime is a custom time type for enelogic.
@@ -221,15 +222,21 @@ func newRequestArgs(measuringPointID int, from, to time.Time) RequestArgs {
 // A slice of measurements is returned, which can be saved to the database.
 //
 // StartPeriod is the start of the period from which data should be downloaded.
-func Download(ctx context.Context, token string, startPeriod time.Time) ([]measurement.Measurement, error) {
+// EndPeriod is the end of the period from which data should be downloaded.
+// If EndPeriod is the zero value, the current time is used.
+func Download(ctx context.Context, token string, startPeriod time.Time, endPeriod time.Time) ([]measurement.Measurement, error) {
 	var measurements []measurement.Measurement
 	isFirstDownload := startPeriod.IsZero()
 
 	if isFirstDownload {
-		startPeriod = time.Now().AddDate(-1, -2, 0)
+		startPeriod = endPeriod.AddDate(-1, -2, 0)
 	}
 
-	if dateEqual(startPeriod, time.Now()) {
+	if endPeriod.Before(startPeriod) {
+		return nil, fmt.Errorf("%w: end period is before start period", ErrInvalidPeriod)
+	}
+
+	if dateEqual(startPeriod, endPeriod) {
 		return nil, ErrNoData
 	}
 
@@ -245,10 +252,10 @@ func Download(ctx context.Context, token string, startPeriod time.Time) ([]measu
 	for _, measuringPoint := range measuringPoints {
 		// Get month datapoints.
 		// Only get month datapoints on the first download or the first day of the month.
-		if time.Now().Day() == 1 || isFirstDownload {
-			logrus.Infoln("downloading", measuringPoint.UnitType.String(), "month datapoints from", RequestTime{startPeriod}, "to", RequestTime{time.Now()})
+		if endPeriod.Day() == 1 || isFirstDownload {
+			logrus.Infoln("downloading", measuringPoint.UnitType.String(), "month datapoints from", RequestTime{startPeriod}, "to", RequestTime{endPeriod})
 
-			args := newRequestArgs(measuringPoint.ID, startPeriod, time.Now())
+			args := newRequestArgs(measuringPoint.ID, startPeriod, endPeriod)
 			datapoints, err := getDatapoints(ctx, token, endpointDatapointsMonths, args)
 			if err != nil {
 				return nil, fmt.Errorf("error getting month datapoints: %w", err)
@@ -257,43 +264,37 @@ func Download(ctx context.Context, token string, startPeriod time.Time) ([]measu
 		}
 
 		// Get day datapoints.
-		{
-			// Shadow startPeriod to avoid changing the original value. This is needed for the next iteration.
-			startPeriod := startPeriod
-			if time.Since(startPeriod) > Day*40 {
-				// Set startPeriod to 40 days ago, if the real startPeriod is more than 40 days ago.
-				startPeriod = time.Now().Add(-Day * 40)
-			}
-
-			logrus.Infoln("downloading", measuringPoint.UnitType.String(), "day datapoints from", RequestTime{startPeriod}, "to", RequestTime{time.Now()})
-
-			args := newRequestArgs(measuringPoint.ID, startPeriod, time.Now())
-			datapoints, err := getDatapoints(ctx, token, endpointDatapointsDays, args)
-			if err != nil {
-				return nil, fmt.Errorf("error getting day datapoints: %w", err)
-			}
-			measurements = append(measurements, parseDatapoints(datapoints, measuringPoint.UnitType)...)
+		dayStartPeriod := startPeriod
+		if time.Since(dayStartPeriod) > Day*40 {
+			// Set dayStartPeriod to 40 days ago, if the real dayStartPeriod is more than 40 days ago.
+			dayStartPeriod = endPeriod.Add(-Day * 40)
 		}
 
+		logrus.Infoln("downloading", measuringPoint.UnitType.String(), "day datapoints from", RequestTime{dayStartPeriod}, "to", RequestTime{endPeriod})
+
+		args := newRequestArgs(measuringPoint.ID, dayStartPeriod, endPeriod)
+		datapoints, err := getDatapoints(ctx, token, endpointDatapointsDays, args)
+		if err != nil {
+			return nil, fmt.Errorf("error getting day datapoints: %w", err)
+		}
+		measurements = append(measurements, parseDatapoints(datapoints, measuringPoint.UnitType)...)
+
 		// Get interval datapoints.
-		{
-			// Shadow startPeriod to avoid changing the original value. This is needed for the next iteration.
-			startPeriod := startPeriod
-			if time.Since(startPeriod) > Day*10 {
-				// Set startPeriod to 10 days ago, if the real startPeriod is more than 10 days ago.
-				startPeriod = time.Now().Add(-Day * 10)
-			}
+		intervalStartPeriod := startPeriod
+		if time.Since(intervalStartPeriod) > Day*10 {
+			// Set intervalStartPeriod to 10 days ago, if the real intervalStartPeriod is more than 10 days ago.
+			intervalStartPeriod = endPeriod.Add(-Day * 10)
+		}
 
-			logrus.Infoln("downloading", measuringPoint.UnitType.String(), "interval datapoints from", RequestTime{startPeriod}, "to", RequestTime{time.Now()})
+		logrus.Infoln("downloading", measuringPoint.UnitType.String(), "interval datapoints from", RequestTime{intervalStartPeriod}, "to", RequestTime{endPeriod})
 
-			for _, day := range splitDays(startPeriod, time.Now()) {
-				args := newRequestArgs(measuringPoint.ID, day.Start, day.End)
-				datapoints, err := getDatapoints(ctx, token, endpointDatapointsInterval, args)
-				if err != nil {
-					return nil, fmt.Errorf("error getting interval datapoints: %w", err)
-				}
-				measurements = append(measurements, parseDatapoints(datapoints, measuringPoint.UnitType)...)
+		for _, day := range splitDays(intervalStartPeriod, endPeriod) {
+			args := newRequestArgs(measuringPoint.ID, day.Start, day.End)
+			datapoints, err := getDatapoints(ctx, token, endpointDatapointsInterval, args)
+			if err != nil {
+				return nil, fmt.Errorf("error getting interval datapoints: %w", err)
 			}
+			measurements = append(measurements, parseDatapoints(datapoints, measuringPoint.UnitType)...)
 		}
 	}
 

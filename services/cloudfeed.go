@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	CloudFeedDownloadInterval = time.Hour * 24
+	CloudFeedTypeDownloadInterval = time.Hour * 24
 )
 
 var (
@@ -92,7 +92,7 @@ func (s *CloudFeedService) Find(cloudFeed cloudfeed.CloudFeed) (cloudfeed.CloudF
 	return s.cloudFeedRepo.Find(cloudFeed)
 }
 
-// Refresh the tokens for the CloudFeedAuth corresponding to accountID and cloudFeedID.
+// Refresh the tokens for the CloudFeed corresponding to accountID and cloudFeedTypeID.
 func (s *CloudFeedService) RefreshTokens(ctx context.Context, accountID uint, cloudFeedTypeID uint) (cloudfeed.CloudFeed, error) {
 	logrus.Infoln("refreshing token for accountID", accountID, "cloudFeedTypeID", cloudFeedTypeID)
 
@@ -176,7 +176,7 @@ func (s *CloudFeedService) RefreshTokens(ctx context.Context, accountID uint, cl
 func (s *CloudFeedService) RefreshTokensInBackground(ctx context.Context, preRenewalDuration time.Duration) {
 refreshLoop:
 	for {
-		accountID, cloudFeedID, expiry, err := s.cloudFeedRepo.FindFirstTokenToExpire()
+		accountID, cloudFeedTypeID, expiry, err := s.cloudFeedRepo.FindFirstTokenToExpire()
 		if err != nil {
 			logrus.Infoln("no cloud feed auths found in database. not doing anything until one is added")
 			select {
@@ -193,7 +193,7 @@ refreshLoop:
 			// Wait 10 seconds to prevent a possible flood of refresh requests.
 			time.Sleep(time.Second * 10)
 
-			_, err = s.RefreshTokens(ctx, accountID, cloudFeedID)
+			_, err = s.RefreshTokens(ctx, accountID, cloudFeedTypeID)
 			if err != nil {
 				logrus.Warningln(err)
 			}
@@ -206,7 +206,7 @@ refreshLoop:
 
 		select {
 		case <-expiryTimer.C:
-			_, err = s.RefreshTokens(ctx, accountID, cloudFeedID)
+			_, err = s.RefreshTokens(ctx, accountID, cloudFeedTypeID)
 			if err != nil {
 				logrus.Warningln(err)
 			}
@@ -246,10 +246,10 @@ func (s *CloudFeedService) DownloadInBackground(ctx context.Context, downloadSta
 		return
 	}
 
-	ticker := time.NewTicker(CloudFeedDownloadInterval)
+	ticker := time.NewTicker(CloudFeedTypeDownloadInterval)
 
 	for {
-		waitTime = time.Until(time.Now().Add(CloudFeedDownloadInterval))
+		waitTime = time.Until(time.Now().Add(CloudFeedTypeDownloadInterval))
 		logrus.Infoln("waiting", waitTime.String(), "to download data from cloud feeds")
 
 		select {
@@ -273,8 +273,6 @@ func (s *CloudFeedService) download(ctx context.Context) error {
 	logrus.Infoln("starting download of data from cloud feeds")
 
 	for _, cfa := range cloudFeeds {
-		logrus.Infoln("downloading data from cloud feed auth with accountID", cfa.AccountID, "cloudFeedTypeID", cfa.CloudFeedTypeID)
-
 		device, err := s.cloudFeedRepo.FindDevice(cfa)
 		if err != nil {
 			logrus.Warningln("error finding device for cloud feed auth:", err)
@@ -291,30 +289,44 @@ func (s *CloudFeedService) download(ctx context.Context) error {
 			*latestUpload = NoLatestUploadTime
 		}
 
-		measurements, err := enelogic.Download(ctx, cfa.AccessToken, *latestUpload)
+		err = s.Download(ctx, cfa, *latestUpload, time.Now())
 		if err != nil {
-			if err == enelogic.ErrNoData {
-				logrus.Infoln("no (new) data found for cloud feed auth with accountID", cfa.AccountID, "cloudFeedTypeID", cfa.CloudFeedTypeID)
-			}
-			logrus.Warnln(err)
-			continue
+			logrus.Warningln(err)
 		}
+	}
 
-		if len(measurements) == 0 {
+	return nil
+}
+
+// Download data from a cloud feed using the cloud feed auth and store it in the database.
+// startPeriod and endPeriod are the time periods for which data should be downloaded.
+func (s *CloudFeedService) Download(ctx context.Context, cfa cloudfeed.CloudFeed, startPeriod time.Time, endPeriod time.Time) error {
+	logrus.Infoln("downloading data from cloud feed auth with accountID", cfa.AccountID, "cloudFeedTypeID", cfa.CloudFeedTypeID)
+
+	device, err := s.cloudFeedRepo.FindDevice(cfa)
+	if err != nil {
+		return fmt.Errorf("error finding device for cloud feed auth: %w", err)
+	}
+
+	measurements, err := enelogic.Download(ctx, cfa.AccessToken, startPeriod, endPeriod)
+	if err != nil {
+		if err == enelogic.ErrNoData {
 			logrus.Infoln("no (new) data found for cloud feed auth with accountID", cfa.AccountID, "cloudFeedTypeID", cfa.CloudFeedTypeID)
-			continue
 		}
+		return err
+	}
 
-		upload, err := s.uploadService.Create(device.ID, twomes.Time(time.Now()), measurements)
-		if err != nil {
-			logrus.Warningln("error creating upload:", err)
-			continue
-		}
+	if len(measurements) == 0 {
+		return errors.New(fmt.Sprint("no (new) data found for cloud feed auth with accountID", cfa.AccountID, "cloudFeedTypeID", cfa.CloudFeedTypeID))
+	}
 
-		if upload.Size != len(measurements) {
-			logrus.Errorln("upload size", upload.Size, "does not match number of measurements", len(measurements))
-			continue
-		}
+	upload, err := s.uploadService.Create(device.ID, twomes.Time(time.Now()), measurements)
+	if err != nil {
+		return errors.New(fmt.Sprint("error creating upload:", err))
+	}
+
+	if upload.Size != len(measurements) {
+		return errors.New(fmt.Sprint("upload size", upload.Size, "does not match number of measurements", len(measurements)))
 	}
 
 	return nil
