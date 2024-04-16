@@ -1,10 +1,12 @@
 package repositories
 
 // Custom Many2Many table to support duplicates and list order
+//Yes, it is unfortunate that we have to do it manual since Gorm will throw a tantrum and make duplicate entries among other things
 type DataSourceListItems struct {
-	DataSourceListModelID uint `gorm:"primaryKey;autoIncrement:false;"`
-	DataSourceTypeModelID uint `gorm:"primaryKey;autoIncrement:false;"`
-	Order                 uint `gorm:"primaryKey;autoIncrement:false;default:0;"`
+	ID                    uint
+	DataSourceListModelID uint
+	DataSourceTypeModelID uint
+	Order                 uint
 }
 
 func (DataSourceListItems) TableName() string {

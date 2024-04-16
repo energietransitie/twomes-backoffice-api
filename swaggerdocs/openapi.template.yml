@@ -120,8 +120,11 @@ paths:
                   type: string
                   example: https://www.energietransitiewindesheim.nl/test-campaign-1
                 data_source_list:
-                  type: integer
-                  example: 1        
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1        
       responses:
         "200":
           description: OK

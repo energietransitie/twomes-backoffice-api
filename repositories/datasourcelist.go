@@ -1,7 +1,6 @@
 package repositories
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/energietransitie/twomes-backoffice-api/twomes/datasourcelist"
@@ -22,8 +21,8 @@ func NewDataSourceListRepository(db *gorm.DB) *DataSourceListRepository {
 // Database representation of a [datasourcelist.DataSourceList].
 type DataSourceListModel struct {
 	gorm.Model
-	Items    []DataSourceTypeModel `gorm:"many2many:data_source_list_items;"`
-	Campaign []CampaignModel       `gorm:"foreignKey:DataSourceListID"`
+	Items    []DataSourceListItems
+	Campaign []CampaignModel `gorm:"foreignKey:DataSourceListID"`
 	Name     string
 }
 
@@ -34,99 +33,123 @@ func (DataSourceListModel) TableName() string {
 
 // Create a new DataSourceListModel from a [datasourcelist.DataSourceList]
 func MakeDataSourceListModel(dataSourceList datasourcelist.DataSourceList) DataSourceListModel {
-	var dataSourceTypeModels []DataSourceTypeModel
+	var dataSourceListItems []DataSourceListItems
+
 	for _, item := range dataSourceList.Items {
-		dataSourceTypeModels = append(dataSourceTypeModels, MakeDataSourceTypeModel(item))
+		dataSourceListItems = append(dataSourceListItems, DataSourceListItems{
+			DataSourceListModelID: dataSourceList.ID,
+			DataSourceTypeModelID: item.ID,
+			Order:                 item.Order,
+		})
 	}
 
 	return DataSourceListModel{
 		Model: gorm.Model{ID: dataSourceList.ID},
 		Name:  dataSourceList.Name,
-		Items: dataSourceTypeModels,
+		Items: dataSourceListItems,
 	}
 }
 
 // Create a [datasourcelist.DataSourceList] from a DataSourceListModel.
-func (m *DataSourceListModel) fromModel() datasourcelist.DataSourceList {
-	var items []datasourcetype.DataSourceType
+func (m *DataSourceListModel) fromModel(db *gorm.DB) datasourcelist.DataSourceList {
+	var dataSourceListItems []datasourcetype.DataSourceType
 
-	for _, datasourceListItemModel := range m.Items {
-		items = append(items, datasourceListItemModel.fromModel())
+	// Initialize DataSourceList object
+	dataSourceList := datasourcelist.DataSourceList{
+		ID:   m.Model.ID,
+		Name: m.Name,
 	}
 
-	return datasourcelist.DataSourceList{
-		ID:    m.Model.ID,
-		Name:  m.Name,
-		Items: items,
+	for _, item := range m.Items {
+		var dataSourceType DataSourceTypeModel
+
+		// Fetch DataSourceTypeModel and Order using JOIN and Preload
+		if err := db.
+			Preload("Precedes").
+			First(&dataSourceType, item.DataSourceTypeModelID).
+			Error; err != nil {
+			// Handle error, e.g., log the error or return empty list
+			fmt.Printf("Error fetching DataSourceType for item %d: %s\n", item.ID, err)
+			continue // Skip this item and proceed with the next one
+		}
+
+		var dataSourceListItem DataSourceListItems
+		if err := db.
+			Where("data_source_list_model_id = ? AND data_source_type_model_id = ?", m.Model.ID, item.DataSourceTypeModelID).
+			First(&dataSourceListItem).
+			Error; err != nil {
+			fmt.Printf("Error fetching DataSourceListItems for item %d: %s\n", item.ID, err)
+			continue // Skip this item and proceed with the next one
+		}
+
+		// Convert DataSourceTypeModel to DataSourceType and append to the list
+		dataSourceTypeModel := dataSourceType.fromModel()
+		dataSourceTypeModel.Order = dataSourceListItem.Order
+		dataSourceListItems = append(dataSourceListItems, dataSourceTypeModel)
 	}
+
+	// Set the populated Items list to the DataSourceList object
+	dataSourceList.Items = dataSourceListItems
+
+	return dataSourceList
 }
 
 func (r *DataSourceListRepository) Create(dataSourceList datasourcelist.DataSourceList) (datasourcelist.DataSourceList, error) {
-	dataSourceListModel := MakeDataSourceListModel(dataSourceList)
-
 	// Check for duplicate orders
 	orderMap := make(map[uint]bool)
-	orderMap[0] = true
+	orderMap[0] = true //Gorm decoder makes it always 0, making a custom decoder to make it -1 should be done in the future
 	for _, item := range dataSourceList.Items {
 		if orderMap[item.Order] && item.Order != 0 {
 			return datasourcelist.DataSourceList{}, fmt.Errorf("duplicate order found: %d", item.Order)
 		}
 		orderMap[item.Order] = true
 	}
-
 	tx := r.db.Begin()
+
+	// Defer rollback in case of error
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	// Create DataSourceListModel instance
+	dataSourceListModel := MakeDataSourceListModel(datasourcelist.DataSourceList{Name: dataSourceList.Name})
 	if err := tx.Create(&dataSourceListModel).Error; err != nil {
 		tx.Rollback()
-		return datasourcelist.DataSourceList{}, fmt.Errorf("failed to create DataSourceListModel: %w", err)
+		return datasourcelist.DataSourceList{}, err
 	}
+	dataSourceListModel = MakeDataSourceListModel(datasourcelist.DataSourceList{ID: dataSourceListModel.ID, Name: dataSourceListModel.Name, Items: dataSourceList.Items})
 
-	// Update order in join table
+	// Create DataSourceListItems (relationship between DataSourceListModel and DataSourceTypeModel)
 	for _, item := range dataSourceList.Items {
-		// Find existing DataSourceTypeModel by ID
-		var dataSourceTypeModel DataSourceTypeModel
-		if err := tx.First(&dataSourceTypeModel, item.ID).Error; err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				tx.Rollback()
-				return datasourcelist.DataSourceList{}, fmt.Errorf("DataSourceTypeModel with ID %d not found: %w", item.ID, err)
-			}
-			tx.Rollback()
-			return datasourcelist.DataSourceList{}, fmt.Errorf("failed to find DataSourceTypeModel: %w", err)
-		}
-
 		orderNumber, _ := findMaxKey(orderMap)
-		//Autoincrement if order is set to 0
+
 		if item.Order == 0 {
-			orderNumber = orderNumber + 1
+			orderNumber++
 			orderMap[orderNumber] = true
 			item.Order = orderNumber
 		} else {
 			orderNumber = item.Order
 		}
 
-		//Update order
-		var existingDataSourceListItem DataSourceListItems
-		if err := tx.Where("data_source_list_model_id = ? AND data_source_type_model_id = ?", dataSourceListModel.ID, dataSourceTypeModel.ID).First(&existingDataSourceListItem).Update("order", orderNumber).Error; err != nil {
-			if !errors.Is(err, gorm.ErrRecordNotFound) {
-				tx.Rollback()
-				return datasourcelist.DataSourceList{}, fmt.Errorf("failed to update existing DataSourceListItems: %w", err)
-			}
+		dataSourceListItems := DataSourceListItems{
+			DataSourceListModelID: dataSourceListModel.ID,
+			DataSourceTypeModelID: item.ID,
+			Order:                 orderNumber,
 		}
-
-		// Update order directly in dataSourceListModel.Items so we can return it in the response
-		for idx := range dataSourceListModel.Items {
-			if dataSourceListModel.Items[idx].ID == dataSourceTypeModel.ID {
-				dataSourceListModel.Items[idx].Order = orderNumber
-				break
-			}
+		if err := tx.Create(&dataSourceListItems).Error; err != nil {
+			tx.Rollback()
+			return datasourcelist.DataSourceList{}, err
 		}
 	}
 
 	// Commit the transaction
 	if err := tx.Commit().Error; err != nil {
-		return datasourcelist.DataSourceList{}, fmt.Errorf("failed to commit transaction: %w", err)
+		return datasourcelist.DataSourceList{}, err
 	}
 
-	return dataSourceListModel.fromModel(), nil
+	return dataSourceListModel.fromModel(r.db), nil
 }
 
 func (r *DataSourceListRepository) Delete(datasourcelist datasourcelist.DataSourceList) error {
@@ -136,21 +159,21 @@ func (r *DataSourceListRepository) Delete(datasourcelist datasourcelist.DataSour
 
 func (r *DataSourceListRepository) Find(datasourceList datasourcelist.DataSourceList) (datasourcelist.DataSourceList, error) {
 	datasourceListModel := MakeDataSourceListModel(datasourceList)
-	err := r.db.Where(&datasourceListModel).First(&datasourceListModel).Error
-	return datasourceListModel.fromModel(), err
+	err := r.db.Preload("Items").Where(&datasourceListModel).First(&datasourceListModel).Error
+	return datasourceListModel.fromModel(r.db), err
 }
 
 func (r *DataSourceListRepository) GetAll() ([]datasourcelist.DataSourceList, error) {
 	var datasourceLists []datasourcelist.DataSourceList
 
 	var datasourceListsModels []DataSourceListModel
-	err := r.db.Find(&datasourceListsModels).Error
+	err := r.db.Preload("Items").Find(&datasourceListsModels).Error
 	if err != nil {
 		return nil, err
 	}
 
 	for _, datasourceListModel := range datasourceListsModels {
-		datasourceLists = append(datasourceLists, datasourceListModel.fromModel())
+		datasourceLists = append(datasourceLists, datasourceListModel.fromModel(r.db))
 	}
 
 	return datasourceLists, nil

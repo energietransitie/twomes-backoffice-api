@@ -21,15 +21,16 @@ func NewDataSourceListService(repository datasourcelist.DataSourceListRepository
 }
 
 func (s *DataSourceListService) Create(name string, items []datasourcetype.DataSourceType) (datasourcelist.DataSourceList, error) {
-	for i, item := range items {
+	var dataSourceListItems []datasourcetype.DataSourceType
+	for _, item := range items {
 		listItem, err := s.shoppingListItemService.Find(item)
 		if err != nil {
 			return datasourcelist.DataSourceList{}, err
 		}
 		listItem.Order = item.Order
-		items[i] = listItem
+		dataSourceListItems = append(dataSourceListItems, listItem)
 	}
-	datasourcelist := datasourcelist.MakeDataSourceList(items, name)
+	datasourcelist := datasourcelist.MakeDataSourceList(dataSourceListItems, name)
 	return s.repository.Create(datasourcelist)
 }
 

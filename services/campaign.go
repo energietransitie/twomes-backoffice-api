@@ -6,6 +6,7 @@ import (
 	"github.com/energietransitie/twomes-backoffice-api/twomes/app"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/campaign"
 	"github.com/energietransitie/twomes-backoffice-api/twomes/datasourcelist"
+	"github.com/sirupsen/logrus"
 )
 
 type CampaignService struct {
@@ -47,9 +48,13 @@ func (s *CampaignService) Create(
 	if err != nil {
 		return campaign.Campaign{}, err
 	}
-
+	logrus.Info(foundDataSourceList)
 	campaign := campaign.MakeCampaign(name, app, infoURL, startTime, endTime, foundDataSourceList)
-	return s.repository.Create(campaign)
+
+	campaignCreated, err := s.repository.Create(campaign)
+	campaignCreated.DataSourceList = foundDataSourceList
+
+	return campaignCreated, err
 }
 
 // Find a campaign using any field set in the campaign struct.
