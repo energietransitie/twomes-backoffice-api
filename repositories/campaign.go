@@ -27,7 +27,6 @@ type CampaignModel struct {
 	StartTime        *time.Time
 	EndTime          *time.Time
 	DataSourceListID uint
-	DataSourceList   DataSourceListModel `gorm:"foreignkey:DataSourceListID"`
 }
 
 // Set the name of the table in the database.
@@ -48,12 +47,11 @@ func MakeCampaignModel(campaign campaign.Campaign) CampaignModel {
 		StartTime:        campaign.StartTime,
 		EndTime:          campaign.EndTime,
 		DataSourceListID: campaign.DataSourceList.ID,
-		DataSourceList:   MakeDataSourceListModel(campaign.DataSourceList),
 	}
 }
 
 // Create a [campaign.Campaign] from an CampaignModel.
-func (m *CampaignModel) fromModel() campaign.Campaign {
+func (m *CampaignModel) fromModel(db *gorm.DB) campaign.Campaign {
 	return campaign.Campaign{
 		ID:             m.ID,
 		Name:           m.Name,
@@ -61,14 +59,13 @@ func (m *CampaignModel) fromModel() campaign.Campaign {
 		InfoURL:        m.InfoURL,
 		StartTime:      m.StartTime,
 		EndTime:        m.EndTime,
-		DataSourceList: m.DataSourceList.fromModel(),
 	}
 }
 
 func (r *CampaignRepository) Find(campaign campaign.Campaign) (campaign.Campaign, error) {
 	campaignModel := MakeCampaignModel(campaign)
 	err := r.db.Preload("App").Preload("DataSourceList").Where(&campaignModel).First(&campaignModel).Error
-	return campaignModel.fromModel(), err
+	return campaignModel.fromModel(r.db), err
 }
 
 func (r *CampaignRepository) GetAll() ([]campaign.Campaign, error) {
@@ -81,7 +78,7 @@ func (r *CampaignRepository) GetAll() ([]campaign.Campaign, error) {
 	}
 
 	for _, campaignModel := range campaignModels {
-		campaigns = append(campaigns, campaignModel.fromModel())
+		campaigns = append(campaigns, campaignModel.fromModel(r.db))
 	}
 
 	return campaigns, nil
@@ -90,7 +87,7 @@ func (r *CampaignRepository) GetAll() ([]campaign.Campaign, error) {
 func (r *CampaignRepository) Create(campaign campaign.Campaign) (campaign.Campaign, error) {
 	campaignModel := MakeCampaignModel(campaign)
 	err := r.db.Create(&campaignModel).Error
-	return campaignModel.fromModel(), err
+	return campaignModel.fromModel(r.db), err
 }
 
 func (r *CampaignRepository) Delete(campaign campaign.Campaign) error {

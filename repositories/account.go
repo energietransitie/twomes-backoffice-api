@@ -54,7 +54,7 @@ func MakeAccountModel(account account.Account) AccountModel {
 }
 
 // Create a [account.Account] from an AccountModel.
-func (m *AccountModel) fromModel() account.Account {
+func (m *AccountModel) fromModel(db *gorm.DB) account.Account {
 	var buildings []building.Building
 
 	for _, buildingModel := range m.Buildings {
@@ -63,7 +63,7 @@ func (m *AccountModel) fromModel() account.Account {
 
 	return account.Account{
 		ID:          m.Model.ID,
-		Campaign:    m.Campaign.fromModel(),
+		Campaign:    m.Campaign.fromModel(db),
 		ActivatedAt: m.ActivatedAt,
 		Buildings:   buildings,
 	}
@@ -72,7 +72,7 @@ func (m *AccountModel) fromModel() account.Account {
 func (r *AccountRepository) Find(account account.Account) (account.Account, error) {
 	accountModel := MakeAccountModel(account)
 	err := r.db.Preload("Campaign.App").Preload("Buildings").Where(&accountModel).First(&accountModel).Error
-	return accountModel.fromModel(), err
+	return accountModel.fromModel(r.db), err
 }
 
 func (r *AccountRepository) GetAll() ([]account.Account, error) {
@@ -85,7 +85,7 @@ func (r *AccountRepository) GetAll() ([]account.Account, error) {
 	}
 
 	for _, accountModel := range accountModels {
-		accounts = append(accounts, accountModel.fromModel())
+		accounts = append(accounts, accountModel.fromModel(r.db))
 	}
 
 	return accounts, nil
@@ -94,13 +94,13 @@ func (r *AccountRepository) GetAll() ([]account.Account, error) {
 func (r *AccountRepository) Create(account account.Account) (account.Account, error) {
 	accountModel := MakeAccountModel(account)
 	err := r.db.Create(&accountModel).Error
-	return accountModel.fromModel(), err
+	return accountModel.fromModel(r.db), err
 }
 
 func (r *AccountRepository) Update(account account.Account) (account.Account, error) {
 	accountModel := MakeAccountModel(account)
 	err := r.db.Model(&accountModel).Updates(accountModel).Error
-	return accountModel.fromModel(), err
+	return accountModel.fromModel(r.db), err
 }
 
 func (r *AccountRepository) Delete(account account.Account) error {
