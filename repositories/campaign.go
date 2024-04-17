@@ -51,21 +51,21 @@ func MakeCampaignModel(campaign campaign.Campaign) CampaignModel {
 }
 
 // Create a [campaign.Campaign] from an CampaignModel.
-func (m *CampaignModel) fromModel(db *gorm.DB) campaign.Campaign {
+func (m *CampaignModel) fromModel() campaign.Campaign {
 	return campaign.Campaign{
-		ID:             m.ID,
-		Name:           m.Name,
-		App:            m.App.fromModel(),
-		InfoURL:        m.InfoURL,
-		StartTime:      m.StartTime,
-		EndTime:        m.EndTime,
+		ID:        m.ID,
+		Name:      m.Name,
+		App:       m.App.fromModel(),
+		InfoURL:   m.InfoURL,
+		StartTime: m.StartTime,
+		EndTime:   m.EndTime,
 	}
 }
 
 func (r *CampaignRepository) Find(campaign campaign.Campaign) (campaign.Campaign, error) {
 	campaignModel := MakeCampaignModel(campaign)
 	err := r.db.Preload("App").Preload("DataSourceList").Where(&campaignModel).First(&campaignModel).Error
-	return campaignModel.fromModel(r.db), err
+	return campaignModel.fromModel(), err
 }
 
 func (r *CampaignRepository) GetAll() ([]campaign.Campaign, error) {
@@ -78,7 +78,7 @@ func (r *CampaignRepository) GetAll() ([]campaign.Campaign, error) {
 	}
 
 	for _, campaignModel := range campaignModels {
-		campaigns = append(campaigns, campaignModel.fromModel(r.db))
+		campaigns = append(campaigns, campaignModel.fromModel())
 	}
 
 	return campaigns, nil
@@ -87,7 +87,7 @@ func (r *CampaignRepository) GetAll() ([]campaign.Campaign, error) {
 func (r *CampaignRepository) Create(campaign campaign.Campaign) (campaign.Campaign, error) {
 	campaignModel := MakeCampaignModel(campaign)
 	err := r.db.Create(&campaignModel).Error
-	return campaignModel.fromModel(r.db), err
+	return campaignModel.fromModel(), err
 }
 
 func (r *CampaignRepository) Delete(campaign campaign.Campaign) error {
