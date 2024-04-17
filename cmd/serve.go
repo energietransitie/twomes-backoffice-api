@@ -163,10 +163,8 @@ func handleServe(cmd *cobra.Command, args []string) error {
 
 	r.Method("POST", "/upload", deviceAuth(uploadHandler.Create)) // POST on /upload.
 
-	r.Route("/datasource", func(r chi.Router) {
-		r.Method("POST", "/list", adminAuth(dataSourceListHandler.Create)) // POST on /datasourcelist
-		r.Method("POST", "/type", adminAuth(dataSourceTypeHandler.Create)) // POST on /datasourcelist/item
-	})
+	r.Method("POST", "/data_source_list", adminAuth(dataSourceListHandler.Create)) // POST on /data_source_list
+	r.Method("POST", "/data_source_type", adminAuth(dataSourceTypeHandler.Create)) // POST on /data_source_type
 
 	setupSwaggerDocs(r, config.BaseURL)
 
