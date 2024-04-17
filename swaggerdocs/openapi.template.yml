@@ -25,7 +25,7 @@ tags:
   - name: Upload
     description: Operations about uploads
   - name: DataSource
-    description: Operations about datasources
+    description: Operations about datasources, list and types
 
 paths:
   /app:
@@ -190,6 +190,21 @@ paths:
       operationId: activateAccount
       security:
         - AccountActivationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                latitude:
+                  type: integer
+                  example: 52.499817
+                longitude:
+                  type: integer
+                  example: 6.079731
+                tz_name:
+                  type: string
       responses:
         '200':
           description: OK
@@ -587,7 +602,7 @@ paths:
         "500":
           $ref: "#/components/responses/500InternalServerError"
 
-  /datasource/list:
+  /data_source_list:
     post:
       tags:
         - DataSource
@@ -615,7 +630,7 @@ paths:
         "500":
           $ref: "#/components/responses/500InternalServerError"       
 
-  /datasource/type:
+  /data_source_type:
     post:
       tags:
         - DataSource
