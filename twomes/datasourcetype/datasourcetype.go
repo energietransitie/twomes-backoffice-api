@@ -18,9 +18,9 @@ type DataSourceType struct {
 type Category string
 
 const (
-	Device_Type       Category = "device_type"
-	Cloud_Feed_Type   Category = "cloud_feed_type"
-	Energy_Query_Type Category = "energy_query_type"
+	DeviceType      Category = "device_type"
+	CloudFeedType   Category = "cloud_feed_type"
+	EnergyQueryType Category = "energy_query_type"
 )
 
 func MakeDataSourceType(

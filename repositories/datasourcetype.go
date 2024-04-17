@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"errors"
-
 	"github.com/energietransitie/twomes-backoffice-api/twomes/datasourcetype"
 	"gorm.io/gorm"
 )
@@ -21,8 +20,8 @@ func NewDataSourceTypeRepository(db *gorm.DB) *DataSourceTypeRepository {
 type DataSourceTypeModel struct {
 	gorm.Model
 	TypeInstanceID        uint
-	Category              datasourcetype.Category
-	Order                 uint `gorm:"-"` // Custom order for DataSourceListItems
+	TypeInstanceType      string //Category in API
+	Order                 uint   `gorm:"-"` //Used for returning the Order with DataSourceList
 	InstallationManualURL string
 	FAQURL                string
 	InfoURL               string
@@ -47,7 +46,7 @@ func MakeDataSourceTypeModel(datasourcetype datasourcetype.DataSourceType) DataS
 	return DataSourceTypeModel{
 		Model:                 gorm.Model{ID: datasourcetype.ID},
 		TypeInstanceID:        datasourcetype.TypeInstanceID,
-		Category:              datasourcetype.Category,
+		TypeInstanceType:      string(datasourcetype.Category),
 		Order:                 datasourcetype.Order,
 		InstallationManualURL: datasourcetype.InstallationManualURL,
 		FAQURL:                datasourcetype.FAQURL,
@@ -69,7 +68,7 @@ func (m *DataSourceTypeModel) fromModel() datasourcetype.DataSourceType {
 	return datasourcetype.DataSourceType{
 		ID:                    m.Model.ID,
 		TypeInstanceID:        m.TypeInstanceID,
-		Category:              m.Category,
+		Category:              StringToCategory(m.TypeInstanceType),
 		Order:                 m.Order,
 		InstallationManualURL: m.InstallationManualURL,
 		FAQURL:                m.FAQURL,
@@ -136,4 +135,17 @@ func (s *DataSourceTypeModel) CheckforCircular(item *DataSourceTypeModel, previo
 		}
 	}
 	return false
+}
+
+func StringToCategory(category string) datasourcetype.Category {
+	switch category {
+	case "device_type":
+		return datasourcetype.DeviceType
+	case "cloud_feed_type":
+		return datasourcetype.CloudFeedType
+	case "energy_query_type":
+		return datasourcetype.EnergyQueryType
+	default:
+		return ""
+	}
 }

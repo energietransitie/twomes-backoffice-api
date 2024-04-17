@@ -25,10 +25,11 @@ type CloudFeedTypeModel struct {
 	TokenURL         string
 	ClientID         string
 	// TODO: WARNING EncryptedString still has to implement the encryption.
-	ClientSecret encryption.EncryptedString
-	Scope        string
-	RedirectURL  string
-	CloudFeeds   []CloudFeedModel `gorm:"foreignKey:CloudFeedTypeID"`
+	ClientSecret    encryption.EncryptedString
+	Scope           string
+	RedirectURL     string
+	CloudFeeds      []CloudFeedModel      `gorm:"foreignKey:CloudFeedTypeID"`
+	DataSourceTypes []DataSourceTypeModel `gorm:"polymorphic:TypeInstance;"`
 }
 
 // Set the name of the table in the database.

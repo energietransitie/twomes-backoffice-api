@@ -19,7 +19,8 @@ func NewDeviceTypeRepository(db *gorm.DB) *DeviceTypeRepository {
 // Database representation of a [devicetype.DeviceType]
 type DeviceTypeModel struct {
 	gorm.Model
-	Name string `gorm:"unique;non null"`
+	Name            string                `gorm:"unique;non null"`
+	DataSourceTypes []DataSourceTypeModel `gorm:"polymorphic:TypeInstance;"`
 }
 
 // Set the name of the table in the database.

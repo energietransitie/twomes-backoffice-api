@@ -6,7 +6,7 @@ import "github.com/energietransitie/twomes-backoffice-api/twomes/datasourcetype"
 type DataSourceList struct {
 	ID    uint                            `json:"id"`
 	Name  string                          `json:"name"`
-	Items []datasourcetype.DataSourceType `json:"items,omitempty"`
+	Items []datasourcetype.DataSourceType `json:"items"`
 }
 
 // Create a new DataSourceList.
