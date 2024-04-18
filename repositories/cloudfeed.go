@@ -32,7 +32,7 @@ type CloudFeedModel struct {
 	RefreshToken   encryption.EncryptedString
 	Expiry         time.Time
 	AuthGrantToken encryption.EncryptedString
-	ActivatedAt    time.Time
+	ActivatedAt    *time.Time
 }
 
 // Set the name of the table in the database.
@@ -49,7 +49,7 @@ func MakeCloudFeedModel(cloudFeed cloudfeed.CloudFeed) CloudFeedModel {
 		RefreshToken:    encryption.EncryptedString(cloudFeed.RefreshToken),
 		Expiry:          cloudFeed.Expiry,
 		AuthGrantToken:  encryption.EncryptedString(cloudFeed.AuthGrantToken),
-		ActivatedAt:     *cloudFeed.ActivatedAt,
+		ActivatedAt:     cloudFeed.ActivatedAt,
 	}
 }
 
@@ -62,7 +62,7 @@ func (m *CloudFeedModel) fromModel() cloudfeed.CloudFeed {
 		RefreshToken:    string(m.RefreshToken),
 		Expiry:          m.Expiry,
 		AuthGrantToken:  string(m.AuthGrantToken),
-		ActivatedAt:     &m.ActivatedAt,
+		ActivatedAt:     m.ActivatedAt,
 	}
 }
 
