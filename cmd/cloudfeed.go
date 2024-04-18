@@ -74,7 +74,7 @@ func handleCloudFeedDownload(cmd *cobra.Command, args []string) error {
 	}
 
 	var reply string
-	err = client.Call("CloudFeedAuthHandler.Download", downloadArgs, &reply)
+	err = client.Call("CloudFeedHandler.Download", downloadArgs, &reply)
 	if err != nil {
 		return err
 	}
