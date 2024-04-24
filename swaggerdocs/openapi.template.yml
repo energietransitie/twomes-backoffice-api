@@ -349,7 +349,7 @@ paths:
       summary: Create a new device
       operationId: createDevice
       security:
-        - AdminAuthorizationToken: []
+        - AccountAuthorizationToken: []
       requestBody:
         required: true
         content:

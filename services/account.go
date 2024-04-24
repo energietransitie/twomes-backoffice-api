@@ -69,14 +69,17 @@ func NewAccountService(
 
 // Create a new account.
 func (s *AccountService) Create(campaign campaign.Campaign) (account.Account, error) {
+	logrus.Info("we entered")
 	campaign, err := s.campaignService.Find(campaign)
 	if err != nil {
 		return account.Account{}, err
 	}
 
+	logrus.Info("are we making?")
 	a := account.MakeAccount(campaign)
-
+	logrus.Info("we made model?")
 	a, err = s.repository.Create(a)
+	logrus.Info("we added to repo?")
 	if err != nil {
 		return account.Account{}, err
 	}

@@ -69,10 +69,26 @@ func (m *AccountModel) fromModel() account.Account {
 	}
 }
 
-func (r *AccountRepository) Find(account account.Account) (account.Account, error) {
-	accountModel := MakeAccountModel(account)
+func (r *AccountRepository) Find(accountToFind account.Account) (account.Account, error) {
+	accountModel := MakeAccountModel(accountToFind)
 	err := r.db.Preload("Campaign.App").Preload("Buildings").Where(&accountModel).First(&accountModel).Error
-	return accountModel.fromModel(), err
+
+	var campaignModel CampaignModel
+	errCm := r.db.Where("id = ?", accountModel.Campaign.ID).First(&campaignModel).Error
+	if errCm != nil {
+		return account.Account{}, err
+	}
+
+	var dataSourceList DataSourceListModel
+	dsErr := r.db.Preload("Items").Where("id = ?", campaignModel.DataSourceListID).First(&dataSourceList).Error
+	if dsErr != nil {
+		return account.Account{}, dsErr
+	}
+
+	accountAPI := accountModel.fromModel()
+	accountAPI.Campaign.DataSourceList = dataSourceList.fromModel(r.db)
+
+	return accountAPI, err
 }
 
 func (r *AccountRepository) GetAll() ([]account.Account, error) {
@@ -85,7 +101,22 @@ func (r *AccountRepository) GetAll() ([]account.Account, error) {
 	}
 
 	for _, accountModel := range accountModels {
-		accounts = append(accounts, accountModel.fromModel())
+		var campaignModel CampaignModel
+		errCm := r.db.Where("id = ?", accountModel.Campaign.ID).First(&campaignModel).Error
+		if errCm != nil {
+			return nil, err
+		}
+
+		var dataSourceList DataSourceListModel
+		dsErr := r.db.Preload("Items").Where("id = ?", campaignModel.DataSourceListID).First(&dataSourceList).Error
+		if dsErr != nil {
+			return nil, dsErr
+		}
+
+		accountAPI := accountModel.fromModel()
+		accountAPI.Campaign.DataSourceList = dataSourceList.fromModel(r.db)
+
+		accounts = append(accounts, accountAPI)
 	}
 
 	return accounts, nil

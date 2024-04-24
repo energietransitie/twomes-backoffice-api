@@ -62,9 +62,19 @@ func (m *CampaignModel) fromModel() campaign.Campaign {
 	}
 }
 
-func (r *CampaignRepository) Find(campaign campaign.Campaign) (campaign.Campaign, error) {
-	campaignModel := MakeCampaignModel(campaign)
-	err := r.db.Preload("App").Preload("DataSourceList").Where(&campaignModel).First(&campaignModel).Error
+func (r *CampaignRepository) Find(campaignToFind campaign.Campaign) (campaign.Campaign, error) {
+	campaignModel := MakeCampaignModel(campaignToFind)
+	err := r.db.Preload("App").Where(&campaignModel).First(&campaignModel).Error
+
+	var dataSourceList DataSourceListModel
+	dsErr := r.db.Preload("Items").Where("id = ?", campaignModel.DataSourceListID).First(&dataSourceList).Error
+	if dsErr != nil {
+		return campaign.Campaign{}, dsErr
+	}
+
+	campaignAPI := campaignModel.fromModel()
+	campaignAPI.DataSourceList = dataSourceList.fromModel(r.db)
+
 	return campaignModel.fromModel(), err
 }
 
@@ -72,13 +82,20 @@ func (r *CampaignRepository) GetAll() ([]campaign.Campaign, error) {
 	var campaigns []campaign.Campaign
 
 	var campaignModels []CampaignModel
-	err := r.db.Preload("App").Preload("DataSourceList").Find(&campaignModels).Error
+	err := r.db.Preload("App").Find(&campaignModels).Error
 	if err != nil {
 		return nil, err
 	}
 
 	for _, campaignModel := range campaignModels {
-		campaigns = append(campaigns, campaignModel.fromModel())
+		var dataSourceList DataSourceListModel
+		dsErr := r.db.Preload("Items").Where("id = ?", campaignModel.DataSourceListID).First(&dataSourceList).Error
+		if dsErr != nil {
+			return nil, dsErr
+		}
+		campaignAPI := campaignModel.fromModel()
+		campaignAPI.DataSourceList = dataSourceList.fromModel(r.db)
+		campaigns = append(campaigns, campaignAPI)
 	}
 
 	return campaigns, nil
