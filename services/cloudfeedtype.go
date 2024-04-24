@@ -1,7 +1,7 @@
 package services
 
 import (
-	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeedtype"
+	"github.com/energietransitie/needforheat-server-api/needforheat/cloudfeedtype"
 )
 
 type CloudFeedTypeService struct {

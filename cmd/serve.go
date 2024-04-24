@@ -11,11 +11,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/handlers"
-	"github.com/energietransitie/twomes-backoffice-api/repositories"
-	"github.com/energietransitie/twomes-backoffice-api/services"
-	"github.com/energietransitie/twomes-backoffice-api/swaggerdocs"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
+	"github.com/energietransitie/needforheat-server-api/handlers"
+	"github.com/energietransitie/needforheat-server-api/needforheat/authorization"
+	"github.com/energietransitie/needforheat-server-api/repositories"
+	"github.com/energietransitie/needforheat-server-api/services"
+	"github.com/energietransitie/needforheat-server-api/swaggerdocs"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/sirupsen/logrus"
@@ -26,7 +26,7 @@ import (
 func init() {
 	serveCmd := &cobra.Command{
 		Use:   "serve",
-		Short: "Start the twomes backoffice API server",
+		Short: "Start the needforheat API server",
 		RunE:  handleServe,
 	}
 
@@ -194,19 +194,19 @@ type Configuration struct {
 }
 
 func getConfiguration() Configuration {
-	dsn, ok := os.LookupEnv("TWOMES_DSN")
+	dsn, ok := os.LookupEnv("NFH_DSN")
 	if !ok {
-		logrus.Fatal("TWOMES_DSN was not set")
+		logrus.Fatal("NFH_DSN was not set")
 	}
 
-	baseURL, ok := os.LookupEnv("TWOMES_BASE_URL")
+	baseURL, ok := os.LookupEnv("NFH_BASE_URL")
 	if !ok {
-		logrus.Fatal("TWOMES_BASE_URL was not set")
+		logrus.Fatal("NFH_BASE_URL was not set")
 	}
 
-	downloadTime, ok := os.LookupEnv("TWOMES_DOWNLOAD_TIME")
+	downloadTime, ok := os.LookupEnv("NFH_DOWNLOAD_TIME")
 	if !ok {
-		logrus.Warning("TWOMES_DOWNLOAD_TIME was not set. defaulting to", defaultDownloadTime)
+		logrus.Warning("NFH_DOWNLOAD_TIME was not set. defaulting to", defaultDownloadTime)
 		downloadTime = defaultDownloadTime
 	}
 

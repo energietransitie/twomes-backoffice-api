@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/handlers"
+	"github.com/energietransitie/needforheat-server-api/handlers"
 	"github.com/spf13/cobra"
 )
 

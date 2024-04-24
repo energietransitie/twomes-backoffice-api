@@ -1,8 +1,8 @@
 package cloudfeedstatus
 
 import (
-	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeed"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeedtype"
+	"github.com/energietransitie/needforheat-server-api/needforheat/cloudfeed"
+	"github.com/energietransitie/needforheat-server-api/needforheat/cloudfeedtype"
 )
 
 // A CloudFeedStatus contains all available cloud feeds for an account and if they are connected or not.

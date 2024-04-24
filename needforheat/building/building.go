@@ -1,6 +1,6 @@
 package building
 
-import "github.com/energietransitie/twomes-backoffice-api/twomes/device"
+import "github.com/energietransitie/needforheat-server-api/needforheat/device"
 
 // A Building belongs to a research subject where we take regular measurements with devices.
 type Building struct {

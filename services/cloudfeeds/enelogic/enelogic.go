@@ -11,9 +11,9 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/measurement"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/property"
+	"github.com/energietransitie/needforheat-server-api/needforheat"
+	"github.com/energietransitie/needforheat-server-api/needforheat/measurement"
+	"github.com/energietransitie/needforheat-server-api/needforheat/property"
 	"github.com/sirupsen/logrus"
 )
 
@@ -182,9 +182,9 @@ type DataPoint struct {
 }
 
 func (d DataPoint) Parse(unit UnitType) measurement.Measurement {
-	t := twomes.Time(d.Date.Time)
+	t := needforheat.Time(d.Date.Time)
 	if time.Time(t).IsZero() {
-		t = twomes.Time(d.Datetime.Time)
+		t = needforheat.Time(d.Datetime.Time)
 	}
 
 	return measurement.Measurement{

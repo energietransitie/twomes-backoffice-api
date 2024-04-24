@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
-	"github.com/energietransitie/twomes-backoffice-api/services"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/device"
+	"github.com/energietransitie/needforheat-server-api/internal/helpers"
+	"github.com/energietransitie/needforheat-server-api/needforheat/authorization"
+	"github.com/energietransitie/needforheat-server-api/needforheat/device"
+	"github.com/energietransitie/needforheat-server-api/services"
 	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
 )

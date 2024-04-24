@@ -64,7 +64,7 @@ func NewToken(kind AuthKind, id uint, expiry time.Time, key crypto.PrivateKey) (
 
 	claims := Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    "TwomesAPIv2",
+			Issuer:    "NeedForHeatAPIv3",
 			Subject:   strconv.FormatUint(uint64(id), 10),
 			ExpiresAt: jwt.NewNumericDate(expiry),
 			NotBefore: jwt.NewNumericDate(time.Now().UTC()),

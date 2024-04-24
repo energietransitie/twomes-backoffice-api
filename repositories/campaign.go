@@ -3,7 +3,7 @@ package repositories
 import (
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes/campaign"
+	"github.com/energietransitie/needforheat-server-api/needforheat/campaign"
 	"gorm.io/gorm"
 )
 
@@ -34,7 +34,7 @@ func (CampaignModel) TableName() string {
 	return "campaign"
 }
 
-// Create a new CampaignModel from a [twomes.campaign].
+// Create a new CampaignModel from a [needforheat.campaign].
 func MakeCampaignModel(campaign campaign.Campaign) CampaignModel {
 	return CampaignModel{
 		Model: gorm.Model{

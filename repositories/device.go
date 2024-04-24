@@ -3,10 +3,10 @@ package repositories
 import (
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes/device"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/measurement"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/property"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/upload"
+	"github.com/energietransitie/needforheat-server-api/needforheat/device"
+	"github.com/energietransitie/needforheat-server-api/needforheat/measurement"
+	"github.com/energietransitie/needforheat-server-api/needforheat/property"
+	"github.com/energietransitie/needforheat-server-api/needforheat/upload"
 	"gorm.io/gorm"
 )
 

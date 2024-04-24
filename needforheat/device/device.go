@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes/devicetype"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/upload"
+	"github.com/energietransitie/needforheat-server-api/needforheat/devicetype"
+	"github.com/energietransitie/needforheat-server-api/needforheat/upload"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 )

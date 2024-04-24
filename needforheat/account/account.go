@@ -4,9 +4,9 @@ import (
 	"errors"
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes/building"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/campaign"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeed"
+	"github.com/energietransitie/needforheat-server-api/needforheat/building"
+	"github.com/energietransitie/needforheat-server-api/needforheat/campaign"
+	"github.com/energietransitie/needforheat-server-api/needforheat/cloudfeed"
 )
 
 var (

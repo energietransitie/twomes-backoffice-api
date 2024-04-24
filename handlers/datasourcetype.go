@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
-	"github.com/energietransitie/twomes-backoffice-api/services"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/datasourcetype"
+	"github.com/energietransitie/needforheat-server-api/internal/helpers"
+	"github.com/energietransitie/needforheat-server-api/needforheat/datasourcetype"
+	services "github.com/energietransitie/needforheat-server-api/services"
 	"github.com/sirupsen/logrus"
 )
 

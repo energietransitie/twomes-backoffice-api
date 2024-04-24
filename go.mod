@@ -1,4 +1,4 @@
-module github.com/energietransitie/twomes-backoffice-api
+module github.com/energietransitie/needforheat-server-api
 
 go 1.20
 

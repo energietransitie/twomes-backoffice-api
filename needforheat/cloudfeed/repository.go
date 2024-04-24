@@ -3,7 +3,7 @@ package cloudfeed
 import (
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes/device"
+	"github.com/energietransitie/needforheat-server-api/needforheat/device"
 )
 
 // A CloudFeedRepository can load, store and delete CloudFeeds.

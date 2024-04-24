@@ -90,7 +90,7 @@ name {label: "String"}
 [DataSourceType]
 *id {label: "Integer"}
 +type_instance_id {label: "Integer, non-null"} # This ID can be any of the 3 types, we use the type-field to distinguish the table. 
-+category {label: "String, non-null, enum"}
++category {label: "String, non-null, enum"} # TypeInstanceType in code
 installation_url {label: "String, non-null"}
 faq_url {label: "String"}
 info_url {label: "String"}
@@ -99,13 +99,19 @@ measurement_schedule {label: "String"}
 notification_threshold_duration {label: "String"}
 
 [DataSourceListItems]
-*data_source_list_id {label: "Integer"}
-*data_source_type_id {label: "Integer"}
+*id {label: "Integer"}
++data_source_list_id {label: "Integer"}
++data_source_type_id {label: "Integer"}
 order {label: "Integer"}
 
 [DataSourcePrecedence]
 *data_source_type_id {label: "Integer"}
 *preceding_id {label: "Integer"}
+
+[APIKeys]
+*id {label: "Integer"}
+api_name {label: "String"}
+api_key {label: "String"}
 
 App 1--* Campaign
 Campaign 1--* Account
@@ -117,7 +123,6 @@ Measurement *--1 Property
 CloudFeed *--1 CloudFeedType
 CloudFeed *--1 Account
 
-# Gorm (apparently) supports duplicates
 Campaign *--1 DataSourceList
 DataSourceList 1--* DataSourceListItems
 DataSourceType 1--* DataSourceListItems

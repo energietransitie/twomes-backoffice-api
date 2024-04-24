@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
-	"github.com/energietransitie/twomes-backoffice-api/services"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeed"
+	"github.com/energietransitie/needforheat-server-api/internal/helpers"
+	"github.com/energietransitie/needforheat-server-api/needforheat/authorization"
+	"github.com/energietransitie/needforheat-server-api/needforheat/cloudfeed"
+	"github.com/energietransitie/needforheat-server-api/services"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )

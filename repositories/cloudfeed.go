@@ -3,10 +3,10 @@ package repositories
 import (
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/internal/encryption"
-	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeed"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/device"
+	"github.com/energietransitie/needforheat-server-api/internal/encryption"
+	"github.com/energietransitie/needforheat-server-api/internal/helpers"
+	"github.com/energietransitie/needforheat-server-api/needforheat/cloudfeed"
+	"github.com/energietransitie/needforheat-server-api/needforheat/device"
 	"gorm.io/gorm"
 )
 
@@ -40,7 +40,7 @@ func (CloudFeedModel) TableName() string {
 	return "cloud_feed"
 }
 
-// Create a new CloudFeedModel from a [twomes.cloudFeed].
+// Create a new CloudFeedModel from a [needforheat.cloudFeed].
 func MakeCloudFeedModel(cloudFeed cloudfeed.CloudFeed) CloudFeedModel {
 	return CloudFeedModel{
 		AccountID:       cloudFeed.AccountID,

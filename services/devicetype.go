@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes/devicetype"
+	"github.com/energietransitie/needforheat-server-api/needforheat/devicetype"
 	"github.com/sigurn/crc16"
 	"github.com/sirupsen/logrus"
 )

@@ -6,7 +6,7 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes/admin"
+	"github.com/energietransitie/needforheat-server-api/needforheat/admin"
 	"github.com/spf13/cobra"
 )
 

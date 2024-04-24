@@ -1,8 +1,8 @@
 package measurement
 
 import (
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/property"
+	"github.com/energietransitie/needforheat-server-api/needforheat"
+	"github.com/energietransitie/needforheat-server-api/needforheat/property"
 )
 
 // A Measurement is a measured value for a specific property.
@@ -11,6 +11,6 @@ type Measurement struct {
 	UploadID   uint              `json:"upload_id"`
 	PropertyID int               `json:"-"`
 	Property   property.Property `json:"property"`
-	Time       twomes.Time       `json:"time"`
+	Time       needforheat.Time  `json:"time"`
 	Value      string            `json:"value"`
 }

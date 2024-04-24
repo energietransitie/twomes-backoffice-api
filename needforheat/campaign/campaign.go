@@ -3,8 +3,8 @@ package campaign
 import (
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes/app"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/datasourcelist"
+	"github.com/energietransitie/needforheat-server-api/needforheat/app"
+	"github.com/energietransitie/needforheat-server-api/needforheat/datasourcelist"
 )
 
 // A campaign is a timeframe where we gather measurements with a specific goal.

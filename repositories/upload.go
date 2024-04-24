@@ -3,9 +3,9 @@ package repositories
 import (
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/measurement"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/upload"
+	"github.com/energietransitie/needforheat-server-api/needforheat"
+	"github.com/energietransitie/needforheat-server-api/needforheat/measurement"
+	"github.com/energietransitie/needforheat-server-api/needforheat/upload"
 	"gorm.io/gorm"
 )
 
@@ -64,8 +64,8 @@ func (m *UploadModel) fromModel() upload.Upload {
 	return upload.Upload{
 		ID:           m.Model.ID,
 		InstanceID:   m.InstanceID,
-		ServerTime:   twomes.Time(m.ServerTime),
-		DeviceTime:   twomes.Time(m.DeviceTime),
+		ServerTime:   needforheat.Time(m.ServerTime),
+		DeviceTime:   needforheat.Time(m.DeviceTime),
 		Size:         m.Size,
 		Measurements: measurements,
 	}

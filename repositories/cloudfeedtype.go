@@ -1,8 +1,8 @@
 package repositories
 
 import (
-	"github.com/energietransitie/twomes-backoffice-api/internal/encryption"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeedtype"
+	"github.com/energietransitie/needforheat-server-api/internal/encryption"
+	"github.com/energietransitie/needforheat-server-api/needforheat/cloudfeedtype"
 	"gorm.io/gorm"
 )
 

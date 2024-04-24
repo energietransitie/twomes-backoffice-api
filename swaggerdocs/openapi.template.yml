@@ -752,12 +752,6 @@ components:
         name:
           type: string
           example: Generic-Test
-        installation_manual_url:
-          type: string
-          example: https://www.energietransitiewindesheim.nl/manuals/Generic-Test/
-        info_url:
-          type: string
-          example: https://www.energietransitiewindesheim.nl/brains4buildings2022/privacy/
 
     Building:
       type: object
@@ -1039,6 +1033,15 @@ components:
               id:
                 type: integer
                 example: 2
+        installation_url:
+          type: string
+          example: https://www.energietransitiewindesheim.nl/manuals/Generic-Test/
+        info_url:
+          type: string
+          example: https://www.energietransitiewindesheim.nl/brains4buildings2022/privacy/  
+        faq_url:
+          type: string
+          example: https://www.energietransitiewindesheim.nl/brains4buildings2022/privacy/        
         upload_schedule:
           type: string
           example: '* * * * *'

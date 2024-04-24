@@ -1,6 +1,6 @@
 package datasourcelist
 
-import "github.com/energietransitie/twomes-backoffice-api/twomes/datasourcetype"
+import "github.com/energietransitie/needforheat-server-api/needforheat/datasourcetype"
 
 // A datasourcelist is a collection of datasourcetypes
 type DataSourceList struct {

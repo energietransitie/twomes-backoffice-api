@@ -3,8 +3,8 @@ package repositories
 import (
 	"fmt"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes/datasourcelist"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/datasourcetype"
+	"github.com/energietransitie/needforheat-server-api/needforheat/datasourcelist"
+	"github.com/energietransitie/needforheat-server-api/needforheat/datasourcetype"
 	"gorm.io/gorm"
 )
 

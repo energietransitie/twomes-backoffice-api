@@ -3,8 +3,8 @@ package device
 import (
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes/measurement"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/property"
+	"github.com/energietransitie/needforheat-server-api/needforheat/measurement"
+	"github.com/energietransitie/needforheat-server-api/needforheat/property"
 )
 
 // A DeviceRepository can load, store and delete devices.

@@ -3,9 +3,9 @@ package services
 import (
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes/app"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/campaign"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/datasourcelist"
+	"github.com/energietransitie/needforheat-server-api/needforheat/app"
+	"github.com/energietransitie/needforheat-server-api/needforheat/campaign"
+	"github.com/energietransitie/needforheat-server-api/needforheat/datasourcelist"
 	"github.com/sirupsen/logrus"
 )
 

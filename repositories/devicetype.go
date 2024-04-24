@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"github.com/energietransitie/twomes-backoffice-api/twomes/devicetype"
+	"github.com/energietransitie/needforheat-server-api/needforheat/devicetype"
 	"gorm.io/gorm"
 )
 

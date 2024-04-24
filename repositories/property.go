@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"github.com/energietransitie/twomes-backoffice-api/twomes/property"
+	"github.com/energietransitie/needforheat-server-api/needforheat/property"
 	"gorm.io/gorm"
 )
 

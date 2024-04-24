@@ -3,7 +3,7 @@ package services
 import (
 	"fmt"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes/datasourcetype"
+	"github.com/energietransitie/needforheat-server-api/needforheat/datasourcetype"
 )
 
 type DataSourceTypeService struct {
@@ -46,7 +46,7 @@ func (s *DataSourceTypeService) Create(
 ) (datasourcetype.DataSourceType, error) {
 
 	//Ensures that the source associated with a given sourceID matches the expected item type
-	source, err := s.GetSourceByID(typeInstanceID)
+	_, source, err := s.GetSourceByIDAndTable(typeInstanceID, string(category))
 	if err != nil {
 		return datasourcetype.DataSourceType{}, fmt.Errorf("error retrieving source: %w", err)
 	}
@@ -83,23 +83,7 @@ func (s *DataSourceTypeService) Delete(dataSourceType datasourcetype.DataSourceT
 	return s.repository.Delete(dataSourceType)
 }
 
-func (s *DataSourceTypeService) GetSourceByID(sourceID uint) (Source, error) {
-	sources := []Source{
-		s.deviceTypeService,
-		s.cloudFeedTypeService,
-	}
-
-	for _, src := range sources {
-		_, err := src.GetByIDForDataSourceType(sourceID)
-		if err == nil {
-			return src, nil
-		}
-	}
-
-	return nil, fmt.Errorf("sourceID not found")
-}
-
-func (s *DataSourceTypeService) GetSourceByIDAndTable(sourceID uint, table string) (interface{}, error) {
+func (s *DataSourceTypeService) GetSourceByIDAndTable(sourceID uint, table string) (interface{}, Source, error) {
 	sources := []Source{
 		s.deviceTypeService,
 		s.cloudFeedTypeService,
@@ -115,13 +99,13 @@ func (s *DataSourceTypeService) GetSourceByIDAndTable(sourceID uint, table strin
 	case "energy_query_type":
 		selectedSource = sources[2]
 	default:
-		return nil, fmt.Errorf("unsupported table type: %s", table)
+		return nil, nil, fmt.Errorf("unsupported table type: %s", table)
 	}
 
 	item, err := selectedSource.GetByIDForDataSourceType(sourceID)
 	if err == nil {
-		return item, nil
+		return item, selectedSource, nil
 	}
 
-	return nil, fmt.Errorf("sourceID not found")
+	return nil, selectedSource, fmt.Errorf("sourceID not found")
 }

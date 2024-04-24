@@ -8,13 +8,13 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/account"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/campaign"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeed"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeedstatus"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeedtype"
+	"github.com/energietransitie/needforheat-server-api/internal/helpers"
+	"github.com/energietransitie/needforheat-server-api/needforheat/account"
+	"github.com/energietransitie/needforheat-server-api/needforheat/authorization"
+	"github.com/energietransitie/needforheat-server-api/needforheat/campaign"
+	"github.com/energietransitie/needforheat-server-api/needforheat/cloudfeed"
+	"github.com/energietransitie/needforheat-server-api/needforheat/cloudfeedstatus"
+	"github.com/energietransitie/needforheat-server-api/needforheat/cloudfeedtype"
 	"github.com/sirupsen/logrus"
 )
 
@@ -141,14 +141,14 @@ func (s *AccountService) GetCloudFeedAuthStatuses(id uint) ([]cloudfeedstatus.Cl
 
 	var cloudFeedTypes []cloudfeedtype.CloudFeedType
 	for _, dataSourceType := range a.Campaign.DataSourceList.Items {
-		source, err := s.dataSourceTypeService.GetSourceByIDAndTable(dataSourceType.ID, "cloud_feed_type")
+		item, _, err := s.dataSourceTypeService.GetSourceByIDAndTable(dataSourceType.ID, "cloud_feed_type")
 		if err != nil {
 			fmt.Printf("Error fetching source for ID %d: %v\n", dataSourceType.ID, err)
 			continue
 		}
 
 		// Assert the retrieved source to the appropriate type (CloudFeedType)
-		cloudFeedType, ok := source.(cloudfeedtype.CloudFeedType)
+		cloudFeedType, ok := item.(cloudfeedtype.CloudFeedType)
 		if !ok {
 			fmt.Printf("Unexpected type for source ID %d\n", dataSourceType.ID)
 			continue

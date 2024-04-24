@@ -4,8 +4,8 @@ package repositories
 import (
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes/account"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/building"
+	"github.com/energietransitie/needforheat-server-api/needforheat/account"
+	"github.com/energietransitie/needforheat-server-api/needforheat/building"
 	"gorm.io/gorm"
 )
 

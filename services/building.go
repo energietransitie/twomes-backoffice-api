@@ -1,7 +1,7 @@
 package services
 
 import (
-	"github.com/energietransitie/twomes-backoffice-api/twomes/building"
+	"github.com/energietransitie/needforheat-server-api/needforheat/building"
 )
 
 type BuildingService struct {
