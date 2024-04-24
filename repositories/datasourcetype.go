@@ -2,7 +2,8 @@ package repositories
 
 import (
 	"errors"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/datasourcetype"
+
+	"github.com/energietransitie/needforheat-server-api/needforheat/datasourcetype"
 	"gorm.io/gorm"
 )
 
