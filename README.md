@@ -29,7 +29,7 @@ See all [available images](https://github.com/energietransitie/needforheat-serve
 ```yaml
 services:
   web:
-    container_name: needforheat-server-api-local-web
+    container_name: needforheat-server-api-web
     build: .
     ports:
       - 8080:8080
@@ -43,7 +43,7 @@ services:
       - db
 
   db:
-    container_name: needforheat-server-api-local-db
+    container_name: needforheat-server-api-db
     image: mariadb:latest
     ports:
       - 3306:3306
