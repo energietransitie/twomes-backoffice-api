@@ -84,7 +84,6 @@ func handleServe(cmd *cobra.Command, args []string) error {
 	campaignRepository := repositories.NewCampaignRepository(db)
 	propertyRepository := repositories.NewPropertyRepository(db)
 	uploadRepository := repositories.NewUploadRepository(db)
-	buildingRepository := repositories.NewBuildingRepository(db)
 	accountRepository := repositories.NewAccountRepository(db)
 	deviceTypeRepository := repositories.NewDeviceTypeRepository(db)
 	deviceRepository := repositories.NewDeviceRepository(db)
@@ -105,9 +104,8 @@ func handleServe(cmd *cobra.Command, args []string) error {
 	campaignService := services.NewCampaignService(campaignRepository, appService, dataSourceListService)
 	uploadService := services.NewUploadService(uploadRepository, deviceRepository, propertyService)
 	cloudFeedService := services.NewCloudFeedService(cloudFeedRepository, cloudFeedTypeRepository, uploadService)
-	buildingService := services.NewBuildingService(buildingRepository, uploadService)
-	accountService := services.NewAccountService(accountRepository, authService, appService, campaignService, buildingService, cloudFeedService, dataSourceTypeService)
-	deviceService := services.NewDeviceService(deviceRepository, authService, deviceTypeService, buildingService, uploadService)
+	accountService := services.NewAccountService(accountRepository, authService, appService, campaignService, cloudFeedService, dataSourceTypeService)
+	deviceService := services.NewDeviceService(deviceRepository, authService, deviceTypeService, accountService, uploadService)
 
 	//Handlers
 	appHandler := handlers.NewAppHandler(appService)
@@ -115,7 +113,6 @@ func handleServe(cmd *cobra.Command, args []string) error {
 	cloudFeedHandler := handlers.NewCloudFeedHandler(cloudFeedService)
 	campaignHandler := handlers.NewCampaignHandler(campaignService)
 	uploadHandler := handlers.NewUploadHandler(uploadService)
-	buildingHandler := handlers.NewBuildingHandler(buildingService)
 	accountHandler := handlers.NewAccountHandler(accountService)
 	deviceTypeHandler := handlers.NewDeviceTypeHandler(deviceTypeService)
 	deviceHandler := handlers.NewDeviceHandler(deviceService)
@@ -149,14 +146,13 @@ func handleServe(cmd *cobra.Command, args []string) error {
 		})
 	})
 
-	r.Method("GET", "/building/{building_id}", accountAuth(buildingHandler.GetBuildingByID)) // GET on /building/{building_id}.
-
 	r.Method("POST", "/device_type", adminAuth(adminHandler.Middleware(deviceTypeHandler.Create))) // POST on /device_type.
 
 	r.Route("/device", func(r chi.Router) {
 		r.Method("POST", "/", accountAuth(deviceHandler.Create))                                         // POST on /device.
 		r.Method("POST", "/activate", handlers.Handler(deviceHandler.Activate))                          // POST on /device/activate.
 		r.Method("GET", "/{device_name}", accountAuth(deviceHandler.GetDeviceByName))                    // GET on /device/{device_name}.
+		r.Method("GET", "/all", accountAuth(deviceHandler.GetDevicesByAccount))                          // GET on /device/all.
 		r.Method("GET", "/{device_name}/measurements", accountAuth(deviceHandler.GetDeviceMeasurements)) // GET on /device/{device_name}/measurements.
 		r.Method("GET", "/{device_name}/properties", accountAuth(deviceHandler.GetDeviceProperties))     // GET on /device/{device_name}/properties.
 	})

@@ -4,9 +4,9 @@ import (
 	"errors"
 	"time"
 
-	"github.com/energietransitie/needforheat-server-api/needforheat/building"
 	"github.com/energietransitie/needforheat-server-api/needforheat/campaign"
 	"github.com/energietransitie/needforheat-server-api/needforheat/cloudfeed"
+	"github.com/energietransitie/needforheat-server-api/needforheat/device"
 )
 
 var (
@@ -21,7 +21,7 @@ type Account struct {
 	InvitationToken    string                `json:"invitation_token,omitempty"`
 	InvitationURL      string                `json:"invitation_url,omitempty"`
 	AuthorizationToken string                `json:"authorization_token,omitempty"`
-	Buildings          []building.Building   `json:"buildings,omitempty"`
+	Devices            []*device.Device      `json:"devices,omitempty"`
 	CloudFeeds         []cloudfeed.CloudFeed `json:"cloud_feeds,omitempty"`
 	// Maybe use separate pseudonym field,
 	// but right now we can derive a pseudonym

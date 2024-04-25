@@ -42,7 +42,7 @@ func (h *DeviceHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		return NewHandlerError(err, "wrong token kind", http.StatusForbidden).WithMessage("wrong token kind was used")
 	}
 
-	device, err := h.service.Create(request.Name, request.BuildingID, auth.ID, request.ActivationSecret)
+	device, err := h.service.Create(request.Name, auth.ID, request.ActivationSecret)
 	if err != nil {
 		if helpers.IsMySQLRecordNotFoundError(err) {
 			return NewHandlerError(err, "not found", http.StatusNotFound)
@@ -50,10 +50,6 @@ func (h *DeviceHandler) Create(w http.ResponseWriter, r *http.Request) error {
 
 		if helpers.IsMySQLDuplicateError(err) {
 			return NewHandlerError(err, "duplicate", http.StatusBadRequest)
-		}
-
-		if errors.Is(err, services.ErrBuildingDoesNotBelongToAccount) {
-			return NewHandlerError(err, err.Error(), http.StatusBadRequest)
 		}
 
 		if errors.Is(err, services.ErrHashDoesNotMatchType) {
@@ -233,4 +229,28 @@ func (h *DeviceHandler) getDeviceByName(deviceName string, accountId uint) (*dev
 	}
 
 	return &device, nil
+}
+
+// Handle API endpoint for getting devices by account including uploads (Former building)
+func (h *DeviceHandler) GetDevicesByAccount(w http.ResponseWriter, r *http.Request) error {
+	var err error
+
+	auth, ok := r.Context().Value(AuthorizationCtxKey).(*authorization.Authorization)
+	if !ok {
+		err = errors.New("failed to get authorization context value")
+		return NewHandlerError(err, "unauthorized", http.StatusUnauthorized).WithMessage("failed when getting authentication context value").WithLevel(logrus.ErrorLevel)
+	}
+
+	if !auth.IsKind(authorization.AccountToken) {
+		err = errors.New("wrong token kind was used")
+		return NewHandlerError(err, "wrong token kind", http.StatusForbidden).WithMessage("wrong token kind was used")
+	}
+
+	logrus.Info("Hi")
+	devices, serviceErr := h.service.GetAllByAccount(auth.ID)
+	if serviceErr != nil {
+		return NewHandlerError(serviceErr, "error in getting devices", http.StatusInternalServerError).WithMessage("error in getting devices").WithLevel(logrus.ErrorLevel)
+	}
+	err = json.NewEncoder(w).Encode(devices)
+	return err
 }

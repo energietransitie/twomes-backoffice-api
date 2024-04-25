@@ -54,7 +54,6 @@ func NewDatabaseConnectionAndMigrate(ctx context.Context, dsn string) (db *gorm.
 				&DataSourceTypeModel{},
 				&AccountModel{},
 				&CloudFeedModel{},
-				&BuildingModel{},
 				&PropertyModel{},
 				&UploadModel{},
 				&DeviceTypeModel{},

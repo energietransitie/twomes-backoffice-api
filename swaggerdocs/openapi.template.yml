@@ -20,8 +20,6 @@ tags:
     description: Operations about device types
   - name: Device
     description: Operations about devices
-  - name: Building
-    description: Operations about buildings
   - name: Upload
     description: Operations about uploads
   - name: DataSource
@@ -190,21 +188,6 @@ paths:
       operationId: activateAccount
       security:
         - AccountActivationToken: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                latitude:
-                  type: integer
-                  example: 52.499817
-                longitude:
-                  type: integer
-                  example: 6.079731
-                tz_name:
-                  type: string
       responses:
         '200':
           description: OK
@@ -360,9 +343,6 @@ paths:
                 name:
                   type: string
                   example: FCA2-AC4BC3
-                building_id:
-                  type: integer
-                  example: 1
                 activation_secret:
                   type: string
                   example: 1029380918
@@ -537,28 +517,21 @@ paths:
         "500":
           $ref: "#/components/responses/500InternalServerError"
 
-  /building/{id}:
+  /device/all:
     get:
       tags:
-        - Building
-      summary: Get building information
-      operationId: getBuildingByID
+        - Device
+      summary: Get all devices from current account
+      operationId: getAllDeviceAccount
       security:
         - AccountAuthorizationToken: []
-      parameters:
-        - name: id
-          in: path
-          schema:
-            type: integer
-          description: Building ID
-          required: true
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Building"
+                $ref: "#/components/schemas/GetAllDevices"
         "400":
           $ref: "#/components/responses/400BadRequest"
         "401":
@@ -753,29 +726,6 @@ components:
           type: string
           example: Generic-Test
 
-    Building:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-          example: 1
-        account_id:
-          type: integer
-          example: 2
-        latitude:
-          type: integer
-          example: 52.499817
-        longitude:
-          type: integer
-          example: 6.079731
-        tz_name:
-          type: string
-        devices:
-          type: array
-          items:
-            $ref: "#/components/schemas/DeviceInfo"
-
     AccountCreated:
       type: object
       properties:
@@ -845,9 +795,6 @@ components:
           example: FCA2-AC4BC3
         device_type:
           $ref: "#/components/schemas/DeviceType"
-        building_id:
-          type: integer
-          example: 1
         activated_at:
           type: string
           format: date-time
@@ -871,9 +818,6 @@ components:
           example: FCA2-AC4BC3
         device_type:
           $ref: "#/components/schemas/DeviceType"
-        building_id:
-          type: integer
-          example: 1
         activated_at:
           type: string
           format: date-time
@@ -901,9 +845,6 @@ components:
           example: FCA2-AC4BC3
         device_type:
           $ref: "#/components/schemas/DeviceType"
-        building_id:
-          type: integer
-          example: 1
         activated_at:
           type: string
           format: date-time
@@ -946,6 +887,11 @@ components:
           name:
             type: string
             example: property_name__unit
+
+    GetAllDevices:
+        type: array
+        items:
+          $ref: "#/components/schemas/DeviceInfo"
 
     Upload:
       type: object

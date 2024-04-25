@@ -30,7 +30,6 @@ type AccountService struct {
 	authService     *AuthorizationService
 	appService      *AppService
 	campaignService *CampaignService
-	buildingService *BuildingService
 
 	// Services used for getting cloud feed auth statuses.
 	dataSourceTypeService *DataSourceTypeService
@@ -46,7 +45,6 @@ func NewAccountService(
 	authService *AuthorizationService,
 	appService *AppService,
 	campaignService *CampaignService,
-	buildingService *BuildingService,
 	cloudFeedService *CloudFeedService,
 	dataSourceTypeService *DataSourceTypeService,
 ) *AccountService {
@@ -60,7 +58,6 @@ func NewAccountService(
 		authService:           authService,
 		appService:            appService,
 		campaignService:       campaignService,
-		buildingService:       buildingService,
 		cloudFeedService:      cloudFeedService,
 		dataSourceTypeService: dataSourceTypeService,
 		activationTokenRegex:  activationTokenRegex,
@@ -69,17 +66,14 @@ func NewAccountService(
 
 // Create a new account.
 func (s *AccountService) Create(campaign campaign.Campaign) (account.Account, error) {
-	logrus.Info("we entered")
 	campaign, err := s.campaignService.Find(campaign)
 	if err != nil {
 		return account.Account{}, err
 	}
 
-	logrus.Info("are we making?")
 	a := account.MakeAccount(campaign)
-	logrus.Info("we made model?")
 	a, err = s.repository.Create(a)
-	logrus.Info("we added to repo?")
+
 	if err != nil {
 		return account.Account{}, err
 	}
@@ -95,7 +89,7 @@ func (s *AccountService) Create(campaign campaign.Campaign) (account.Account, er
 }
 
 // Activate an account.
-func (s *AccountService) Activate(id uint, longitude, latitude float32, tzName string) (account.Account, error) {
+func (s *AccountService) Activate(id uint) (account.Account, error) {
 	a, err := s.repository.Find(account.Account{ID: id})
 	if err != nil {
 		return account.Account{}, err
@@ -109,15 +103,6 @@ func (s *AccountService) Activate(id uint, longitude, latitude float32, tzName s
 	a, err = s.repository.Update(a)
 	if err != nil {
 		return account.Account{}, err
-	}
-
-	if len(a.Buildings) < 1 {
-		building, err := s.buildingService.Create(a.ID, longitude, latitude, tzName)
-		if err != nil {
-			return account.Account{}, err
-		}
-
-		a.Buildings = append(a.Buildings, building)
 	}
 
 	a.AuthorizationToken, err = s.authService.CreateToken(authorization.AccountToken, a.ID, time.Time{})

@@ -17,4 +17,5 @@ type DeviceRepository interface {
 	Create(Device) (Device, error)
 	Update(Device) (Device, error)
 	Delete(Device) error
+	GetAllByAccount(accountID uint) ([]Device, error)
 }

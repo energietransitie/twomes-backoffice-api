@@ -92,23 +92,12 @@ func (r *CloudFeedRepository) FindFirstTokenToExpire() (uint, uint, time.Time, e
 func (r *CloudFeedRepository) FindDevice(cloudFeed cloudfeed.CloudFeed) (*device.Device, error) {
 	var device DeviceModel
 
-	// err := r.db.Table("cloud_feed_auth").
-	// 	Select("device.*").
-	// 	Joins("JOIN cloud_feed ON cloud_feed_auth.cloud_feed_id = cloud_feed.id").
-	// 	Joins("JOIN device_type ON cloud_feed.name = device_type.name").
-	// 	Joins("JOIN device ON device_type.id = device.device_type_id").
-	// 	Joins("JOIN building ON device.building_id = building.id").
-	// 	Where("building.account_id = cloud_feed_auth.account_id AND cloud_feed_auth.account_id = ? AND cloud_feed_auth.cloud_feed_id = ?", cloudFeedAuth.AccountID, cloudFeedAuth.CloudFeedID).
-	// 	Order("cloud_feed_auth.account_id DESC").
-	// 	First(&device).
-	// 	Error
-
 	err := r.db.Model(&device).
 		Joins("JOIN device_type ON device_type.id = device.device_type_id").
 		Joins("JOIN cloud_feed_type ON cloud_feed_type.name = device_type.name").
 		Joins("JOIN cloud_feed ON cloud_feed.cloud_feed_type_id = cloud_feed_type.id").
-		Joins("JOIN building ON building.id = device.building_id").
-		Where("building.account_id = cloud_feed.account_id AND cloud_feed.account_id = ? AND cloud_feed.cloud_feed_type_id = ?", cloudFeed.AccountID, cloudFeed.CloudFeedTypeID).
+		Joins("JOIN account ON account.id = device.account_id").
+		Where("account.id = cloud_feed.account_id AND cloud_feed.account_id = ? AND cloud_feed.cloud_feed_type_id = ?", cloudFeed.AccountID, cloudFeed.CloudFeedTypeID).
 		First(&device).
 		Error
 

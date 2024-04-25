@@ -14,12 +14,12 @@ var (
 	ErrDeviceActivationSecretIncorrect = errors.New("device activation_secret is incorrect")
 )
 
-// A Device is collects measurements in a subject's building.
+// A Device is collects measurements in a subject's account.
 type Device struct {
 	ID                   uint                  `json:"id"`
 	Name                 string                `json:"name"`
 	DeviceType           devicetype.DeviceType `json:"device_type"`
-	BuildingID           uint                  `json:"building_id"`
+	AccountID            uint                  `json:"account_id"`
 	ActivationSecret     string                `json:"activation_secret,omitempty"` // This can be removed if a device uses JWT's too.
 	ActivationSecretHash string                `json:"-"`                           // This can be removed if a device uses JWT's too.
 	ActivatedAt          *time.Time            `json:"activated_at"`
@@ -29,7 +29,7 @@ type Device struct {
 }
 
 // Create a new Device.
-func MakeDevice(name string, deviceType devicetype.DeviceType, buildingID uint, activationSecret string) Device {
+func MakeDevice(name string, deviceType devicetype.DeviceType, accountID uint, activationSecret string) Device {
 	activationSecretHash, err := bcrypt.GenerateFromPassword([]byte(activationSecret), 12)
 	if err != nil {
 		logrus.Error("a device was created, but activationSecretHash could not be generated")
@@ -38,7 +38,7 @@ func MakeDevice(name string, deviceType devicetype.DeviceType, buildingID uint, 
 	return Device{
 		Name:                 name,
 		DeviceType:           deviceType,
-		BuildingID:           buildingID,
+		AccountID:            accountID,
 		ActivationSecretHash: string(activationSecretHash),
 	}
 }

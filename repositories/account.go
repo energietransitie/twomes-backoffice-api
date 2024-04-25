@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/energietransitie/needforheat-server-api/needforheat/account"
-	"github.com/energietransitie/needforheat-server-api/needforheat/building"
 	"gorm.io/gorm"
 )
 
@@ -25,8 +24,8 @@ type AccountModel struct {
 	CampaignModelID uint `gorm:"column:campaign_id"`
 	Campaign        CampaignModel
 	ActivatedAt     *time.Time
-	Buildings       []BuildingModel
 	CloudFeeds      []CloudFeedModel `gorm:"foreignKey:AccountID"`
+	Devices         []DeviceModel
 }
 
 // Set the name of the table in the database.
@@ -36,12 +35,6 @@ func (AccountModel) TableName() string {
 
 // Create a new AccountModel from a [account.Account].
 func MakeAccountModel(account account.Account) AccountModel {
-	var buildingModels []BuildingModel
-
-	for _, building := range account.Buildings {
-		buildingModels = append(buildingModels, MakeBuildingModel(building))
-	}
-
 	return AccountModel{
 		Model: gorm.Model{
 			ID: account.ID,
@@ -49,29 +42,21 @@ func MakeAccountModel(account account.Account) AccountModel {
 		CampaignModelID: account.Campaign.ID,
 		Campaign:        MakeCampaignModel(account.Campaign),
 		ActivatedAt:     account.ActivatedAt,
-		Buildings:       buildingModels,
 	}
 }
 
 // Create a [account.Account] from an AccountModel.
 func (m *AccountModel) fromModel() account.Account {
-	var buildings []building.Building
-
-	for _, buildingModel := range m.Buildings {
-		buildings = append(buildings, buildingModel.fromModel())
-	}
-
 	return account.Account{
 		ID:          m.Model.ID,
 		Campaign:    m.Campaign.fromModel(),
 		ActivatedAt: m.ActivatedAt,
-		Buildings:   buildings,
 	}
 }
 
 func (r *AccountRepository) Find(accountToFind account.Account) (account.Account, error) {
 	accountModel := MakeAccountModel(accountToFind)
-	err := r.db.Preload("Campaign.App").Preload("Buildings").Where(&accountModel).First(&accountModel).Error
+	err := r.db.Preload("Campaign.App").Where(&accountModel).First(&accountModel).Error
 
 	var campaignModel CampaignModel
 	errCm := r.db.Where("id = ?", accountModel.Campaign.ID).First(&campaignModel).Error
@@ -95,7 +80,7 @@ func (r *AccountRepository) GetAll() ([]account.Account, error) {
 	accounts := make([]account.Account, 0)
 
 	var accountModels []AccountModel
-	err := r.db.Preload("Campaign.App").Preload("Buildings").Find(&accountModels).Error
+	err := r.db.Preload("Campaign.App").Find(&accountModels).Error
 	if err != nil {
 		return nil, err
 	}

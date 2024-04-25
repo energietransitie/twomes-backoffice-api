@@ -1,6 +1,6 @@
 package app
 
-// An App can provision a [Device] in a [Building].
+// An App can provision a [Device] in a [Account].
 type App struct {
 	ID                      uint   `json:"id"`
 	Name                    string `json:"name"`
