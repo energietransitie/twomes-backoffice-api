@@ -91,6 +91,7 @@ func handleServe(cmd *cobra.Command, args []string) error {
 	dataSourceTypeRepository := repositories.NewDataSourceTypeRepository(db)
 	energyQueryRepository := repositories.NewEnergyQueryRepository(db)
 	energyQueryTypeRepository := repositories.NewEnergyQueryTypeRepository(db)
+	apiKeyRepository := repositories.NewAPIKeyRepository(db)
 
 	//Services
 	appService := services.NewAppService(appRepository)
@@ -111,6 +112,7 @@ func handleServe(cmd *cobra.Command, args []string) error {
 	accountService := services.NewAccountService(accountRepository, authService, appService, campaignService, cloudFeedService, dataSourceTypeService)
 	energyQueryService := services.NewEnergyQueryService(energyQueryRepository, authService, energyQueryTypeService, accountService, uploadService)
 	deviceService := services.NewDeviceService(deviceRepository, authService, deviceTypeService, accountService, uploadService)
+	apiKeyService := services.NewAPIKeyService(apiKeyRepository)
 
 	//Handlers
 	appHandler := handlers.NewAppHandler(appService)
@@ -125,6 +127,7 @@ func handleServe(cmd *cobra.Command, args []string) error {
 	dataSourceTypeHandler := handlers.NewDataSourceTypeHandler(dataSourceTypeService)
 	energyQueryHandler := handlers.NewEnergyQueryHandler(energyQueryService)
 	energyQueryTypeHandler := handlers.NewEnergyQueryTypeHandler(energyQueryTypeService)
+	apiKeyHandler := handlers.NewAPIKeyHandler(apiKeyService)
 
 	go cloudFeedService.RefreshTokensInBackground(ctx, preRenewalDuration)
 	go cloudFeedService.DownloadInBackground(ctx, config.downloadStartTime)
@@ -178,6 +181,8 @@ func handleServe(cmd *cobra.Command, args []string) error {
 		r.Method("GET", "/{energy_query_type}/measurements", accountAuth(energyQueryHandler.GetEnergyQueryMeasurements)) // GET on /energy_query/{energy_query_type}/measurements.
 		r.Method("GET", "/{energy_query_type}/properties", accountAuth(energyQueryHandler.GetEnergyQueryProperties))     // GET on /energy_query/{energy_query_type}/properties.
 	})
+
+	r.Method("GET", "/api_key/{api_name}", accountAuth(apiKeyHandler.GetAPIKey)) // GET on /api_key/{api_name}
 
 	setupSwaggerDocs(r, config.BaseURL)
 
