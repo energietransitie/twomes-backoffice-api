@@ -24,7 +24,6 @@ func NewDatabaseConnection(dsn string) (*gorm.DB, error) {
 	cfg.Params = map[string]string{"charset": "utf8mb4"}
 
 	dsn = cfg.FormatDSN()
-
 	return gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 		NamingStrategy: schema.NamingStrategy{
@@ -60,6 +59,8 @@ func NewDatabaseConnectionAndMigrate(ctx context.Context, dsn string) (db *gorm.
 				&DeviceModel{},
 				&MeasurementModel{},
 				&DataSourceListItems{},
+				&EnergyQueryTypeModel{},
+				&EnergyQueryModel{},
 			)
 		}
 
