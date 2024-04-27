@@ -75,7 +75,7 @@ func handleServe(cmd *cobra.Command, args []string) error {
 	adminAuth := authHandler.Middleware(authorization.AdminToken)
 	accountActivationAuth := authHandler.Middleware(authorization.AccountActivationToken)
 	accountAuth := authHandler.Middleware(authorization.AccountToken)
-	deviceAuth := authHandler.Middleware(authorization.DeviceToken)
+	deviceORaccountAuth := authHandler.DoubleMiddleware(authorization.DeviceToken, authorization.AccountToken)
 
 	//Repositories
 	appRepository := repositories.NewAppRepository(db)
@@ -89,22 +89,27 @@ func handleServe(cmd *cobra.Command, args []string) error {
 	deviceRepository := repositories.NewDeviceRepository(db)
 	dataSourceListRepository := repositories.NewDataSourceListRepository(db)
 	dataSourceTypeRepository := repositories.NewDataSourceTypeRepository(db)
+	energyQueryRepository := repositories.NewEnergyQueryRepository(db)
+	energyQueryTypeRepository := repositories.NewEnergyQueryTypeRepository(db)
 
 	//Services
 	appService := services.NewAppService(appRepository)
 	cloudFeedTypeService := services.NewCloudFeedTypeService(cloudFeedTypeRepository)
 	propertyService := services.NewPropertyService(propertyRepository)
 	deviceTypeService := services.NewDeviceTypeService(deviceTypeRepository, propertyService)
+	energyQueryTypeService := services.NewEnergyQueryTypeService(energyQueryTypeRepository, propertyService)
 	dataSourceTypeService := services.NewDataSourceTypeService(
 		dataSourceTypeRepository,
 		deviceTypeService,
 		cloudFeedTypeService,
+		energyQueryTypeService,
 	)
 	dataSourceListService := services.NewDataSourceListService(dataSourceListRepository, dataSourceTypeService)
 	campaignService := services.NewCampaignService(campaignRepository, appService, dataSourceListService)
 	uploadService := services.NewUploadService(uploadRepository, deviceRepository, propertyService)
 	cloudFeedService := services.NewCloudFeedService(cloudFeedRepository, cloudFeedTypeRepository, uploadService)
 	accountService := services.NewAccountService(accountRepository, authService, appService, campaignService, cloudFeedService, dataSourceTypeService)
+	energyQueryService := services.NewEnergyQueryService(energyQueryRepository, authService, energyQueryTypeService, accountService, uploadService)
 	deviceService := services.NewDeviceService(deviceRepository, authService, deviceTypeService, accountService, uploadService)
 
 	//Handlers
@@ -118,6 +123,8 @@ func handleServe(cmd *cobra.Command, args []string) error {
 	deviceHandler := handlers.NewDeviceHandler(deviceService)
 	dataSourceListHandler := handlers.NewDataSourceListHandler(dataSourceListService)
 	dataSourceTypeHandler := handlers.NewDataSourceTypeHandler(dataSourceTypeService)
+	energyQueryHandler := handlers.NewEnergyQueryHandler(energyQueryService)
+	energyQueryTypeHandler := handlers.NewEnergyQueryTypeHandler(energyQueryTypeService)
 
 	go cloudFeedService.RefreshTokensInBackground(ctx, preRenewalDuration)
 	go cloudFeedService.DownloadInBackground(ctx, config.downloadStartTime)
@@ -157,10 +164,20 @@ func handleServe(cmd *cobra.Command, args []string) error {
 		r.Method("GET", "/{device_name}/properties", accountAuth(deviceHandler.GetDeviceProperties))     // GET on /device/{device_name}/properties.
 	})
 
-	r.Method("POST", "/upload", deviceAuth(uploadHandler.Create)) // POST on /upload.
+	r.Method("POST", "/upload", deviceORaccountAuth(uploadHandler.Create)) // POST on /upload.
 
 	r.Method("POST", "/data_source_list", adminAuth(dataSourceListHandler.Create)) // POST on /data_source_list
 	r.Method("POST", "/data_source_type", adminAuth(dataSourceTypeHandler.Create)) // POST on /data_source_type
+
+	r.Method("POST", "/energy_query_type", adminAuth(adminHandler.Middleware(energyQueryTypeHandler.Create))) // POST on /energy_query_type
+
+	r.Route("/energy_query", func(r chi.Router) {
+		r.Method("POST", "/", accountAuth(energyQueryHandler.Create))                                                    // POST on /energy_query.
+		r.Method("GET", "/{energy_query_type}", accountAuth(energyQueryHandler.GetEnergyQueryByName))                    // GET on /energy_query/{energy_query_type}.
+		r.Method("GET", "/all", accountAuth(energyQueryHandler.GetEnergyQueriesByAccount))                               // GET on /energy_query/all.
+		r.Method("GET", "/{energy_query_type}/measurements", accountAuth(energyQueryHandler.GetEnergyQueryMeasurements)) // GET on /energy_query/{energy_query_type}/measurements.
+		r.Method("GET", "/{energy_query_type}/properties", accountAuth(energyQueryHandler.GetEnergyQueryProperties))     // GET on /energy_query/{energy_query_type}/properties.
+	})
 
 	setupSwaggerDocs(r, config.BaseURL)
 

@@ -24,7 +24,11 @@ type UploadService struct {
 }
 
 // Create a new UploadService.
-func NewUploadService(repository upload.UploadRepository, deviceRepo device.DeviceRepository, propertyService *PropertyService) *UploadService {
+func NewUploadService(
+	repository upload.UploadRepository,
+	deviceRepo device.DeviceRepository,
+	propertyService *PropertyService,
+) *UploadService {
 	return &UploadService{
 		repository:      repository,
 		deviceRepo:      deviceRepo,
@@ -32,12 +36,17 @@ func NewUploadService(repository upload.UploadRepository, deviceRepo device.Devi
 	}
 }
 
-func (s *UploadService) Create(deviceID uint, deviceTime needforheat.Time, measurements []measurement.Measurement) (upload.Upload, error) {
+func (s *UploadService) Create(instanceID uint, instanceType upload.InstanceType, deviceTime needforheat.Time, measurements []measurement.Measurement) (upload.Upload, error) {
 	if len(measurements) <= 0 {
 		return upload.Upload{}, ErrEmptyUpload
 	}
 
-	upload := upload.MakeUpload(deviceID, deviceTime, measurements)
+	//For older firmwares
+	if instanceType == "" {
+		instanceType = upload.Device
+	}
+
+	upload := upload.MakeUpload(instanceID, instanceType, deviceTime, measurements)
 
 	upload, err := s.repository.Create(upload)
 
