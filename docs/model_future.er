@@ -104,7 +104,7 @@ order {label: "Integer"}
 *data_source_type_id {label: "Integer"}
 *preceding_id {label: "Integer"}
 
-[APIKeys]
+[APIKey]
 *id {label: "Integer"}
 api_name {label: "String"}
 api_key {label: "String"}

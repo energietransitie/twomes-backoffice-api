@@ -26,6 +26,8 @@ tags:
     description: Operations about datasources, list and types
   - name: EnergyQuery
     description: Operations about energy queries
+  - name: APIKey
+    description: Operations about API keys
 
 paths:
   /app:
@@ -842,7 +844,40 @@ paths:
         "404":
           $ref: "#/components/responses/404NotFound"
         "500":
-          $ref: "#/components/responses/500InternalServerError"     
+          $ref: "#/components/responses/500InternalServerError" 
+
+  /api_key/{api_name}:
+    get:
+      tags:
+        - APIKey
+      summary: Get an API key
+      operationId: getAPIKey
+      security:
+        - AccountAuthorizationToken: []
+      parameters:
+        - name: api_name
+          in: path
+          schema:
+            type: string
+          description: API Name
+          required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIKey"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"    
 
 components:
   schemas:
@@ -1291,6 +1326,19 @@ components:
         notification_threshold:
           type: string
           example: 'P2D'   
+
+    APIKey:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        api_name:
+          type: string
+          example: 'google_maps'
+        api_key:
+          type: string
+          example: 'ABCDEFHIJKLMNOPQRSTUVWXYZ'
 
     Error:
       type: object
