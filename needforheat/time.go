@@ -29,3 +29,7 @@ func UnmarshalUnix(b []byte) (time.Time, error) {
 
 	return time.Unix(unixSeconds, 0), nil
 }
+
+func (t Time) Unix() int64 {
+	return time.Time(t).Unix()
+}
