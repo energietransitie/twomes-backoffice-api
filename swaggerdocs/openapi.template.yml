@@ -24,6 +24,8 @@ tags:
     description: Operations about uploads
   - name: DataSource
     description: Operations about datasources, list and types
+  - name: EnergyQuery
+    description: Operations about energy queries
 
 paths:
   /app:
@@ -364,6 +366,42 @@ paths:
         "500":
           $ref: "#/components/responses/500InternalServerError"
 
+  /energy_query:
+    post:
+      tags:
+        - EnergyQuery
+      summary: Create a new EnergyQuery
+      operationId: createEnergyQuery
+      security:
+        - AccountAuthorizationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                energy_query_type:
+                  type: object
+                  ref: "#/components/schemas/EnergyQueryType"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnergyQueryCreated"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
+
   /device/{name}:
     get:
       tags:
@@ -543,6 +581,181 @@ paths:
         "500":
           $ref: "#/components/responses/500InternalServerError"
 
+  /energy_query_type:
+    post:
+      tags:
+        - EnergyQuery
+      summary: Create a new Energy Query type
+      operationId: createEnergyQueryType
+      security:
+        - AdminAuthorizationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EnergyQueryType"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnergyQueryType"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
+
+  /energy_query/{energy_query_type}:
+    get:
+      tags:
+        - EnergyQuery
+      summary: Get Energy Query information
+      operationId: getEnergyQueryByName
+      security:
+        - AccountAuthorizationToken: []
+      parameters:
+        - name: energy_query_type
+          in: path
+          schema:
+            type: string
+          description: Energy Query Type
+          required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnergyQueryInfo"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
+
+  /energy_query/{energy_query_type}/measurements:
+    get:
+      tags:
+        - EnergyQuery
+      summary: Get Energy Query measurements
+      operationId: getEnergyQueryMeasurements
+      security:
+        - AccountAuthorizationToken: []
+      parameters:
+        - name: energy_query_type
+          in: path
+          schema:
+            type: string
+          description: Energy Query Type
+          required: true
+        - name: start
+          in: query
+          schema:
+            type: string
+          description: Start date
+          required: false
+        - name: end
+          in: query
+          schema:
+            type: string
+          description: End date
+          required: false
+        - name: property
+          in: query
+          schema:
+            type: integer
+          description: Property ID
+          required: false
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnergyQueryMeasurements"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
+
+  /energy_query/{energy_query_type}/properties:
+    get:
+      tags:
+        - EnergyQuery
+      summary: Get all used Energy Query properties
+      operationId: getEnergyQueryProperties
+      security:
+        - AccountAuthorizationToken: []
+      parameters:
+        - name: energy_query_type
+          in: path
+          schema:
+            type: string
+          description: Energy Query Type
+          required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnergyQueryProperties"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
+
+  /energy_query/all:
+    get:
+      tags:
+        - EnergyQuery
+      summary: Get all Energy Queries from current account
+      operationId: getAllEnergyQueryAccount
+      security:
+        - AccountAuthorizationToken: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetAllEnergyQueries"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
+
   /upload:
     post:
       tags:
@@ -550,7 +763,7 @@ paths:
       summary: Upload new measurements
       operationId: createUpload
       security:
-        - DeviceAuthorizationToken: []
+        - DeviceORAccountAuthorizationToken: []
       requestBody:
         required: true
         content:
@@ -726,6 +939,20 @@ components:
           type: string
           example: Generic-Test
 
+    EnergyQueryType:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        energy_query_variety:
+          type: string
+          example: weather-interpolation-location
+        formula:
+          type: string
+          example: x+y
+
     AccountCreated:
       type: object
       properties:
@@ -806,6 +1033,21 @@ components:
           nullable: true
           example: null
 
+    EnergyQueryCreated:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        energy_query_type:
+          $ref: "#/components/schemas/EnergyQueryType"
+        activated_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: null
+
     DeviceActivated:
       type: object
       properties:
@@ -856,7 +1098,44 @@ components:
           nullable: true
           example: 2023-05-10T13:30:18Z
 
+    EnergyQueryInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        energy_query_type:
+          $ref: "#/components/schemas/EnergyQueryType"
+        activated_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: 2023-05-10T09:13:15Z
+
     DeviceMeasurements:
+      type: array
+      items:
+        properties:
+          id:
+            type: integer
+          upload_id:
+            type: integer
+          property:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+                example: property_name__unit
+          time:
+            type: integer
+            example: 1714229168
+          value:
+            type: string
+
+    EnergyQueryMeasurements:
       type: array
       items:
         properties:
@@ -888,10 +1167,25 @@ components:
             type: string
             example: property_name__unit
 
+    EnergyQueryProperties:
+      type: array
+      items:
+        properties:
+          id:
+            type: integer
+          name:
+            type: string
+            example: property_name__unit
+
     GetAllDevices:
         type: array
         items:
           $ref: "#/components/schemas/DeviceInfo"
+
+    GetAllEnergyQueries:
+        type: array
+        items:
+          $ref: "#/components/schemas/EnergyQueryInfo"
 
     Upload:
       type: object
@@ -900,19 +1194,19 @@ components:
           type: integer
           readOnly: true
           example: 2
-        device_id:
+        instance_id:
+          type: integer
+          example: 1
+        instance_type:
+          type: string
+          example: device
+        server_time:
           type: integer
           readOnly: true
-          example: 1
-        server_time:
-          type: string
-          format: date-time
-          readOnly: true
-          example: 2023-05-10T13:30:18Z
+          example: 1714229168
         device_time:
-          type: string
-          format: date-time
-          example: 2023-05-10T13:30:00Z
+          type: integer
+          example: 1714229168
         size:
           type: integer
           readOnly: true
@@ -1047,6 +1341,10 @@ components:
       scheme: bearer
 
     DeviceAuthorizationToken:
+      type: http
+      scheme: bearer
+
+    DeviceORAccountAuthorizationToken:
       type: http
       scheme: bearer
 

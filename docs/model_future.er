@@ -104,6 +104,11 @@ order {label: "Integer"}
 *data_source_type_id {label: "Integer"}
 *preceding_id {label: "Integer"}
 
+[APIKeys]
+*id {label: "Integer"}
+api_name {label: "String"}
+api_key {label: "String"}
+
 App 1--* Campaign
 Campaign 1--* Account
 Device *--1 DeviceType
