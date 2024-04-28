@@ -24,8 +24,8 @@ func NewUploadRepository(db *gorm.DB) *UploadRepository {
 // Database representation of a [upload.Upload]
 type UploadModel struct {
 	gorm.Model
-	InstanceID   uint `gorm:"column:instance_id"`
-	InstanceType upload.InstanceType
+	InstanceID   uint                `gorm:"column:instance_id"`
+	InstanceType upload.InstanceType `gorm:"default:device"`
 	ServerTime   time.Time
 	DeviceTime   time.Time
 	Size         int
