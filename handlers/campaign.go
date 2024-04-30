@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
-	"github.com/energietransitie/twomes-backoffice-api/services"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/campaign"
+	"github.com/energietransitie/needforheat-server-api/internal/helpers"
+	"github.com/energietransitie/needforheat-server-api/needforheat/campaign"
+	"github.com/energietransitie/needforheat-server-api/services"
 	"github.com/sirupsen/logrus"
 )
 
@@ -29,7 +29,15 @@ func (h *CampaignHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
 	}
 
-	campaign, err := h.service.Create(request.Name, request.App, request.InfoURL, request.CloudFeeds, request.StartTime, request.EndTime)
+	campaign, err := h.service.Create(
+		request.Name,
+		request.App,
+		request.InfoURL,
+		request.StartTime,
+		request.EndTime,
+		request.DataSourceList,
+	)
+
 	if err != nil {
 		if helpers.IsMySQLRecordNotFoundError(err) {
 			return NewHandlerError(err, "not found", http.StatusNotFound)
@@ -41,7 +49,6 @@ func (h *CampaignHandler) Create(w http.ResponseWriter, r *http.Request) error {
 
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError)
 	}
-
 	err = json.NewEncoder(w).Encode(campaign)
 	if err != nil {
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)

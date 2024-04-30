@@ -1,0 +1,128 @@
+#
+# Overview of a future NeedForHeat API data model
+# Format as specified by https://github.com/BurntSushi/erd
+#
+entity {bgcolor: "#ececfc"}
+
+[Account]
+*id {label: "Integer"} 
++campaign_id {label: "Integer, non-null"}
+activated_at {label: "Timestamp"}
+
+[DeviceType]
+*id {label: "Integer"}
+name {label: "String, unique, non-null"}
+
+[Device]
+*id {label: "Integer"}
+name {label: "String, unique, non-null"}
++device_type_id {label: "Integer, non-null"}
++data_source_id {label: "Integer, non-null"}
+activation_secret_hash {label: "String, unique, non-null"}
+
+[Property]
+*id {label: "Integer"}
+name {label: "String, non-null"}
+
+[Upload]
+*id {label: "Integer"}
++data_source_id {label: "Integer, non-null"}
+server_time {label: "Timestamp, non-null"}
+device_time {label: "Timestamp, non-null"}
+size {label: "Integer, non-null"}
+
+[Measurement]
+*id {label: "Integer"}
++property_id {label: "Integer, non-null"}
++upload_id {label: "Integer, non-null"}
+time {label: "Timestamp, non-null"}
+value {label: "String, non-null"}
+
+[Campaign]
+*id {label: "Integer"}
+name {label: "String, non-null"}
++app_id {label: "Integer, non-null"}
+info_url {label: "String"}
+start_time {label: "Timestamp"}
+end_time {label: "Timestamp"}
++data_source_list_id {label: "Integer"}
+
+[App]
+*id {label: "Integer"}
+name {label: "String, non-null"}
+provisioning_url_template {label: "String, non-null"}
+oauth_redirect_url {label: "String, non-null"}
+
+[CloudFeedType]
+*id {label: "Integer"}
+name {label: "String, non-null"}
+authorization_url {label: "String, non-null"}
+token_url {label: "String, non-null"}
+client_id {label: "String, non-null"}
+client_secret {label: "String, non-null"}
+scope {label: "String, non-null"}
+redirect_url {label: "String, non-null"}
+
+[CloudFeed]
+*cloud_feed_id {label: "Integer"}
+access_token {label: "String"}
+refresh_token {label: "String"}
+auth_grant_token {label: "String, non-null"}
+
+[EnergyQueryType]
+*id {label: "Integer"}
+energy_query_variety {label: "String, non-null, enum"}
+formula {label: "String"}
+
+[DataSourceList]
+*id {label: "Integer"}
+name {label: "String"}
+
+[DataSourceType]
+*id {label: "Integer"}
++type_instance_id {label: "Integer, non-null"} # This ID can be any of the 3 types, we use the type-field to distinguish the table. 
++category {label: "String, non-null, enum"}
+installation_url {label: "String, non-null"}
+faq_url {label: "String"}
+info_url {label: "String"}
+upload_schedule {label: "String"}
+measurement_schedule {label: "String"}
+notification_threshold_duration {label: "String"}
+
+[DataSource]
+*id {label: "Integer"}
++data_source_type_id {label: "Integer, non-null"}
++account_id {label: "Integer, non-null"}
+activated_at {label: "Timestamp"}
+
+[DataSourceListItems]
+*data_source_list_id {label: "Integer"}
+*data_source_type_id {label: "Integer"}
+order {label: "Integer"}
+
+[DataSourcePrecedence]
+*data_source_type_id {label: "Integer"}
+*preceding_id {label: "Integer"}
+
+App 1--* Campaign
+Campaign 1--* Account
+Device *--1 DeviceType
+Upload 1--* Measurement
+Measurement *--1 Property
+CloudFeed *--1 CloudFeedType
+
+# Gorm (apparently) supports duplicates
+Campaign *--1 DataSourceList
+DataSourceList 1--* DataSourceListItems
+DataSourceType 1--* DataSourceListItems
+
+DataSourceType *--1 DeviceType {label: "type id"}
+DataSourceType *--1 CloudFeedType {label: "type id"}
+DataSourceType *--1 EnergyQueryType {label: "type id"}
+
+DataSource *--1 DataSourceType
+DataSource *--1 Account
+DataSource 1--* Upload
+
+DataSourceType 1--* DataSourcePrecedence
+DataSourcePrecedence *--1 DataSourceType

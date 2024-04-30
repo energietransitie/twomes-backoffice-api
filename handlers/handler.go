@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
+	"github.com/energietransitie/needforheat-server-api/needforheat"
 	"github.com/sirupsen/logrus"
 )
 
@@ -81,8 +81,8 @@ func (fn Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if handlerErr, ok := err.(*HandlerError); ok {
 			w.WriteHeader(handlerErr.ResponseCode)
 
-			twomesError := twomes.Error{Message: handlerErr.ResponseMessage}
-			err := json.NewEncoder(w).Encode(&twomesError)
+			needforheatError := needforheat.Error{Message: handlerErr.ResponseMessage}
+			err := json.NewEncoder(w).Encode(&needforheatError)
 			if err != nil {
 				logrus.Error("failed when returning error to client")
 				return

@@ -1,81 +1,52 @@
 #
-# Overview of Twomes API data model
+# Overview of NeedForHeat API data model
 # Format as specified by https://github.com/BurntSushi/erd
 #
 entity {bgcolor: "#ececfc"}
 
 [Account]
-*id {label: "Integer"}
-
+*id {label: "Integer"} 
 +campaign_id {label: "Integer, non-null"}
 activated_at {label: "Timestamp"}
-
-
-[Building]
-*id {label: "Integer"}
-+account_id {label: "Integer, non-null"}
-
-longitude {label: "Numeric(15, 10), non-null"}
-latitude {label: "Numeric(15, 10), non-null"}
-
-# Time zone name, being a value as specified in the TZ database name column in
-# https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
-tz_name {label: "String, non-null"}
-
 
 [DeviceType]
 *id {label: "Integer"}
 name {label: "String, unique, non-null"}
-installation_manual_url {label: "String, non-null"}
-info_url {label: "String"}
-upload_interval {label: "Integer"}
-
 
 [Device]
 *id {label: "Integer"}
 name {label: "String, unique, non-null"}
 +device_type_id {label: "Integer, non-null"}
-+building_id {label: "Integer, non-null"}
-
 activation_secret_hash {label: "String, unique, non-null"}
-
 activated_at {label: "Timestamp"}
-
 
 [Property]
 *id {label: "Integer"}
 name {label: "String, non-null"}
 
-unit {label: "String"}
-
-
 [Upload]
 *id {label: "Integer"}
-+device_id {label: "Integer, non-null"}
-
++instance_id {label: "Integer, non-null"}
++instance_type {label: "String, non-null, enum"}
 server_time {label: "Timestamp, non-null"}
-device_time {label: "Timestamp, non-null"}
+device_time {label: "Timestamp"}
 size {label: "Integer, non-null"}
-
 
 [Measurement]
 *id {label: "Integer"}
 +property_id {label: "Integer, non-null"}
 +upload_id {label: "Integer, non-null"}
-
 time {label: "Timestamp, non-null"}
 value {label: "String, non-null"}
-
 
 [Campaign]
 *id {label: "Integer"}
 name {label: "String, non-null"}
 +app_id {label: "Integer, non-null"}
 info_url {label: "String"}
-+cloud_feeds {label: "Integer"}
 start_time {label: "Timestamp"}
 end_time {label: "Timestamp"}
-
++data_source_list_id {label: "Integer"}
 
 [App]
 *id {label: "Integer"}
@@ -83,7 +54,7 @@ name {label: "String, non-null"}
 provisioning_url_template {label: "String, non-null"}
 oauth_redirect_url {label: "String, non-null"}
 
-[CloudFeed]
+[CloudFeedType]
 *id {label: "Integer"}
 name {label: "String, non-null"}
 authorization_url {label: "String, non-null"}
@@ -93,21 +64,76 @@ client_secret {label: "String, non-null"}
 scope {label: "String, non-null"}
 redirect_url {label: "String, non-null"}
 
-[CloudFeedAuth]
+[CloudFeed]
 *account_id {label: "Integer"}
 *cloud_feed_id {label: "Integer"}
 access_token {label: "String"}
 refresh_token {label: "String"}
 auth_grant_token {label: "String, non-null"}
+activated_at {label: "Timestamp"}
 
-App *--1 Campaign
+[EnergyQueryType]
+*id {label: "Integer"}
+energy_query_variety {label: "String, non-null, enum"}
+formula {label: "String"}
+
+[EnergyQuery]
+*id {label: "Integer"}
++energy_query_type_id {label: "integer"}
++account_id {label: "integer"}
+activated_at {label: "Timestamp"}
+
+[DataSourceList]
+*id {label: "Integer"}
+name {label: "String"}
+
+[DataSourceType]
+*id {label: "Integer"}
++type_instance_id {label: "Integer, non-null"} # This ID can be any of the 3 types, we use the type-field to distinguish the table. 
++category {label: "String, non-null, enum"} # TypeInstanceType in code
+installation_url {label: "String, non-null"}
+faq_url {label: "String"}
+info_url {label: "String"}
+upload_schedule {label: "String"}
+measurement_schedule {label: "String"}
+notification_threshold_duration {label: "String"}
+
+[DataSourceListItems]
+*id {label: "Integer"}
++data_source_list_id {label: "Integer"}
++data_source_type_id {label: "Integer"}
+order {label: "Integer"}
+
+[DataSourcePrecedence]
+*data_source_type_id {label: "Integer"}
+*preceding_id {label: "Integer"}
+
+[APIKeys]
+*id {label: "Integer"}
+api_name {label: "String"}
+api_key {label: "String"}
+
+App 1--* Campaign
 Campaign 1--* Account
-Account 1--* Building
-Building 1--* Device
+Account 1--* Device
 Device *--1 DeviceType
 Device 1--* Upload
 Upload 1--* Measurement
 Measurement *--1 Property
-Campaign *--* CloudFeed
-CloudFeedAuth *--1 CloudFeed
-CloudFeedAuth *--1 Account
+CloudFeed *--1 CloudFeedType
+CloudFeed *--1 Account
+
+Campaign *--1 DataSourceList
+DataSourceList 1--* DataSourceListItems
+DataSourceType 1--* DataSourceListItems
+
+DataSourceType *--1 DeviceType {label: "type id"}
+DataSourceType *--1 CloudFeedType {label: "type id"}
+DataSourceType *--1 EnergyQueryType {label: "type id"}
+
+DataSourceType 1--* DataSourcePrecedence
+DataSourcePrecedence *--1 DataSourceType
+
+EnergyQuery *--1 EnergyQueryType
+EnergyQuery 1--* Upload
+EnergyQuery *--1 Account

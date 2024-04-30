@@ -3,7 +3,7 @@ FROM --platform=$BUILDPLATFORM golang:1.20 as build
 ARG GOOS=$TARGETOS
 ARG GOARCH=$TARGETARCH
 
-WORKDIR /go/src/twomes-backoffice-api
+WORKDIR /go/src/needforheat-server-api
 
 # Create /data folder to be copied later.
 RUN mkdir /data
@@ -14,7 +14,7 @@ RUN go mod download
 
 # Build binary.
 COPY . .
-RUN CGO_ENABLED=0 go build -o /go/bin/twomes-backoffice-api .
+RUN CGO_ENABLED=0 go build -o /go/bin/needforheat-server-api .
 
 FROM gcr.io/distroless/static-debian11
 
@@ -22,7 +22,7 @@ FROM gcr.io/distroless/static-debian11
 COPY --from=build --chown=nonroot /data /data
 
 # Copy binary.
-COPY --from=build /go/bin/twomes-backoffice-api /usr/bin/
+COPY --from=build /go/bin/needforheat-server-api /usr/bin/
 
 USER nonroot
 
@@ -31,7 +31,7 @@ VOLUME /data
 EXPOSE 8080
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --start-interval=2s --retries=3 \
-    CMD ["twomes-backoffice-api", "healthcheck"]
+    CMD ["needforheat-server-api", "healthcheck"]
 
-ENTRYPOINT ["twomes-backoffice-api"]
+ENTRYPOINT ["needforheat-server-api"]
 CMD ["serve"]

@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
-	"github.com/energietransitie/twomes-backoffice-api/services"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/devicetype"
+	"github.com/energietransitie/needforheat-server-api/internal/helpers"
+	"github.com/energietransitie/needforheat-server-api/needforheat/devicetype"
+	"github.com/energietransitie/needforheat-server-api/services"
 	"github.com/sirupsen/logrus"
 )
 
@@ -29,7 +29,7 @@ func (h *DeviceTypeHandler) Create(w http.ResponseWriter, r *http.Request) error
 		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
 	}
 
-	dt, err := h.service.Create(request.Name, request.InstallationManualURL, request.InfoURL)
+	dt, err := h.service.Create(request.Name)
 	if err != nil {
 		if helpers.IsMySQLDuplicateError(err) {
 			return NewHandlerError(err, "duplicate", http.StatusBadRequest)

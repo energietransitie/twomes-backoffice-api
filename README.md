@@ -1,51 +1,60 @@
-# Twomes Backoffice API
-API for Twomes data collection platform to enable research.
+# NeedForHeat Server API
+![GitHub License](https://img.shields.io/github/license/energietransitie/needforheat-server-api)
+![Project Status badge](https://img.shields.io/badge/status-in%20progress-brightgreen)
+
+API for NeedForHeat data collection platform to enable research.
 
 ## Table of contents
 - [Deploying](#deploying)
 - [Developing](#developing)
 - [Usage](#usage)
-- [Status](#status)
 - [License](#license)
 - [Credits](#credits)
 
 ## Deploying
 For our process to deploy the API to our public server, or update it, see these links:
-- Deploy: https://github.com/energietransitie/twomes-backoffice-configuration#api
-- Update: https://github.com/energietransitie/twomes-backoffice-configuration#updating
+- Deploy: https://github.com/energietransitie/needforheat-server-configuration#api
+- Update: https://github.com/energietransitie/needforheat-server-configuration#updating
 
 ### Prerequisites
-The Twomes API is available as a Docker image.
+The NeedForHeat API is available as a Docker image.
 You will need to [install Docker](https://docs.docker.com/engine/install/) to run it.
 
 ### Images
-See all [available images](https://github.com/energietransitie/twomes-backoffice-api/pkgs/container/twomes-backoffice-api):
+See all [available images](https://github.com/energietransitie/needforheat-server-api/pkgs/container/needforheat-server-api):
 - Use the `latest` tag to get the latest stable release built from a tagged GitHub release. 
 - Use the `main` tag to get the latest development release, built directly from the `main` branch.
 
 ### Docker Compose ([more information](https://docs.docker.com/compose/features-uses/))
 ```yaml
-version: "3.8"
 services:
   web:
-    container_name: twomes-api-web
-    image: ghcr.io/energietransitie/twomes-backoffice-api:latest
+    container_name: needforheat-server-api-web
+    build: .
     ports:
       - 8080:8080
     volumes:
-      - /path/to/data:/data
+      - ./data:/data
     environment:
-      - TWOMES_DSN=root:password@tcp(db:3306)/twomes
-      - TWOMES_BASE_URL=http://localhost:8080
+      - NFH_DSN=root:needforheat@tcp(db:3306)/needforheat
+      - NFH_BASE_URL=http://localhost:8080
+      - NFH_DOWNLOAD_TIME=04h00m # 04:00 UTC
     depends_on:
       - db
 
   db:
-    container_name: twomes-api-db
+    container_name: needforheat-server-api-db
     image: mariadb:latest
+    ports:
+      - 3306:3306
+    volumes:
+      - data:/var/lib/mysql
     environment:
-      - MYSQL_DATABASE=twomes
-      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=needforheat
+      - MYSQL_ROOT_PASSWORD=needforheat
+
+volumes:
+  data:
 ```
 
 ## Developing
@@ -67,7 +76,7 @@ The API is now available on http://localhost:8080/.
 
 Create a new admin account to use the admin endpoints:
 ```shell
-docker compose exec -i web twomes-backoffice-api admin create -n <name>
+docker compose exec -i web needforheat-server-api admin create -n <name>
 ```
 > Substitute `<name>` with the name of the admin account you want to create.
 
@@ -102,7 +111,7 @@ This repository tries to implement a DDD approach. While some elements are still
 | repositories | Repositories for domain models. Contains al DB logic                      |
 | services     | Services tie repositories and subservices together to perform operations. |
 | swaggerdocs  | Swagger UI and OpenAPI spec.                                              |
-| twomes       | Domain models and logic.                                                  |
+| needforheat  | Domain models and logic.                                                  |
 
 ### Model diagram
 
@@ -131,21 +140,17 @@ When the container is running, lookup it's name.
 
 Run the following command to see info about how to manage admins:
 ```shell
-docker exec <container-name> twomes-backoffice-api admin --help
+docker exec <container-name> needforheat-server-api admin --help
 ```
 
 Run the following command to see info about how to manage cloudfeeds:
 ```shell
-docker exec <container-name> twomes-backoffice-api cloudfeed --help
+docker exec <container-name> needforheat-server-api cloudfeed --help
 ```
 
 ### Administrators on our servers
 Contact an administrator to get admin access to the API:
-- Nick van Ravenzwaaij
 - Henri ter Hofte
-
-## Status
-Project is: _work in progress_
 
 ## License
 This software is available under the [Apache 2.0 license](./LICENSE), 
@@ -158,6 +163,7 @@ This software is created by:
 
 Thanks also go to:
 - Arjan peddemors · [@arpe](https://github.com/arpe)
+- Harris Mesic · [@labhatorian](https://github.com/Labhatorian)
 
 Product owner:
 - Henri ter Hofte · [@henriterhofte](https://github.com/henriterhofte)
@@ -171,3 +177,5 @@ We use and gratefully aknowlegde the efforts of the makers of the following sour
 - [golang-jwt/jwt](https://github.com/golang-jwt/jwt), by Dave Grijalva, licensed under [MIT license](https://github.com/golang-jwt/jwt/blob/main/LICENSE)
 - [crc16](https://github.com/sigurn/crc16), by sigurn, licensed under [MIT license](https://github.com/sigurn/crc16/blob/master/LICENSE)
 - [swagger-ui](https://github.com/swagger-api/swagger-ui), by SmartBear Software Inc., licensed under [Apache 2.0 license](https://github.com/swagger-api/swagger-ui/blob/master/LICENSE)
+
+This `README` uses [badges](https://github.com/badges/shields/blob/master/LICENSE), by [Shield.io](https://github.com/badges), licensed under [CC0 v1.0 Universal](https://github.com/badges/shields/blob/master/LICENSE)

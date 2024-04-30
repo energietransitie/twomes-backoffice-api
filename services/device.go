@@ -5,17 +5,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/device"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/measurement"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/property"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/upload"
+	"github.com/energietransitie/needforheat-server-api/needforheat/authorization"
+	"github.com/energietransitie/needforheat-server-api/needforheat/device"
+	"github.com/energietransitie/needforheat-server-api/needforheat/measurement"
+	"github.com/energietransitie/needforheat-server-api/needforheat/property"
+	"github.com/energietransitie/needforheat-server-api/needforheat/upload"
 )
 
 var (
-	ErrDeviceDoesNotBelongToAccount   = errors.New("device does not belong to this account")
-	ErrBuildingDoesNotBelongToAccount = errors.New("building does not belong to this account")
-	ErrDeviceTypeNameInvalid          = errors.New("device type name invalid")
+	ErrDeviceDoesNotBelongToAccount = errors.New("device does not belong to this account")
+	ErrDeviceTypeNameInvalid        = errors.New("device type name invalid")
 )
 
 type DeviceService struct {
@@ -26,33 +25,24 @@ type DeviceService struct {
 
 	// Services used when creating a device.
 	deviceTypeService *DeviceTypeService
-	buildingService   *BuildingService
+	accountService    *AccountService
 
 	// Services used when getting device info.
 	uploadService *UploadService
 }
 
 // Create a new DeviceService.
-func NewDeviceService(repository device.DeviceRepository, authService *AuthorizationService, deviceTypeService *DeviceTypeService, BuildingService *BuildingService, uploadService *UploadService) *DeviceService {
+func NewDeviceService(repository device.DeviceRepository, authService *AuthorizationService, deviceTypeService *DeviceTypeService, AccountService *AccountService, uploadService *UploadService) *DeviceService {
 	return &DeviceService{
 		repository:        repository,
 		authService:       authService,
 		deviceTypeService: deviceTypeService,
-		buildingService:   BuildingService,
+		accountService:    AccountService,
 		uploadService:     uploadService,
 	}
 }
 
-func (s *DeviceService) Create(name string, buildingID, accountID uint, activationSecret string) (device.Device, error) {
-	building, err := s.buildingService.GetByID(buildingID)
-	if err != nil {
-		return device.Device{}, err
-	}
-
-	if building.AccountID != accountID {
-		return device.Device{}, ErrBuildingDoesNotBelongToAccount
-	}
-
+func (s *DeviceService) Create(name string, accountID uint, activationSecret string) (device.Device, error) {
 	splitDeviceTypeName := strings.Split(name, "-")
 	if len(splitDeviceTypeName) != 2 {
 		return device.Device{}, ErrDeviceTypeNameInvalid
@@ -64,7 +54,7 @@ func (s *DeviceService) Create(name string, buildingID, accountID uint, activati
 		return device.Device{}, err
 	}
 
-	d := device.MakeDevice(name, deviceType, buildingID, activationSecret)
+	d := device.MakeDevice(name, deviceType, accountID, activationSecret)
 	return s.repository.Create(d)
 }
 
@@ -127,12 +117,7 @@ func (s *DeviceService) GetAccountByDeviceID(id uint) (uint, error) {
 		return 0, err
 	}
 
-	building, err := s.buildingService.GetByID(device.BuildingID)
-	if err != nil {
-		return 0, err
-	}
-
-	return building.AccountID, nil
+	return device.AccountID, nil
 }
 
 func (s *DeviceService) GetMeasurementsByDeviceID(id uint, filters map[string]string) ([]measurement.Measurement, error) {
@@ -151,4 +136,20 @@ func (s *DeviceService) GetPropertiesByDeviceID(id uint) ([]property.Property, e
 	}
 
 	return properties, nil
+}
+
+func (s *DeviceService) GetAllByAccount(accountId uint) ([]device.Device, error) {
+	devices, err := s.repository.GetAllByAccount(accountId)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, device := range devices {
+		device.LatestUpload, _, err = s.uploadService.GetLatestUploadTimeForDeviceWithID(device.ID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return devices, nil
 }

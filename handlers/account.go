@@ -7,11 +7,10 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
-	"github.com/energietransitie/twomes-backoffice-api/services"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/account"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/building"
+	"github.com/energietransitie/needforheat-server-api/internal/helpers"
+	"github.com/energietransitie/needforheat-server-api/needforheat/account"
+	"github.com/energietransitie/needforheat-server-api/needforheat/authorization"
+	"github.com/energietransitie/needforheat-server-api/services"
 	"github.com/go-chi/chi/v5"
 	"github.com/sirupsen/logrus"
 )
@@ -43,9 +42,6 @@ func (h *AccountHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError)
 	}
 
-	// We don't need to return cloud feed auths.
-	account.CloudFeedAuths = nil
-
 	err = json.NewEncoder(w).Encode(account)
 	if err != nil {
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
@@ -57,22 +53,20 @@ func (h *AccountHandler) Create(w http.ResponseWriter, r *http.Request) error {
 // Handle API endpoint for activating an account.
 // This endpoint should be protected with an account activation token.
 func (h *AccountHandler) Activate(w http.ResponseWriter, r *http.Request) error {
-	var request building.Building
-	err := json.NewDecoder(r.Body).Decode(&request)
-	if err != nil {
-		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
-	}
+	var err error
 
 	auth, ok := r.Context().Value(AuthorizationCtxKey).(*authorization.Authorization)
 	if !ok {
+		err = errors.New("failed to get authorization context value")
 		return NewHandlerError(err, "unauthorized", http.StatusUnauthorized).WithMessage("failed when getting authentication context value")
 	}
 
 	if !auth.IsKind(authorization.AccountActivationToken) {
+		err = errors.New("wrong token kind was used")
 		return NewHandlerError(err, "wrong token kind", http.StatusForbidden).WithMessage("wrong token kind was used")
 	}
 
-	a, err := h.accountService.Activate(auth.ID, request.Longtitude, request.Latitude, request.TZName)
+	a, err := h.accountService.Activate(auth.ID)
 	if err != nil {
 		if errors.Is(err, account.ErrAccountAlreadyActivated) {
 			return NewHandlerError(err, "account already activated", http.StatusBadRequest)

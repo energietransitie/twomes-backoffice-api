@@ -3,44 +3,58 @@ package services
 import (
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes/app"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/campaign"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeed"
+	"github.com/energietransitie/needforheat-server-api/needforheat/app"
+	"github.com/energietransitie/needforheat-server-api/needforheat/campaign"
+	"github.com/energietransitie/needforheat-server-api/needforheat/datasourcelist"
+	"github.com/sirupsen/logrus"
 )
 
 type CampaignService struct {
 	repository campaign.CampaignRepository
 
 	// Service used when creating a campaign.
-	appService       *AppService
-	cloudFeedService *CloudFeedService
+	appService            *AppService
+	dataSourceListService *DataSourceListService
 }
 
 // Create a new CampaignService.
-func NewCampaignService(repository campaign.CampaignRepository, appService *AppService, cloudFeedService *CloudFeedService) *CampaignService {
+func NewCampaignService(
+	repository campaign.CampaignRepository,
+	appService *AppService,
+	dataSourceListService *DataSourceListService,
+) *CampaignService {
 	return &CampaignService{
-		repository:       repository,
-		appService:       appService,
-		cloudFeedService: cloudFeedService,
+		repository:            repository,
+		appService:            appService,
+		dataSourceListService: dataSourceListService,
 	}
 }
 
 // Create a new campaign.
-func (s *CampaignService) Create(name string, app app.App, infoURL string, cloudFeeds []cloudfeed.CloudFeed, startTime, endTime *time.Time) (campaign.Campaign, error) {
+func (s *CampaignService) Create(
+	name string,
+	app app.App,
+	infoURL string,
+	startTime,
+	endTime *time.Time,
+	dataSourceList datasourcelist.DataSourceList,
+) (campaign.Campaign, error) {
 	app, err := s.appService.Find(app)
 	if err != nil {
 		return campaign.Campaign{}, err
 	}
 
-	for i, cloudFeed := range cloudFeeds {
-		cloudFeeds[i], err = s.cloudFeedService.Find(cloudFeed)
-		if err != nil {
-			return campaign.Campaign{}, err
-		}
+	foundDataSourceList, err := s.dataSourceListService.Find(dataSourceList)
+	if err != nil {
+		return campaign.Campaign{}, err
 	}
+	logrus.Info(foundDataSourceList)
+	campaign := campaign.MakeCampaign(name, app, infoURL, startTime, endTime, foundDataSourceList)
 
-	campaign := campaign.MakeCampaign(name, app, infoURL, cloudFeeds, startTime, endTime)
-	return s.repository.Create(campaign)
+	campaignCreated, err := s.repository.Create(campaign)
+	campaignCreated.DataSourceList = foundDataSourceList
+
+	return campaignCreated, err
 }
 
 // Find a campaign using any field set in the campaign struct.

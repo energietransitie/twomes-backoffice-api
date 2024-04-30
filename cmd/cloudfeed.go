@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/handlers"
+	"github.com/energietransitie/needforheat-server-api/handlers"
 	"github.com/spf13/cobra"
 )
 
@@ -74,7 +74,7 @@ func handleCloudFeedDownload(cmd *cobra.Command, args []string) error {
 	}
 
 	var reply string
-	err = client.Call("CloudFeedAuthHandler.Download", downloadArgs, &reply)
+	err = client.Call("CloudFeedHandler.Download", downloadArgs, &reply)
 	if err != nil {
 		return err
 	}

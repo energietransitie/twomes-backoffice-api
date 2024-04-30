@@ -3,10 +3,10 @@ package repositories
 import (
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes/device"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/measurement"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/property"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/upload"
+	"github.com/energietransitie/needforheat-server-api/needforheat/device"
+	"github.com/energietransitie/needforheat-server-api/needforheat/measurement"
+	"github.com/energietransitie/needforheat-server-api/needforheat/property"
+	"github.com/energietransitie/needforheat-server-api/needforheat/upload"
 	"gorm.io/gorm"
 )
 
@@ -27,10 +27,10 @@ type DeviceModel struct {
 	Name                 string `gorm:"unique;not null"`
 	DeviceTypeModelID    uint   `gorm:"column:device_type_id"`
 	DeviceType           DeviceTypeModel
-	BuildingModelID      uint `gorm:"column:building_id"`
+	AccountModelID       uint `gorm:"column:account_id"`
 	ActivationSecretHash string
 	ActivatedAt          *time.Time
-	Uploads              []UploadModel
+	Uploads              []UploadModel `gorm:"foreignKey:InstanceID"`
 }
 
 // Set the name of the table in the database.
@@ -51,7 +51,7 @@ func MakeDeviceModel(device device.Device) DeviceModel {
 		Name:                 device.Name,
 		DeviceTypeModelID:    device.DeviceType.ID,
 		DeviceType:           MakeDeviceTypeModel(device.DeviceType),
-		BuildingModelID:      device.BuildingID,
+		AccountModelID:       device.AccountID,
 		ActivationSecretHash: device.ActivationSecretHash,
 		ActivatedAt:          device.ActivatedAt,
 		Uploads:              uploadModels,
@@ -70,7 +70,7 @@ func (m *DeviceModel) fromModel() device.Device {
 		ID:                   m.Model.ID,
 		Name:                 m.Name,
 		DeviceType:           m.DeviceType.fromModel(),
-		BuildingID:           m.BuildingModelID,
+		AccountID:            m.AccountModelID,
 		ActivationSecretHash: m.ActivationSecretHash,
 		ActivatedAt:          m.ActivatedAt,
 		Uploads:              uploads,
@@ -93,8 +93,7 @@ func (r *DeviceRepository) FindCloudFeedAuthCreationTimeFromDeviceID(deviceID ui
 		Select("cloud_feed_auth.created_at").
 		Joins("JOIN device_type ON device.device_type_id = device_type.id").
 		Joins("JOIN cloud_feed ON device_type.name = cloud_feed.name").
-		Joins("JOIN building ON device.building_id = building.id").
-		Joins("JOIN account ON building.account_id = account.id").
+		Joins("JOIN account ON device.account_id = account.id").
 		Joins("JOIN cloud_feed_auth ON account.id = cloud_feed_auth.account_id").
 		Where("device.id = ?", deviceID).
 		First(&result).
@@ -166,6 +165,22 @@ func (r *DeviceRepository) GetAll() ([]device.Device, error) {
 
 	var deviceModels []DeviceModel
 	err := r.db.Preload("DeviceType").Preload("Uploads").Find(&deviceModels).Error
+	if err != nil {
+		return nil, err
+	}
+
+	for _, deviceModel := range deviceModels {
+		devices = append(devices, deviceModel.fromModel())
+	}
+
+	return devices, nil
+}
+
+func (r *DeviceRepository) GetAllByAccount(accountID uint) ([]device.Device, error) {
+	var devices []device.Device
+	var deviceModels []DeviceModel
+
+	err := r.db.Where("account_id = ?", accountID).Preload("DeviceType").Find(&deviceModels).Error
 	if err != nil {
 		return nil, err
 	}

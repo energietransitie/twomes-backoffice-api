@@ -3,8 +3,8 @@ package cmd
 import "github.com/spf13/cobra"
 
 var rootCmd = &cobra.Command{
-	Use:          "twomes-backoffice-api",
-	Short:        "twomes-backoffice-api is the twomes backoffice API server",
+	Use:          "needforheat-server-api",
+	Short:        "needforheat-server-api is the needforheat server api",
 	SilenceUsage: true,
 	CompletionOptions: cobra.CompletionOptions{
 		DisableDefaultCmd: true,

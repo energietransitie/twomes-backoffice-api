@@ -1,8 +1,8 @@
 openapi: "3.0.2"
 
 info:
-  title: Twomes API
-  version: "2.0.0"
+  title: NeedForHeat API
+  version: "3.0.0"
 
 servers:
   - url: {{ .BaseURL }}
@@ -20,10 +20,10 @@ tags:
     description: Operations about device types
   - name: Device
     description: Operations about devices
-  - name: Building
-    description: Operations about buildings
   - name: Upload
     description: Operations about uploads
+  - name: DataSource
+    description: Operations about datasources, list and types
 
 paths:
   /app:
@@ -58,11 +58,11 @@ paths:
         "500":
           $ref: "#/components/responses/500InternalServerError"
 
-  /cloud_feed:
+  /cloud_feed_type:
     post:
       tags:
         - CloudFeed
-      summary: Create a new cloud feed
+      summary: Create a new cloud feed type
       operationId: createCloudFeed
       security:
         - AdminAuthorizationToken: []
@@ -71,14 +71,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CloudFeed'
+              $ref: '#/components/schemas/CloudFeedType'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CloudFeed'
+                $ref: '#/components/schemas/CloudFeedType'
         '400':
           $ref: '#/components/responses/400BadRequest'
         '401':
@@ -117,14 +117,12 @@ paths:
                 info_url:
                   type: string
                   example: https://www.energietransitiewindesheim.nl/test-campaign-1
-                cloud_feeds:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      name:
-                        type: string
-                        example: 'Enelogic'
+                data_source_list:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1        
       responses:
         "200":
           description: OK
@@ -190,21 +188,6 @@ paths:
       operationId: activateAccount
       security:
         - AccountActivationToken: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                latitude:
-                  type: integer
-                  example: 52.499817
-                longitude:
-                  type: integer
-                  example: 6.079731
-                tz_name:
-                  type: string
       responses:
         '200':
           description: OK
@@ -256,12 +239,12 @@ paths:
         "500":
           $ref: "#/components/responses/500InternalServerError"
 
-  /account/{id}/cloud_feed_auth:
+  /account/{id}/cloud_feed:
     post:
       tags:
         - Account
       summary: Create a new cloud feed auth
-      operationId: createCloudFeedAuth
+      operationId: createCloudFeed
       security:
         - AccountAuthorizationToken: []
       requestBody:
@@ -269,7 +252,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CloudFeedAuth'
+              $ref: '#/components/schemas/CloudFeed'
       responses:
         '200':
           description: OK
@@ -286,8 +269,8 @@ paths:
     get:
       tags:
         - Account
-      summary: Get cloud feed auth information
-      operationId: getCloudFeedAuth
+      summary: Get cloud feed information from the user
+      operationId: getCloudFeed
       security:
         - AccountAuthorizationToken: []
       responses:
@@ -349,7 +332,7 @@ paths:
       summary: Create a new device
       operationId: createDevice
       security:
-        - AdminAuthorizationToken: []
+        - AccountAuthorizationToken: []
       requestBody:
         required: true
         content:
@@ -360,9 +343,6 @@ paths:
                 name:
                   type: string
                   example: FCA2-AC4BC3
-                building_id:
-                  type: integer
-                  example: 1
                 activation_secret:
                   type: string
                   example: 1029380918
@@ -537,28 +517,21 @@ paths:
         "500":
           $ref: "#/components/responses/500InternalServerError"
 
-  /building/{id}:
+  /device/all:
     get:
       tags:
-        - Building
-      summary: Get building information
-      operationId: getBuildingByID
+        - Device
+      summary: Get all devices from current account
+      operationId: getAllDeviceAccount
       security:
         - AccountAuthorizationToken: []
-      parameters:
-        - name: id
-          in: path
-          schema:
-            type: integer
-          description: Building ID
-          required: true
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Building"
+                $ref: "#/components/schemas/GetAllDevices"
         "400":
           $ref: "#/components/responses/400BadRequest"
         "401":
@@ -602,6 +575,62 @@ paths:
         "500":
           $ref: "#/components/responses/500InternalServerError"
 
+  /data_source_list:
+    post:
+      tags:
+        - DataSource
+      summary: Create a new DataSourceList
+      operationId: createDataSourceList
+      security:
+        - AdminAuthorizationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DataSourceList"
+      responses:
+        "200":
+          description: OK
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"       
+
+  /data_source_type:
+    post:
+      tags:
+        - DataSource
+      summary: Create new DataSourceTpe
+      operationId: createDataSourceTpe
+      security:
+        - AdminAuthorizationToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DataSourceType"  
+      responses:
+        "200":
+          description: OK
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "401":
+          $ref: "#/components/responses/401Unauthorized"
+        "403":
+          $ref: "#/components/responses/403Forbidden"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+        "500":
+          $ref: "#/components/responses/500InternalServerError"     
+
 components:
   schemas:
     App:
@@ -636,12 +665,8 @@ components:
         info_url:
           type: string
           example: https://www.energietransitiewindesheim.nl/test-campaign-1
-        cloud_feeds:
-          type: array
-          items:
-            $ref: '#/components/schemas/CloudFeed'
 
-    CloudFeed:
+    CloudFeedType:
       type: object
       properties:
         id:
@@ -671,7 +696,7 @@ components:
           type: string
           example: https://energietransitiewindesheim.page.link/callback
 
-    CloudFeedAuth:
+    CloudFeed:
       type: object
       properties:
         cloud_feed_id:
@@ -700,35 +725,6 @@ components:
         name:
           type: string
           example: Generic-Test
-        installation_manual_url:
-          type: string
-          example: https://www.energietransitiewindesheim.nl/manuals/Generic-Test/
-        info_url:
-          type: string
-          example: https://www.energietransitiewindesheim.nl/brains4buildings2022/privacy/
-
-    Building:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-          example: 1
-        account_id:
-          type: integer
-          example: 2
-        latitude:
-          type: integer
-          example: 52.499817
-        longitude:
-          type: integer
-          example: 6.079731
-        tz_name:
-          type: string
-        devices:
-          type: array
-          items:
-            $ref: "#/components/schemas/DeviceInfo"
 
     AccountCreated:
       type: object
@@ -771,10 +767,6 @@ components:
           type: string
           readOnly: true
           example: eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJUd29tZXNBUEl2MiIsInN1YiI6IjIiLCJleHAiOjE3MTUyNDg2OTksIm5iZiI6MTY4MzcxMjY5OSwiaWF0IjoxNjgzNzEyNjk5LCJraW5kIjoiYWNjb3VudFRva2VuIn0.RFiIgO4oG1k1gr9xpdKVX1toO_N_ZB0BrsrlXrj_K76pgljRKBbWcNEe4hbJoIKivaVuz9z6QGrWi4ZHPgGvXg
-        buildings:
-          type: array
-          items:
-            $ref: "#/components/schemas/Building"
 
     AccountInfo:
       type: object
@@ -790,10 +782,6 @@ components:
           format: date-time
           nullable: true
           example: 2023-05-10T09:13:12Z
-        buildings:
-          type: array
-          items:
-            $ref: "#/components/schemas/Building"
 
     DeviceCreated:
       type: object
@@ -807,9 +795,6 @@ components:
           example: FCA2-AC4BC3
         device_type:
           $ref: "#/components/schemas/DeviceType"
-        building_id:
-          type: integer
-          example: 1
         activated_at:
           type: string
           format: date-time
@@ -833,9 +818,6 @@ components:
           example: FCA2-AC4BC3
         device_type:
           $ref: "#/components/schemas/DeviceType"
-        building_id:
-          type: integer
-          example: 1
         activated_at:
           type: string
           format: date-time
@@ -863,9 +845,6 @@ components:
           example: FCA2-AC4BC3
         device_type:
           $ref: "#/components/schemas/DeviceType"
-        building_id:
-          type: integer
-          example: 1
         activated_at:
           type: string
           format: date-time
@@ -909,6 +888,11 @@ components:
             type: string
             example: property_name__unit
 
+    GetAllDevices:
+        type: array
+        items:
+          $ref: "#/components/schemas/DeviceInfo"
+
     Upload:
       type: object
       properties:
@@ -951,6 +935,68 @@ components:
                 type: string
                 example: 12
           writeOnly: true
+
+    DataSourceList:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          example: "Test DataSourceList"
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              order:
+                type: integer
+                example: 1
+
+    DataSourceType:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        type_instance_id:
+          type: integer
+          example: 1
+        category:
+          type: string
+          example: "device_type"
+        order:
+          type: integer
+          example: 1
+        precedes:
+          type: array
+          items:
+           type: object
+           properties:
+              id:
+                type: integer
+                example: 2
+        installation_url:
+          type: string
+          example: https://www.energietransitiewindesheim.nl/manuals/Generic-Test/
+        info_url:
+          type: string
+          example: https://www.energietransitiewindesheim.nl/brains4buildings2022/privacy/  
+        faq_url:
+          type: string
+          example: https://www.energietransitiewindesheim.nl/brains4buildings2022/privacy/        
+        upload_schedule:
+          type: string
+          example: '* * * * *'
+        measurement_schedule:
+          type: string
+          example: '* * * * *'    
+        notification_threshold:
+          type: string
+          example: 'P2D'   
 
     Error:
       type: object

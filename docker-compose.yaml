@@ -1,29 +1,28 @@
-version: "3.8"
 services:
   web:
-    container_name: twomes-backoffice-api-local-web
+    container_name: needforheat-server-api-web
     build: .
     ports:
       - 8080:8080
     volumes:
       - ./data:/data
     environment:
-      - TWOMES_DSN=root:twomes@tcp(db:3306)/twomes
-      - TWOMES_BASE_URL=http://localhost:8080
-      - TWOMES_DOWNLOAD_TIME=04h00m # 04:00 UTC
+      - NFH_DSN=root:needforheat@tcp(db:3306)/needforheat
+      - NFH_BASE_URL=http://localhost:8080
+      - NFH_DOWNLOAD_TIME=04h00m # 04:00 UTC
     depends_on:
       - db
 
   db:
-    container_name: twomes-backoffice-api-local-db
+    container_name: needforheat-server-api-db
     image: mariadb:latest
     ports:
       - 3306:3306
     volumes:
       - data:/var/lib/mysql
     environment:
-      - MYSQL_DATABASE=twomes
-      - MYSQL_ROOT_PASSWORD=twomes
+      - MYSQL_DATABASE=needforheat
+      - MYSQL_ROOT_PASSWORD=needforheat
 
 volumes:
   data:

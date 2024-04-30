@@ -1,13 +1,17 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
+	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
-	"github.com/energietransitie/twomes-backoffice-api/services"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeed"
+	"github.com/energietransitie/needforheat-server-api/internal/helpers"
+	"github.com/energietransitie/needforheat-server-api/needforheat/authorization"
+	"github.com/energietransitie/needforheat-server-api/needforheat/cloudfeed"
+	"github.com/energietransitie/needforheat-server-api/services"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/oauth2"
 )
 
 type CloudFeedHandler struct {
@@ -29,19 +33,47 @@ func (h *CloudFeedHandler) Create(w http.ResponseWriter, r *http.Request) error 
 		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
 	}
 
-	cloudFeed, err := h.service.Create(request.Name, request.AuthorizationURL, request.TokenURL, request.ClientID, request.ClientSecret, request.Scope, request.RedirectURL)
+	auth, ok := r.Context().Value(AuthorizationCtxKey).(*authorization.Authorization)
+	if !ok {
+		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting authentication context value")
+	}
+
+	_, err = h.service.Create(r.Context(), auth.ID, request.CloudFeedTypeID, request.AuthGrantToken)
 	if err != nil {
 		if helpers.IsMySQLDuplicateError(err) {
 			return NewHandlerError(err, "duplicate", http.StatusBadRequest)
 		}
 
+		if _, ok := err.(*oauth2.RetrieveError); ok {
+			return NewHandlerError(err, "invalid auth code exchange", http.StatusBadRequest)
+		}
+
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError)
 	}
 
-	err = json.NewEncoder(w).Encode(&cloudFeed)
+	return nil
+}
+
+type DownloadArgs struct {
+	AccountID   uint
+	CloudFeedID uint
+	StartPeriod time.Time
+	EndPeriod   time.Time
+}
+
+// Handle RPC endpoint for downloading data from a cloud feed.
+func (h *CloudFeedHandler) Download(args DownloadArgs, reply *string) error {
+	cfa, err := h.service.Find(cloudfeed.CloudFeed{AccountID: args.AccountID, CloudFeedTypeID: args.CloudFeedID})
 	if err != nil {
-		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithLevel(logrus.ErrorLevel)
+		return err
 	}
+
+	err = h.service.Download(context.Background(), cfa, args.StartPeriod, args.EndPeriod)
+	if err != nil {
+		return err
+	}
+
+	*reply = "Downloaded data from cloud feed. Check server logs for more information."
 
 	return nil
 }

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes/devicetype"
+	"github.com/energietransitie/needforheat-server-api/needforheat/devicetype"
 	"github.com/sigurn/crc16"
 	"github.com/sirupsen/logrus"
 )
@@ -35,8 +35,8 @@ func NewDeviceTypeService(repository devicetype.DeviceTypeRepository, propertySe
 	return deviceTypeService
 }
 
-func (s *DeviceTypeService) Create(name, installationManualURL, infoURL string) (devicetype.DeviceType, error) {
-	deviceType := devicetype.MakeDeviceType(name, installationManualURL, infoURL)
+func (s *DeviceTypeService) Create(name string) (devicetype.DeviceType, error) {
+	deviceType := devicetype.MakeDeviceType(name)
 
 	deviceType, err := s.repository.Create(deviceType)
 	if err != nil {
@@ -65,8 +65,16 @@ func (s *DeviceTypeService) GetByID(id uint) (devicetype.DeviceType, error) {
 	return s.repository.Find(devicetype.DeviceType{ID: id})
 }
 
+func (s *DeviceTypeService) GetByIDForDataSourceType(id uint) (interface{}, error) {
+	return s.repository.Find(devicetype.DeviceType{ID: id})
+}
+
 func (s *DeviceTypeService) GetByName(name string) (devicetype.DeviceType, error) {
 	return s.repository.Find(devicetype.DeviceType{Name: name})
+}
+
+func (s *DeviceTypeService) GetTableName() string {
+	return "device_type"
 }
 
 // Update the map of hashes to device types.

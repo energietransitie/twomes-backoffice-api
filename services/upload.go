@@ -4,11 +4,11 @@ import (
 	"errors"
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
-	"github.com/energietransitie/twomes-backoffice-api/twomes"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/device"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/measurement"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/upload"
+	"github.com/energietransitie/needforheat-server-api/internal/helpers"
+	"github.com/energietransitie/needforheat-server-api/needforheat"
+	"github.com/energietransitie/needforheat-server-api/needforheat/device"
+	"github.com/energietransitie/needforheat-server-api/needforheat/measurement"
+	"github.com/energietransitie/needforheat-server-api/needforheat/upload"
 )
 
 var (
@@ -32,7 +32,7 @@ func NewUploadService(repository upload.UploadRepository, deviceRepo device.Devi
 	}
 }
 
-func (s *UploadService) Create(deviceID uint, deviceTime twomes.Time, measurements []measurement.Measurement) (upload.Upload, error) {
+func (s *UploadService) Create(deviceID uint, deviceTime needforheat.Time, measurements []measurement.Measurement) (upload.Upload, error) {
 	if len(measurements) <= 0 {
 		return upload.Upload{}, ErrEmptyUpload
 	}

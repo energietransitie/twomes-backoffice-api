@@ -12,7 +12,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
+	"github.com/energietransitie/needforheat-server-api/needforheat/authorization"
 	"github.com/sirupsen/logrus"
 )
 

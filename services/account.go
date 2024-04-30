@@ -3,16 +3,18 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"net/url"
 	"regexp"
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/internal/helpers"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/account"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/campaign"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeedauth"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/cloudfeedauthstatus"
+	"github.com/energietransitie/needforheat-server-api/internal/helpers"
+	"github.com/energietransitie/needforheat-server-api/needforheat/account"
+	"github.com/energietransitie/needforheat-server-api/needforheat/authorization"
+	"github.com/energietransitie/needforheat-server-api/needforheat/campaign"
+	"github.com/energietransitie/needforheat-server-api/needforheat/cloudfeed"
+	"github.com/energietransitie/needforheat-server-api/needforheat/cloudfeedstatus"
+	"github.com/energietransitie/needforheat-server-api/needforheat/cloudfeedtype"
 	"github.com/sirupsen/logrus"
 )
 
@@ -28,30 +30,37 @@ type AccountService struct {
 	authService     *AuthorizationService
 	appService      *AppService
 	campaignService *CampaignService
-	buildingService *BuildingService
 
 	// Services used for getting cloud feed auth statuses.
-	cloudFeedAuthService *CloudFeedAuthService
+	dataSourceTypeService *DataSourceTypeService
+	cloudFeedService      *CloudFeedService
 
 	// Regular expression used for pattern matching in a provisioning_url_template.
 	activationTokenRegex *regexp.Regexp
 }
 
 // Create a new AccountService
-func NewAccountService(repository account.AccountRepository, authService *AuthorizationService, appService *AppService, campaignService *CampaignService, buildingService *BuildingService, cloudFeedAuthService *CloudFeedAuthService) *AccountService {
+func NewAccountService(
+	repository account.AccountRepository,
+	authService *AuthorizationService,
+	appService *AppService,
+	campaignService *CampaignService,
+	cloudFeedService *CloudFeedService,
+	dataSourceTypeService *DataSourceTypeService,
+) *AccountService {
 	activationTokenRegex, err := regexp.Compile(`<account_activation_token>`)
 	if err != nil {
 		logrus.WithField("error", err).Fatal("account activation token regex did not compile")
 	}
 
 	return &AccountService{
-		repository:           repository,
-		authService:          authService,
-		appService:           appService,
-		campaignService:      campaignService,
-		buildingService:      buildingService,
-		cloudFeedAuthService: cloudFeedAuthService,
-		activationTokenRegex: activationTokenRegex,
+		repository:            repository,
+		authService:           authService,
+		appService:            appService,
+		campaignService:       campaignService,
+		cloudFeedService:      cloudFeedService,
+		dataSourceTypeService: dataSourceTypeService,
+		activationTokenRegex:  activationTokenRegex,
 	}
 }
 
@@ -63,8 +72,8 @@ func (s *AccountService) Create(campaign campaign.Campaign) (account.Account, er
 	}
 
 	a := account.MakeAccount(campaign)
-
 	a, err = s.repository.Create(a)
+
 	if err != nil {
 		return account.Account{}, err
 	}
@@ -80,7 +89,7 @@ func (s *AccountService) Create(campaign campaign.Campaign) (account.Account, er
 }
 
 // Activate an account.
-func (s *AccountService) Activate(id uint, longtitude, latitude float32, tzName string) (account.Account, error) {
+func (s *AccountService) Activate(id uint) (account.Account, error) {
 	a, err := s.repository.Find(account.Account{ID: id})
 	if err != nil {
 		return account.Account{}, err
@@ -94,15 +103,6 @@ func (s *AccountService) Activate(id uint, longtitude, latitude float32, tzName 
 	a, err = s.repository.Update(a)
 	if err != nil {
 		return account.Account{}, err
-	}
-
-	if len(a.Buildings) < 1 {
-		building, err := s.buildingService.Create(a.ID, longtitude, latitude, tzName)
-		if err != nil {
-			return account.Account{}, err
-		}
-
-		a.Buildings = append(a.Buildings, building)
 	}
 
 	a.AuthorizationToken, err = s.authService.CreateToken(authorization.AccountToken, a.ID, time.Time{})
@@ -119,21 +119,39 @@ func (s *AccountService) GetByID(id uint) (account.Account, error) {
 }
 
 // Get cloud feed auth statuses.
-func (s *AccountService) GetCloudFeedAuthStatuses(id uint) ([]cloudfeedauthstatus.CloudFeedAuthStatus, error) {
-	var cloudFeedAuthStatuses []cloudfeedauthstatus.CloudFeedAuthStatus
+func (s *AccountService) GetCloudFeedAuthStatuses(id uint) ([]cloudfeedstatus.CloudFeedStatus, error) {
+	var cloudFeedAuthStatuses []cloudfeedstatus.CloudFeedStatus
 
 	a, err := s.GetByID(id)
 	if err != nil {
 		return cloudFeedAuthStatuses, err
 	}
 
-	for _, cloudFeed := range a.Campaign.CloudFeeds {
-		cloudFeedAuth, err := s.cloudFeedAuthService.Find(cloudfeedauth.CloudFeedAuth{AccountID: id, CloudFeedID: cloudFeed.ID})
+	var cloudFeedTypes []cloudfeedtype.CloudFeedType
+	for _, dataSourceType := range a.Campaign.DataSourceList.Items {
+		item, _, err := s.dataSourceTypeService.GetSourceByIDAndTable(dataSourceType.ID, "cloud_feed_type")
+		if err != nil {
+			fmt.Printf("Error fetching source for ID %d: %v\n", dataSourceType.ID, err)
+			continue
+		}
+
+		// Assert the retrieved source to the appropriate type (CloudFeedType)
+		cloudFeedType, ok := item.(cloudfeedtype.CloudFeedType)
+		if !ok {
+			fmt.Printf("Unexpected type for source ID %d\n", dataSourceType.ID)
+			continue
+		}
+
+		cloudFeedTypes = append(cloudFeedTypes, cloudFeedType)
+	}
+
+	for _, cloudFeed := range cloudFeedTypes {
+		cloudFeedAuth, err := s.cloudFeedService.Find(cloudfeed.CloudFeed{AccountID: id, CloudFeedTypeID: cloudFeed.ID})
 		if err != nil && !helpers.IsMySQLRecordNotFoundError(err) {
 			return cloudFeedAuthStatuses, err
 		}
 
-		cloudFeedAuthStatuses = append(cloudFeedAuthStatuses, cloudfeedauthstatus.MakeCloudFeedAuthStatus(cloudFeed, cloudFeedAuth))
+		cloudFeedAuthStatuses = append(cloudFeedAuthStatuses, cloudfeedstatus.MakeCloudFeedStatus(cloudFeed, cloudFeedAuth))
 	}
 
 	return cloudFeedAuthStatuses, nil

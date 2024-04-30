@@ -11,11 +11,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/energietransitie/twomes-backoffice-api/handlers"
-	"github.com/energietransitie/twomes-backoffice-api/repositories"
-	"github.com/energietransitie/twomes-backoffice-api/services"
-	"github.com/energietransitie/twomes-backoffice-api/swaggerdocs"
-	"github.com/energietransitie/twomes-backoffice-api/twomes/authorization"
+	"github.com/energietransitie/needforheat-server-api/handlers"
+	"github.com/energietransitie/needforheat-server-api/needforheat/authorization"
+	"github.com/energietransitie/needforheat-server-api/repositories"
+	"github.com/energietransitie/needforheat-server-api/services"
+	"github.com/energietransitie/needforheat-server-api/swaggerdocs"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/sirupsen/logrus"
@@ -26,7 +26,7 @@ import (
 func init() {
 	serveCmd := &cobra.Command{
 		Use:   "serve",
-		Short: "Start the twomes backoffice API server",
+		Short: "Start the needforheat API server",
 		RunE:  handleServe,
 	}
 
@@ -53,10 +53,12 @@ func handleServe(cmd *cobra.Command, args []string) error {
 	defer dbCancel()
 
 	db, err := repositories.NewDatabaseConnectionAndMigrate(dbCtx, config.DatabaseDSN)
+
 	if err != nil {
 		logrus.Fatal(err)
 	}
 
+	//Important services for admin and auth
 	authService, err := services.NewAuthorizationServiceFromFile("./data/key.pem")
 	if err != nil {
 		logrus.Fatal(err)
@@ -75,41 +77,52 @@ func handleServe(cmd *cobra.Command, args []string) error {
 	accountAuth := authHandler.Middleware(authorization.AccountToken)
 	deviceAuth := authHandler.Middleware(authorization.DeviceToken)
 
+	//Repositories
 	appRepository := repositories.NewAppRepository(db)
+	cloudFeedTypeRepository := repositories.NewCloudFeedTypeRepository(db)
 	cloudFeedRepository := repositories.NewCloudFeedRepository(db)
-	cloudFeedAuthRepository := repositories.NewCloudFeedAuthRepository(db)
 	campaignRepository := repositories.NewCampaignRepository(db)
 	propertyRepository := repositories.NewPropertyRepository(db)
 	uploadRepository := repositories.NewUploadRepository(db)
-	buildingRepository := repositories.NewBuildingRepository(db)
 	accountRepository := repositories.NewAccountRepository(db)
 	deviceTypeRepository := repositories.NewDeviceTypeRepository(db)
 	deviceRepository := repositories.NewDeviceRepository(db)
+	dataSourceListRepository := repositories.NewDataSourceListRepository(db)
+	dataSourceTypeRepository := repositories.NewDataSourceTypeRepository(db)
 
+	//Services
 	appService := services.NewAppService(appRepository)
-	cloudFeedService := services.NewCloudFeedService(cloudFeedRepository)
-	campaignService := services.NewCampaignService(campaignRepository, appService, cloudFeedService)
+	cloudFeedTypeService := services.NewCloudFeedTypeService(cloudFeedTypeRepository)
 	propertyService := services.NewPropertyService(propertyRepository)
-	uploadService := services.NewUploadService(uploadRepository, deviceRepository, propertyService)
-	cloudFeedAuthService := services.NewCloudFeedAuthService(cloudFeedAuthRepository, cloudFeedRepository, uploadService)
-	buildingService := services.NewBuildingService(buildingRepository, uploadService)
-	accountService := services.NewAccountService(accountRepository, authService, appService, campaignService, buildingService, cloudFeedAuthService)
 	deviceTypeService := services.NewDeviceTypeService(deviceTypeRepository, propertyService)
-	deviceService := services.NewDeviceService(deviceRepository, authService, deviceTypeService, buildingService, uploadService)
+	dataSourceTypeService := services.NewDataSourceTypeService(
+		dataSourceTypeRepository,
+		deviceTypeService,
+		cloudFeedTypeService,
+	)
+	dataSourceListService := services.NewDataSourceListService(dataSourceListRepository, dataSourceTypeService)
+	campaignService := services.NewCampaignService(campaignRepository, appService, dataSourceListService)
+	uploadService := services.NewUploadService(uploadRepository, deviceRepository, propertyService)
+	cloudFeedService := services.NewCloudFeedService(cloudFeedRepository, cloudFeedTypeRepository, uploadService)
+	accountService := services.NewAccountService(accountRepository, authService, appService, campaignService, cloudFeedService, dataSourceTypeService)
+	deviceService := services.NewDeviceService(deviceRepository, authService, deviceTypeService, accountService, uploadService)
 
+	//Handlers
 	appHandler := handlers.NewAppHandler(appService)
+	cloudFeedTypeHandler := handlers.NewCloudFeedTypeHandler(cloudFeedTypeService)
 	cloudFeedHandler := handlers.NewCloudFeedHandler(cloudFeedService)
-	cloudFeedAuthHandler := handlers.NewCloudFeedAuthHandler(cloudFeedAuthService)
 	campaignHandler := handlers.NewCampaignHandler(campaignService)
 	uploadHandler := handlers.NewUploadHandler(uploadService)
-	buildingHandler := handlers.NewBuildingHandler(buildingService)
 	accountHandler := handlers.NewAccountHandler(accountService)
 	deviceTypeHandler := handlers.NewDeviceTypeHandler(deviceTypeService)
 	deviceHandler := handlers.NewDeviceHandler(deviceService)
+	dataSourceListHandler := handlers.NewDataSourceListHandler(dataSourceListService)
+	dataSourceTypeHandler := handlers.NewDataSourceTypeHandler(dataSourceTypeService)
 
-	go cloudFeedAuthService.RefreshTokensInBackground(ctx, preRenewalDuration)
-	go cloudFeedAuthService.DownloadInBackground(ctx, config.downloadStartTime)
+	go cloudFeedService.RefreshTokensInBackground(ctx, preRenewalDuration)
+	go cloudFeedService.DownloadInBackground(ctx, config.downloadStartTime)
 
+	//Router
 	r := chi.NewRouter()
 
 	r.Use(middleware.Timeout(time.Second * 30))
@@ -118,7 +131,7 @@ func handleServe(cmd *cobra.Command, args []string) error {
 
 	r.Method("POST", "/app", adminAuth(adminHandler.Middleware(appHandler.Create))) // POST on /app.
 
-	r.Method("POST", "/cloud_feed", adminAuth(adminHandler.Middleware(cloudFeedHandler.Create))) // POST on /cloud_feed.
+	r.Method("POST", "/cloud_feed_type", adminAuth(adminHandler.Middleware(cloudFeedTypeHandler.Create))) // POST on /cloud_feed.
 
 	r.Method("POST", "/campaign", adminAuth(adminHandler.Middleware(campaignHandler.Create))) // POST on /campaign.
 
@@ -127,13 +140,11 @@ func handleServe(cmd *cobra.Command, args []string) error {
 		r.Method("POST", "/activate", accountActivationAuth(accountHandler.Activate))    // POST on /account/activate.
 
 		r.Route("/{account_id}", func(r chi.Router) {
-			r.Method("GET", "/", accountAuth(accountHandler.GetAccountByID))                          // GET on /account/{account_id}.
-			r.Method("POST", "/cloud_feed_auth", accountAuth(cloudFeedAuthHandler.Create))            // POST on /account/{account_id}/cloud_feed_auth.
-			r.Method("GET", "/cloud_feed_auth", accountAuth(accountHandler.GetCloudFeedAuthStatuses)) // GET on /account/{account_id}/cloud_feed_auth.
+			r.Method("GET", "/", accountAuth(accountHandler.GetAccountByID))                     // GET on /account/{account_id}.
+			r.Method("POST", "/cloud_feed", accountAuth(cloudFeedHandler.Create))                // POST on /account/{account_id}/cloud_feed_auth.
+			r.Method("GET", "/cloud_feed", accountAuth(accountHandler.GetCloudFeedAuthStatuses)) // GET on /account/{account_id}/cloud_feed_auth.
 		})
 	})
-
-	r.Method("GET", "/building/{building_id}", accountAuth(buildingHandler.GetBuildingByID)) // GET on /building/{building_id}.
 
 	r.Method("POST", "/device_type", adminAuth(adminHandler.Middleware(deviceTypeHandler.Create))) // POST on /device_type.
 
@@ -141,15 +152,19 @@ func handleServe(cmd *cobra.Command, args []string) error {
 		r.Method("POST", "/", accountAuth(deviceHandler.Create))                                         // POST on /device.
 		r.Method("POST", "/activate", handlers.Handler(deviceHandler.Activate))                          // POST on /device/activate.
 		r.Method("GET", "/{device_name}", accountAuth(deviceHandler.GetDeviceByName))                    // GET on /device/{device_name}.
+		r.Method("GET", "/all", accountAuth(deviceHandler.GetDevicesByAccount))                          // GET on /device/all.
 		r.Method("GET", "/{device_name}/measurements", accountAuth(deviceHandler.GetDeviceMeasurements)) // GET on /device/{device_name}/measurements.
 		r.Method("GET", "/{device_name}/properties", accountAuth(deviceHandler.GetDeviceProperties))     // GET on /device/{device_name}/properties.
 	})
 
 	r.Method("POST", "/upload", deviceAuth(uploadHandler.Create)) // POST on /upload.
 
+	r.Method("POST", "/data_source_list", adminAuth(dataSourceListHandler.Create)) // POST on /data_source_list
+	r.Method("POST", "/data_source_type", adminAuth(dataSourceTypeHandler.Create)) // POST on /data_source_type
+
 	setupSwaggerDocs(r, config.BaseURL)
 
-	go setupRPCHandler(adminHandler, cloudFeedAuthHandler)
+	go setupRPCHandler(adminHandler, cloudFeedHandler)
 
 	server := &http.Server{
 		Addr:    ":8080",
@@ -175,19 +190,19 @@ type Configuration struct {
 }
 
 func getConfiguration() Configuration {
-	dsn, ok := os.LookupEnv("TWOMES_DSN")
+	dsn, ok := os.LookupEnv("NFH_DSN")
 	if !ok {
-		logrus.Fatal("TWOMES_DSN was not set")
+		logrus.Fatal("NFH_DSN was not set")
 	}
 
-	baseURL, ok := os.LookupEnv("TWOMES_BASE_URL")
+	baseURL, ok := os.LookupEnv("NFH_BASE_URL")
 	if !ok {
-		logrus.Fatal("TWOMES_BASE_URL was not set")
+		logrus.Fatal("NFH_BASE_URL was not set")
 	}
 
-	downloadTime, ok := os.LookupEnv("TWOMES_DOWNLOAD_TIME")
+	downloadTime, ok := os.LookupEnv("NFH_DOWNLOAD_TIME")
 	if !ok {
-		logrus.Warning("TWOMES_DOWNLOAD_TIME was not set. defaulting to", defaultDownloadTime)
+		logrus.Warning("NFH_DOWNLOAD_TIME was not set. defaulting to", defaultDownloadTime)
 		downloadTime = defaultDownloadTime
 	}
 
