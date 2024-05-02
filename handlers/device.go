@@ -246,7 +246,6 @@ func (h *DeviceHandler) GetDevicesByAccount(w http.ResponseWriter, r *http.Reque
 		return NewHandlerError(err, "wrong token kind", http.StatusForbidden).WithMessage("wrong token kind was used")
 	}
 
-	logrus.Info("Hi")
 	devices, serviceErr := h.service.GetAllByAccount(auth.ID)
 	if serviceErr != nil {
 		return NewHandlerError(serviceErr, "error in getting devices", http.StatusInternalServerError).WithMessage("error in getting devices").WithLevel(logrus.ErrorLevel)
