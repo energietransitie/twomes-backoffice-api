@@ -60,16 +60,19 @@ func MakeDataSourceTypeModel(datasourcetype datasourcetype.DataSourceType) DataS
 }
 
 // Create a [datasourcetype.DataSourceType] from a DataSourceTypeModel
-func (m *DataSourceTypeModel) fromModel() datasourcetype.DataSourceType {
+func (m *DataSourceTypeModel) fromModel(db *gorm.DB) datasourcetype.DataSourceType {
 	var items []datasourcetype.DataSourceType
 	for _, shoppingListItemModel := range m.Precedes {
-		items = append(items, shoppingListItemModel.fromModel())
+		items = append(items, shoppingListItemModel.fromModel(db))
 	}
+
+	var category = StringToCategory(m.TypeInstanceType)
 
 	return datasourcetype.DataSourceType{
 		ID:                    m.Model.ID,
 		TypeInstanceID:        m.TypeInstanceID,
-		Category:              StringToCategory(m.TypeInstanceType),
+		Item:                  getItemFromDB(category, m.TypeInstanceID, db),
+		Category:              category,
 		Order:                 m.Order,
 		InstallationManualURL: m.InstallationManualURL,
 		FAQURL:                m.FAQURL,
@@ -84,7 +87,7 @@ func (m *DataSourceTypeModel) fromModel() datasourcetype.DataSourceType {
 func (r *DataSourceTypeRepository) Create(datasourcetype datasourcetype.DataSourceType) (datasourcetype.DataSourceType, error) {
 	shoppingListItemModel := MakeDataSourceTypeModel(datasourcetype)
 	err := r.db.Create(&shoppingListItemModel).Error
-	return shoppingListItemModel.fromModel(), err
+	return shoppingListItemModel.fromModel(r.db), err
 }
 
 func (r *DataSourceTypeRepository) Delete(datasourcetype datasourcetype.DataSourceType) error {
@@ -95,7 +98,7 @@ func (r *DataSourceTypeRepository) Delete(datasourcetype datasourcetype.DataSour
 func (r *DataSourceTypeRepository) Find(shoppingListItem datasourcetype.DataSourceType) (datasourcetype.DataSourceType, error) {
 	shoppingListItemModel := MakeDataSourceTypeModel(shoppingListItem)
 	err := r.db.Where(&shoppingListItemModel).First(&shoppingListItemModel).Error
-	return shoppingListItemModel.fromModel(), err
+	return shoppingListItemModel.fromModel(r.db), err
 }
 
 func (r *DataSourceTypeRepository) GetAll() ([]datasourcetype.DataSourceType, error) {
@@ -108,7 +111,7 @@ func (r *DataSourceTypeRepository) GetAll() ([]datasourcetype.DataSourceType, er
 	}
 
 	for _, shoppingListItemModel := range shoppingListItemModels {
-		shoppingListItems = append(shoppingListItems, shoppingListItemModel.fromModel())
+		shoppingListItems = append(shoppingListItems, shoppingListItemModel.fromModel(r.db))
 	}
 
 	return shoppingListItems, nil
@@ -149,4 +152,28 @@ func StringToCategory(category string) datasourcetype.Category {
 	default:
 		return ""
 	}
+}
+
+// Function to retrieve an item based on category and type instance ID
+func getItemFromDB(category datasourcetype.Category, typeInstanceID uint, db *gorm.DB) interface{} {
+	var item interface{}
+
+	switch category {
+	case datasourcetype.DeviceType:
+		var deviceType DeviceTypeModel
+		db.Table("device_type").Where("id = ?", typeInstanceID).First(&deviceType)
+		item = deviceType
+	case datasourcetype.CloudFeedType:
+		var cloudFeedType CloudFeedTypeModel
+		db.Table("cloud_feed_type").Where("id = ?", typeInstanceID).First(&cloudFeedType)
+		item = cloudFeedType
+	// case datasourcetype.EnergyQueryType:
+	// 	var energyQueryType EnergyQueryTypeModel
+	// 	db.Table("energy_query_type").Where("id = ?", typeInstanceID).First(&energyQueryType)
+	// 	item = energyQueryType
+	default:
+		return nil
+	}
+
+	return item
 }
