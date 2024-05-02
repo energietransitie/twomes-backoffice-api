@@ -114,7 +114,7 @@ func (r *DeviceRepository) GetMeasurements(device device.Device, filters map[str
 		Model(&measurement.Measurement{}).
 		Preload("Property").
 		Joins("JOIN upload ON measurement.upload_id = upload.id").
-		Joins("JOIN device ON upload.device_id = device.id").
+		Joins("JOIN device ON upload.instance_id = device.id").
 		Where("device.id = ?", device.ID)
 
 	// apply filters
@@ -146,7 +146,7 @@ func (r *DeviceRepository) GetProperties(device device.Device) ([]property.Prope
 	err := r.db.
 		Table("device").
 		Select("DISTINCT property.id, property.name").
-		Joins("JOIN upload ON device.id = upload.device_id").
+		Joins("JOIN upload ON device.id = upload.instance_id").
 		Joins("JOIN measurement ON upload.id = measurement.upload_id").
 		Joins("JOIN property ON property.id = measurement.property_id").
 		Where("device.id = ?", device.ID).
