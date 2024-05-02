@@ -46,7 +46,7 @@ func (s *DataSourceTypeService) Create(
 ) (datasourcetype.DataSourceType, error) {
 
 	//Ensures that the source associated with a given sourceID matches the expected item type
-	_, source, err := s.GetSourceByIDAndTable(typeInstanceID, string(category))
+	item, source, err := s.GetSourceByIDAndTable(typeInstanceID, string(category))
 	if err != nil {
 		return datasourcetype.DataSourceType{}, fmt.Errorf("error retrieving source: %w", err)
 	}
@@ -55,9 +55,9 @@ func (s *DataSourceTypeService) Create(
 		return datasourcetype.DataSourceType{}, fmt.Errorf("InstanceID %s does not match Category %s", source.GetTableName(), category)
 	}
 	//
-
 	dataSourceType := datasourcetype.MakeDataSourceType(
 		typeInstanceID,
+		item,
 		category,
 		installationManualUrl,
 		faqURL,

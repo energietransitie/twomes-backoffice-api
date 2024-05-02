@@ -83,7 +83,7 @@ func (m *DataSourceListModel) fromModel(db *gorm.DB) datasourcelist.DataSourceLi
 		}
 
 		// Convert DataSourceTypeModel to DataSourceType and append to the list
-		dataSourceTypeModel := dataSourceType.fromModel()
+		dataSourceTypeModel := dataSourceType.fromModel(db)
 		dataSourceTypeModel.Order = dataSourceListItem.Order
 		dataSourceListItems = append(dataSourceListItems, dataSourceTypeModel)
 	}

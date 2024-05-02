@@ -4,6 +4,7 @@ package datasourcetype
 type DataSourceType struct {
 	ID                    uint             `json:"id"`
 	TypeInstanceID        uint             `json:"type_instance_id"`
+	Item                  interface{}      `json:"item"`
 	Category              Category         `json:"category"`
 	Order                 uint             `json:"order"`
 	InstallationManualURL string           `json:"installation_url"`
@@ -25,6 +26,7 @@ const (
 
 func MakeDataSourceType(
 	typeInstanceID uint,
+	item interface{},
 	category Category,
 	installationManualURL string,
 	faqURL string,
@@ -37,6 +39,7 @@ func MakeDataSourceType(
 	return DataSourceType{
 		TypeInstanceID:        typeInstanceID,
 		Category:              category,
+		Item:                  item,
 		InstallationManualURL: installationManualURL,
 		FAQURL:                faqURL,
 		InfoURL:               infoURL,
