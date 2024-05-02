@@ -1,8 +1,7 @@
 package repositories
 
 import (
-	"time"
-
+	"github.com/energietransitie/needforheat-server-api/needforheat"
 	"github.com/energietransitie/needforheat-server-api/needforheat/device"
 	"github.com/energietransitie/needforheat-server-api/needforheat/measurement"
 	"github.com/energietransitie/needforheat-server-api/needforheat/property"
@@ -29,7 +28,7 @@ type DeviceModel struct {
 	DeviceType           DeviceTypeModel
 	AccountModelID       uint `gorm:"column:account_id"`
 	ActivationSecretHash string
-	ActivatedAt          *time.Time
+	ActivatedAt          *needforheat.Time
 	Uploads              []UploadModel `gorm:"foreignKey:InstanceID"`
 }
 
@@ -83,9 +82,9 @@ func (r *DeviceRepository) Find(device device.Device) (device.Device, error) {
 	return deviceModel.fromModel(), err
 }
 
-func (r *DeviceRepository) FindCloudFeedAuthCreationTimeFromDeviceID(deviceID uint) (*time.Time, error) {
+func (r *DeviceRepository) FindCloudFeedAuthCreationTimeFromDeviceID(deviceID uint) (*needforheat.Time, error) {
 	result := struct {
-		CreatedAt time.Time
+		CreatedAt needforheat.Time
 	}{}
 
 	err := r.db.

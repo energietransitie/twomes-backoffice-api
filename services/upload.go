@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"time"
 
 	"github.com/energietransitie/needforheat-server-api/internal/helpers"
 	"github.com/energietransitie/needforheat-server-api/needforheat"
@@ -44,8 +43,9 @@ func (s *UploadService) Create(deviceID uint, deviceTime needforheat.Time, measu
 	return upload, err
 }
 
-func (s *UploadService) GetLatestUploadTimeForDeviceWithID(id uint) (*time.Time, bool, error) {
+func (s *UploadService) GetLatestUploadTimeForDeviceWithID(id uint) (*needforheat.Time, bool, error) {
 	upload, err := s.repository.GetLatestUploadForDeviceWithID(id)
+
 	if err != nil {
 		// If the record is not found, there was no upload. That's not an error.
 		if helpers.IsMySQLRecordNotFoundError(err) {
@@ -55,10 +55,10 @@ func (s *UploadService) GetLatestUploadTimeForDeviceWithID(id uint) (*time.Time,
 		return nil, false, err
 	}
 
-	return (*time.Time)(&upload.ServerTime), true, nil
+	return (*needforheat.Time)(&upload.ServerTime), true, nil
 }
 
-func (s *UploadService) getCloudFeedAuthCreationTimeForDeviceWithID(id uint) (*time.Time, error) {
+func (s *UploadService) getCloudFeedAuthCreationTimeForDeviceWithID(id uint) (*needforheat.Time, error) {
 	creationTime, err := s.deviceRepo.FindCloudFeedAuthCreationTimeFromDeviceID(id)
 	if err != nil && !helpers.IsMySQLRecordNotFoundError(err) {
 		return nil, err

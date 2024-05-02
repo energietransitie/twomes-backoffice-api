@@ -2,8 +2,7 @@
 package repositories
 
 import (
-	"time"
-
+	"github.com/energietransitie/needforheat-server-api/needforheat"
 	"github.com/energietransitie/needforheat-server-api/needforheat/account"
 	"gorm.io/gorm"
 )
@@ -23,7 +22,7 @@ type AccountModel struct {
 	gorm.Model
 	CampaignModelID uint `gorm:"column:campaign_id"`
 	Campaign        CampaignModel
-	ActivatedAt     *time.Time
+	ActivatedAt     *needforheat.Time
 	CloudFeeds      []CloudFeedModel `gorm:"foreignKey:AccountID"`
 	Devices         []DeviceModel
 }

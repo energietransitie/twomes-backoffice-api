@@ -247,6 +247,7 @@ func (h *DeviceHandler) GetDevicesByAccount(w http.ResponseWriter, r *http.Reque
 	}
 
 	devices, serviceErr := h.service.GetAllByAccount(auth.ID)
+
 	if serviceErr != nil {
 		return NewHandlerError(serviceErr, "error in getting devices", http.StatusInternalServerError).WithMessage("error in getting devices").WithLevel(logrus.ErrorLevel)
 	}

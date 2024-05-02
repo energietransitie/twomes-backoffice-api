@@ -1,8 +1,7 @@
 package cloudfeed
 
 import (
-	"time"
-
+	"github.com/energietransitie/needforheat-server-api/needforheat"
 	"github.com/energietransitie/needforheat-server-api/needforheat/device"
 )
 
@@ -10,7 +9,7 @@ import (
 type CloudFeedRepository interface {
 	Find(CloudFeed CloudFeed) (CloudFeed, error)
 	FindOAuthInfo(accountID uint, cloudFeedID uint) (tokenURL string, refreshToken string, clientID string, clientSecret string, err error)
-	FindFirstTokenToExpire() (accountID uint, cloudFeedID uint, expiry time.Time, err error)
+	FindFirstTokenToExpire() (accountID uint, cloudFeedID uint, expiry needforheat.Time, err error)
 	FindDevice(CloudFeed CloudFeed) (*device.Device, error)
 	GetAll() ([]CloudFeed, error)
 	Create(CloudFeed) (CloudFeed, error)

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/energietransitie/needforheat-server-api/handlers"
+	"github.com/energietransitie/needforheat-server-api/needforheat"
 	"github.com/spf13/cobra"
 )
 
@@ -51,11 +52,11 @@ func handleCloudFeedDownload(cmd *cobra.Command, args []string) error {
 		endPeriodFlag = time.Now().Format("2006-01-02")
 	}
 
+	// Parse startPeriodFlag and endPeriodFlag as time strings
 	startPeriod, err := time.Parse("2006-01-02", startPeriodFlag)
 	if err != nil {
 		return err
 	}
-
 	endPeriod, err := time.Parse("2006-01-02", endPeriodFlag)
 	if err != nil {
 		return err
@@ -64,8 +65,8 @@ func handleCloudFeedDownload(cmd *cobra.Command, args []string) error {
 	downloadArgs := handlers.DownloadArgs{
 		AccountID:   accountIDFlag,
 		CloudFeedID: cloudFeedIDFlag,
-		StartPeriod: startPeriod,
-		EndPeriod:   endPeriod,
+		StartPeriod: needforheat.Time(startPeriod),
+		EndPeriod:   needforheat.Time(endPeriod),
 	}
 
 	client, err := getRPCClient()
