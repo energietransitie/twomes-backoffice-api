@@ -1,8 +1,7 @@
 package repositories
 
 import (
-	"time"
-
+	"github.com/energietransitie/needforheat-server-api/needforheat"
 	"github.com/energietransitie/needforheat-server-api/needforheat/campaign"
 	"gorm.io/gorm"
 )
@@ -24,8 +23,8 @@ type CampaignModel struct {
 	AppModelID       uint   `gorm:"column:app_id"`
 	App              AppModel
 	InfoURL          string `gorm:"unique;not null"`
-	StartTime        *time.Time
-	EndTime          *time.Time
+	StartTime        *needforheat.Time
+	EndTime          *needforheat.Time
 	DataSourceListID uint
 }
 

@@ -1,10 +1,9 @@
 package repositories
 
 import (
-	"time"
-
 	"github.com/energietransitie/needforheat-server-api/internal/encryption"
 	"github.com/energietransitie/needforheat-server-api/internal/helpers"
+	"github.com/energietransitie/needforheat-server-api/needforheat"
 	"github.com/energietransitie/needforheat-server-api/needforheat/cloudfeed"
 	"github.com/energietransitie/needforheat-server-api/needforheat/device"
 	"gorm.io/gorm"
@@ -24,15 +23,15 @@ func NewCloudFeedRepository(db *gorm.DB) *CloudFeedRepository {
 type CloudFeedModel struct {
 	AccountID       uint `gorm:"primaryKey;autoIncrement:false"`
 	CloudFeedTypeID uint `gorm:"primaryKey;autoIncrement:false"`
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
+	CreatedAt       needforheat.Time
+	UpdatedAt       needforheat.Time
 	DeletedAt       gorm.DeletedAt `gorm:"index"`
 	// TODO: WARNING encrypted string encryption not yet implemented.
 	AccessToken    encryption.EncryptedString
 	RefreshToken   encryption.EncryptedString
-	Expiry         time.Time
+	Expiry         needforheat.Time
 	AuthGrantToken encryption.EncryptedString
-	ActivatedAt    *time.Time
+	ActivatedAt    *needforheat.Time
 }
 
 // Set the name of the table in the database.
@@ -83,7 +82,7 @@ func (r *CloudFeedRepository) FindOAuthInfo(accountID uint, cloudFeedID uint) (s
 	return result.TokenURL, result.RefreshToken, result.ClientID, result.ClientSecret, err
 }
 
-func (r *CloudFeedRepository) FindFirstTokenToExpire() (uint, uint, time.Time, error) {
+func (r *CloudFeedRepository) FindFirstTokenToExpire() (uint, uint, needforheat.Time, error) {
 	var cloudFeedModel CloudFeedModel
 	err := r.db.Order("expiry ASC").Where("expiry <> ''").First(&cloudFeedModel).Error
 	return cloudFeedModel.AccountID, cloudFeedModel.CloudFeedTypeID, cloudFeedModel.Expiry, err

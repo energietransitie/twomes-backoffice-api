@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"time"
 
 	"github.com/energietransitie/needforheat-server-api/internal/helpers"
+	"github.com/energietransitie/needforheat-server-api/needforheat"
 	"github.com/energietransitie/needforheat-server-api/needforheat/authorization"
 	"github.com/energietransitie/needforheat-server-api/needforheat/cloudfeed"
 	"github.com/energietransitie/needforheat-server-api/services"
@@ -57,8 +57,8 @@ func (h *CloudFeedHandler) Create(w http.ResponseWriter, r *http.Request) error 
 type DownloadArgs struct {
 	AccountID   uint
 	CloudFeedID uint
-	StartPeriod time.Time
-	EndPeriod   time.Time
+	StartPeriod needforheat.Time
+	EndPeriod   needforheat.Time
 }
 
 // Handle RPC endpoint for downloading data from a cloud feed.

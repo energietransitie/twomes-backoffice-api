@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/energietransitie/needforheat-server-api/needforheat"
 	"github.com/energietransitie/needforheat-server-api/needforheat/devicetype"
 	"github.com/energietransitie/needforheat-server-api/needforheat/upload"
 	"github.com/sirupsen/logrus"
@@ -22,10 +23,10 @@ type Device struct {
 	AccountID            uint                  `json:"account_id"`
 	ActivationSecret     string                `json:"activation_secret,omitempty"` // This can be removed if a device uses JWT's too.
 	ActivationSecretHash string                `json:"-"`                           // This can be removed if a device uses JWT's too.
-	ActivatedAt          *time.Time            `json:"activated_at"`
+	ActivatedAt          *needforheat.Time     `json:"activated_at"`
 	AuthorizationToken   string                `json:"authorization_token,omitempty"`
 	Uploads              []upload.Upload       `json:"uploads,omitempty"`
-	LatestUpload         *time.Time            `json:"latest_upload"`
+	LatestUpload         *needforheat.Time     `json:"latest_upload,omitempty"`
 }
 
 // Create a new Device.
@@ -49,8 +50,9 @@ func (d *Device) Activate(activationSecret string) error {
 		return ErrDeviceActivationSecretIncorrect
 	}
 
-	now := time.Now().UTC()
-	d.ActivatedAt = &now
+	now := time.Now().Unix()
+	activatedAt := needforheat.Time(time.Unix(now, 0))
+	d.ActivatedAt = &activatedAt
 
 	return nil
 }
