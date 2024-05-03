@@ -79,6 +79,7 @@ Create a new admin account to use the admin endpoints:
 docker exec -i <container-name> needforheat-server-api admin create -n <name>
 ```
 > Substitute `<container-name>` with the name of the container. Running it locally should be `needforheat-server-api-web`
+
 > Substitute `<name>` with the name of the admin account you want to create.
 
 Example output of running the command, with `johndoe` as admin name:
