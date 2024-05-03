@@ -68,24 +68,24 @@ func (h *AuthorizationHandler) DoubleMiddleware(kind1, kind2 authorization.AuthK
 	return func(next Handler) Handler {
 		return func(w http.ResponseWriter, r *http.Request) error {
 			authHeader := r.Header.Get("Authorization")
-			// if authHeader == "" {
-			// 	return NewHandlerError(nil, "unauthorized", http.StatusUnauthorized).WithMessage("authorization header not present")
-			// }
+			if authHeader == "" {
+				return NewHandlerError(nil, "unauthorized", http.StatusUnauthorized).WithMessage("authorization header not present")
+			}
 
 			splitHeader := strings.Split(authHeader, "Bearer ")
-			// if len(splitHeader) != 2 {
-			// 	return NewHandlerError(nil, "unauthorized", http.StatusUnauthorized).WithMessage("authorization malformed")
-			// }
+			if len(splitHeader) != 2 {
+				return NewHandlerError(nil, "unauthorized", http.StatusUnauthorized).WithMessage("authorization malformed")
+			}
 
 			authHeader = splitHeader[1]
-			// if authHeader == "" {
-			// 	return NewHandlerError(nil, "unauthorized", http.StatusUnauthorized).WithMessage("authorization malformed")
-			// }
+			if authHeader == "" {
+				return NewHandlerError(nil, "unauthorized", http.StatusUnauthorized).WithMessage("authorization malformed")
+			}
 
-			auth, _ := h.service.ParseTokenToAuthorization(authHeader)
-			// if err != nil {
-			// 	return NewHandlerError(err, "unauthorized", http.StatusUnauthorized).WithMessage(fmt.Sprintf("error when parsing token: %s", err.Error()))
-			// }
+			auth, err := h.service.ParseTokenToAuthorization(authHeader)
+			if err != nil {
+				return NewHandlerError(err, "unauthorized", http.StatusUnauthorized).WithMessage(fmt.Sprintf("error when parsing token: %s", err.Error()))
+			}
 
 			if !auth.IsKind(kind1) && !auth.IsKind(kind2) {
 				return NewHandlerError(nil, "unauthorized", http.StatusUnauthorized).WithMessage("incorrect authorization kind was used to access route")
