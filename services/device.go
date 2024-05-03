@@ -69,6 +69,7 @@ func (s *DeviceService) GetByName(name string) (device.Device, error) {
 	}
 
 	d.LatestUpload, _, err = s.uploadService.GetLatestUploadTimeForDeviceWithID(d.ID)
+
 	if err != nil {
 		return device.Device{}, err
 	}
@@ -144,12 +145,15 @@ func (s *DeviceService) GetAllByAccount(accountId uint) ([]device.Device, error)
 		return nil, err
 	}
 
+	var parsedDevices []device.Device
 	for _, device := range devices {
+
 		device.LatestUpload, _, err = s.uploadService.GetLatestUploadTimeForDeviceWithID(device.ID)
 		if err != nil {
 			return nil, err
 		}
+		parsedDevices = append(parsedDevices, device)
 	}
 
-	return devices, nil
+	return parsedDevices, nil
 }

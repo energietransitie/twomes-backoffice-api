@@ -1,8 +1,7 @@
 package device
 
 import (
-	"time"
-
+	"github.com/energietransitie/needforheat-server-api/needforheat"
 	"github.com/energietransitie/needforheat-server-api/needforheat/measurement"
 	"github.com/energietransitie/needforheat-server-api/needforheat/property"
 )
@@ -10,7 +9,7 @@ import (
 // A DeviceRepository can load, store and delete devices.
 type DeviceRepository interface {
 	Find(device Device) (Device, error)
-	FindCloudFeedAuthCreationTimeFromDeviceID(deviceID uint) (*time.Time, error)
+	FindCloudFeedAuthCreationTimeFromDeviceID(deviceID uint) (*needforheat.Time, error)
 	GetProperties(device Device) ([]property.Property, error)
 	GetMeasurements(device Device, filters map[string]string) ([]measurement.Measurement, error)
 	GetAll() ([]Device, error)

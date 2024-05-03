@@ -1,8 +1,7 @@
 package services
 
 import (
-	"time"
-
+	"github.com/energietransitie/needforheat-server-api/needforheat"
 	"github.com/energietransitie/needforheat-server-api/needforheat/app"
 	"github.com/energietransitie/needforheat-server-api/needforheat/campaign"
 	"github.com/energietransitie/needforheat-server-api/needforheat/datasourcelist"
@@ -36,7 +35,7 @@ func (s *CampaignService) Create(
 	app app.App,
 	infoURL string,
 	startTime,
-	endTime *time.Time,
+	endTime *needforheat.Time,
 	dataSourceList datasourcelist.DataSourceList,
 ) (campaign.Campaign, error) {
 	app, err := s.appService.Find(app)

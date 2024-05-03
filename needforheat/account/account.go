@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/energietransitie/needforheat-server-api/needforheat"
 	"github.com/energietransitie/needforheat-server-api/needforheat/campaign"
 	"github.com/energietransitie/needforheat-server-api/needforheat/cloudfeed"
 	"github.com/energietransitie/needforheat-server-api/needforheat/device"
@@ -17,7 +18,7 @@ var (
 type Account struct {
 	ID                 uint                  `json:"id"`
 	Campaign           campaign.Campaign     `json:"campaign"`
-	ActivatedAt        *time.Time            `json:"activated_at"`
+	ActivatedAt        *needforheat.Time     `json:"activated_at"`
 	InvitationToken    string                `json:"invitation_token,omitempty"`
 	InvitationURL      string                `json:"invitation_url,omitempty"`
 	AuthorizationToken string                `json:"authorization_token,omitempty"`
@@ -42,8 +43,9 @@ func (a *Account) Activate() error {
 		return ErrAccountAlreadyActivated
 	}
 
-	now := time.Now().UTC()
-	a.ActivatedAt = &now
+	now := time.Now().Unix()
+	activatedAt := needforheat.Time(time.Unix(now, 0))
+	a.ActivatedAt = &activatedAt
 
 	return nil
 }

@@ -1,8 +1,6 @@
 package repositories
 
 import (
-	"time"
-
 	"github.com/energietransitie/needforheat-server-api/needforheat"
 	"github.com/energietransitie/needforheat-server-api/needforheat/measurement"
 	"github.com/energietransitie/needforheat-server-api/needforheat/upload"
@@ -26,8 +24,8 @@ type UploadModel struct {
 	gorm.Model
 	InstanceID   uint                `gorm:"column:instance_id"`
 	InstanceType upload.InstanceType `gorm:"default:device"`
-	ServerTime   time.Time
-	DeviceTime   time.Time
+	ServerTime   needforheat.Time
+	DeviceTime   needforheat.Time
 	Size         int
 	Measurements []MeasurementModel
 }
@@ -49,8 +47,8 @@ func MakeUploadModel(upload upload.Upload) UploadModel {
 		Model:        gorm.Model{ID: upload.ID},
 		InstanceID:   upload.InstanceID,
 		InstanceType: upload.InstanceType,
-		ServerTime:   time.Time(upload.ServerTime),
-		DeviceTime:   time.Time(upload.DeviceTime),
+		ServerTime:   upload.ServerTime,
+		DeviceTime:   upload.DeviceTime,
 		Size:         upload.Size,
 		Measurements: measurementModels,
 	}

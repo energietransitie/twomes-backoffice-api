@@ -29,7 +29,7 @@ const (
 var (
 	ErrDuplicateCloudFeed = errors.New("duplicate cloud feed auth")
 
-	NoLatestUploadTime = time.Time{}
+	NoLatestUploadTime = needforheat.Time{}
 )
 
 type CloudFeedService struct {
@@ -75,7 +75,7 @@ func (s *CloudFeedService) Create(ctx context.Context, accountID, cloudFeedTypeI
 		return cloudfeed.CloudFeed{}, err
 	}
 
-	cloudFeed := cloudfeed.MakeCloudFeed(accountID, cloudFeedTypeID, accessToken, refreshToken, expiry, authGrantToken)
+	cloudFeed := cloudfeed.MakeCloudFeed(accountID, cloudFeedTypeID, accessToken, refreshToken, needforheat.Time(expiry), authGrantToken)
 
 	cloudFeed, err = s.cloudFeedRepo.Create(cloudFeed)
 	if err != nil {
@@ -167,7 +167,9 @@ func (s *CloudFeedService) RefreshTokens(ctx context.Context, accountID uint, cl
 
 	cloudFeed.AccessToken = response.AccessToken
 	cloudFeed.RefreshToken = response.RefreshToken
-	cloudFeed.Expiry = time.Now().Add(time.Second * time.Duration(response.ExpiresIn))
+
+	expiryUnix := time.Now().Add(time.Second * time.Duration(response.ExpiresIn)).Unix()
+	cloudFeed.Expiry = needforheat.Time(time.Unix(expiryUnix, 0))
 
 	return s.cloudFeedRepo.Update(cloudFeed)
 }
@@ -189,7 +191,7 @@ refreshLoop:
 			continue
 		}
 
-		timerDuration := time.Until(expiry) - preRenewalDuration
+		timerDuration := time.Until(time.Time(expiry)) - preRenewalDuration
 		if timerDuration < 0 {
 			// Wait 10 seconds to prevent a possible flood of refresh requests.
 			time.Sleep(time.Second * 10)
@@ -290,7 +292,10 @@ func (s *CloudFeedService) download(ctx context.Context) error {
 			*latestUpload = NoLatestUploadTime
 		}
 
-		err = s.Download(ctx, cfa, *latestUpload, time.Now())
+		now := time.Now().Unix()
+		unixNow := needforheat.Time(time.Unix(now, 0))
+
+		err = s.Download(ctx, cfa, *latestUpload, unixNow)
 		if err != nil {
 			logrus.Warningln(err)
 		}
@@ -301,7 +306,7 @@ func (s *CloudFeedService) download(ctx context.Context) error {
 
 // Download data from a cloud feed using the cloud feed auth and store it in the database.
 // startPeriod and endPeriod are the time periods for which data should be downloaded.
-func (s *CloudFeedService) Download(ctx context.Context, cfa cloudfeed.CloudFeed, startPeriod time.Time, endPeriod time.Time) error {
+func (s *CloudFeedService) Download(ctx context.Context, cfa cloudfeed.CloudFeed, startPeriod needforheat.Time, endPeriod needforheat.Time) error {
 	logrus.Infoln("downloading data from cloud feed auth with accountID", cfa.AccountID, "cloudFeedTypeID", cfa.CloudFeedTypeID)
 
 	device, err := s.cloudFeedRepo.FindDevice(cfa)
@@ -309,7 +314,7 @@ func (s *CloudFeedService) Download(ctx context.Context, cfa cloudfeed.CloudFeed
 		return fmt.Errorf("error finding device for cloud feed auth: %w", err)
 	}
 
-	measurements, err := enelogic.Download(ctx, cfa.AccessToken, startPeriod, endPeriod)
+	measurements, err := enelogic.Download(ctx, cfa.AccessToken, time.Time(startPeriod), time.Time(endPeriod))
 	if err != nil {
 		if err == enelogic.ErrNoData {
 			logrus.Infoln("no (new) data found for cloud feed auth with accountID", cfa.AccountID, "cloudFeedTypeID", cfa.CloudFeedTypeID)

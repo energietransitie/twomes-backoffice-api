@@ -1,8 +1,7 @@
 package repositories
 
 import (
-	"time"
-
+	"github.com/energietransitie/needforheat-server-api/needforheat"
 	"github.com/energietransitie/needforheat-server-api/needforheat/device"
 	"github.com/energietransitie/needforheat-server-api/needforheat/measurement"
 	"github.com/energietransitie/needforheat-server-api/needforheat/property"
@@ -29,7 +28,7 @@ type DeviceModel struct {
 	DeviceType           DeviceTypeModel
 	AccountModelID       uint `gorm:"column:account_id"`
 	ActivationSecretHash string
-	ActivatedAt          *time.Time
+	ActivatedAt          *needforheat.Time
 	Uploads              []UploadModel `gorm:"polymorphic:Instance;"`
 }
 
@@ -83,18 +82,18 @@ func (r *DeviceRepository) Find(device device.Device) (device.Device, error) {
 	return deviceModel.fromModel(), err
 }
 
-func (r *DeviceRepository) FindCloudFeedAuthCreationTimeFromDeviceID(deviceID uint) (*time.Time, error) {
+func (r *DeviceRepository) FindCloudFeedAuthCreationTimeFromDeviceID(deviceID uint) (*needforheat.Time, error) {
 	result := struct {
-		CreatedAt time.Time
+		CreatedAt needforheat.Time
 	}{}
 
 	err := r.db.
 		Table("device").
-		Select("cloud_feed_auth.created_at").
+		Select("cloud_feed.created_at").
 		Joins("JOIN device_type ON device.device_type_id = device_type.id").
-		Joins("JOIN cloud_feed ON device_type.name = cloud_feed.name").
+		Joins("JOIN cloud_feed_type ON device_type.name = cloud_feed_type.name").
 		Joins("JOIN account ON device.account_id = account.id").
-		Joins("JOIN cloud_feed_auth ON account.id = cloud_feed_auth.account_id").
+		Joins("JOIN cloud_feed ON account.id = cloud_feed.account_id").
 		Where("device.id = ?", deviceID).
 		First(&result).
 		Error
@@ -114,7 +113,7 @@ func (r *DeviceRepository) GetMeasurements(device device.Device, filters map[str
 		Model(&measurement.Measurement{}).
 		Preload("Property").
 		Joins("JOIN upload ON measurement.upload_id = upload.id AND upload.instance_type = 'device'").
-		Joins("JOIN device ON upload.device_id = device.id").
+		Joins("JOIN device ON upload.instance_id = device.id").
 		Where("device.id = ?", device.ID)
 
 	// apply filters
@@ -146,7 +145,7 @@ func (r *DeviceRepository) GetProperties(device device.Device) ([]property.Prope
 	err := r.db.
 		Table("device").
 		Select("DISTINCT property.id, property.name").
-		Joins("JOIN upload ON device.id = upload.device_id AND upload.instance_type = 'device'").
+		Joins("JOIN upload ON device.id = upload.instance_id AND upload.instance_type = 'device'").
 		Joins("JOIN measurement ON upload.id = measurement.upload_id").
 		Joins("JOIN property ON property.id = measurement.property_id").
 		Where("device.id = ?", device.ID).

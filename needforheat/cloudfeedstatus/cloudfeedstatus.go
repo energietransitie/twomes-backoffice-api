@@ -7,8 +7,8 @@ import (
 
 // A CloudFeedStatus contains all available cloud feeds for an account and if they are connected or not.
 type CloudFeedStatus struct {
-	CloudFeed cloudfeed.CloudFeed `json:"cloud_feed"`
-	Connected bool                `json:"connected"`
+	CloudFeedType cloudfeedtype.CloudFeedType `json:"cloud_feed_type"`
+	Connected     bool                        `json:"connected"`
 }
 
 // Create a new CloudFeedStatus.
@@ -19,7 +19,7 @@ func MakeCloudFeedStatus(cloudFeedType cloudfeedtype.CloudFeedType, cloudFeed cl
 	connected := cloudFeed.AuthGrantToken != ""
 
 	return CloudFeedStatus{
-		CloudFeed: cloudFeed,
-		Connected: connected,
+		CloudFeedType: cloudFeedType,
+		Connected:     connected,
 	}
 }
