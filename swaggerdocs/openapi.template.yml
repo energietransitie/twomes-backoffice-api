@@ -385,7 +385,10 @@ paths:
               properties:
                 energy_query_type:
                   type: object
-                  ref: "#/components/schemas/EnergyQueryType"
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
       responses:
         "200":
           description: OK
@@ -1021,10 +1024,9 @@ components:
         campaign:
           $ref: "#/components/schemas/Campaign"
         activated_at:
-          type: string
-          format: date-time
+          type: integer
           nullable: true
-          example: 2023-05-10T09:13:12Z
+          example: 1714742241
         authorization_token:
           type: string
           readOnly: true
@@ -1040,10 +1042,9 @@ components:
         campaign:
           $ref: "#/components/schemas/Campaign"
         activated_at:
-          type: string
-          format: date-time
+          type: integer
           nullable: true
-          example: 2023-05-10T09:13:12Z
+          example: 1714742241
 
     DeviceCreated:
       type: object
@@ -1058,13 +1059,11 @@ components:
         device_type:
           $ref: "#/components/schemas/DeviceType"
         activated_at:
-          type: string
-          format: date-time
+          type: integer
           nullable: true
           example: null
         latest_upload:
-          type: string
-          format: date-time
+          type: integer
           nullable: true
           example: null
 
@@ -1078,8 +1077,7 @@ components:
         energy_query_type:
           $ref: "#/components/schemas/EnergyQueryType"
         activated_at:
-          type: string
-          format: date-time
+          type: integer
           nullable: true
           example: null
 
@@ -1096,17 +1094,15 @@ components:
         device_type:
           $ref: "#/components/schemas/DeviceType"
         activated_at:
-          type: string
-          format: date-time
+          type: integer
           nullable: true
-          example: 2023-05-10T09:13:15Z
+          example: 1714742241
         authorization_token:
           type: string
           readOnly: true
           example: eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJUd29tZXNBUEl2MiIsInN1YiI6IjEiLCJleHAiOjE3MTUyNjE2NDQsIm5iZiI6MTY4MzcyNTY0NCwiaWF0IjoxNjgzNzI1NjQ0LCJraW5kIjoiZGV2aWNlVG9rZW4ifQ.fhVwSw6zZNY75O9D19JFu46c9g_yUpToIijQ_vYes_5wVehTuBZvl04zCK4qAcy3MT4GF8AUrodrOQmWwYZ5qg
         latest_upload:
-          type: string
-          format: date-time
+          type: integer
           nullable: true
           example: null
 
@@ -1123,15 +1119,13 @@ components:
         device_type:
           $ref: "#/components/schemas/DeviceType"
         activated_at:
-          type: string
-          format: date-time
+          type: integer
           nullable: true
-          example: 2023-05-10T09:13:15Z
+          example: 1714742241
         latest_upload:
-          type: string
-          format: date-time
+          type: integer
           nullable: true
-          example: 2023-05-10T13:30:18Z
+          example: 1714742241
 
     EnergyQueryInfo:
       type: object
@@ -1143,10 +1137,9 @@ components:
         energy_query_type:
           $ref: "#/components/schemas/EnergyQueryType"
         activated_at:
-          type: string
-          format: date-time
+          type: integer
           nullable: true
-          example: 2023-05-10T09:13:15Z
+          example: 1714742241
 
     DeviceMeasurements:
       type: array
@@ -1187,8 +1180,8 @@ components:
                 type: string
                 example: property_name__unit
           time:
-            type: string
-            example: 2023-05-10T09:13:15Z
+            type: integer
+            example: 1714742241
           value:
             type: string
 
@@ -1258,8 +1251,8 @@ components:
                     type: string
                     example: property_name__unit
               time:
-                type: string
-                example: 2023-05-10T13:20:00Z
+                type: integer
+                example: 1714742241
               value:
                 type: string
                 example: 12
