@@ -1,8 +1,7 @@
 package repositories
 
 import (
-	"time"
-
+	"github.com/energietransitie/needforheat-server-api/needforheat"
 	"github.com/energietransitie/needforheat-server-api/needforheat/energyquery"
 	"github.com/energietransitie/needforheat-server-api/needforheat/measurement"
 	"github.com/energietransitie/needforheat-server-api/needforheat/property"
@@ -27,7 +26,7 @@ type EnergyQueryModel struct {
 	EnergyQueryTypeModelID uint `gorm:"column:energy_query_type_id"`
 	EnergyQueryType        EnergyQueryTypeModel
 	AccountModelID         uint `gorm:"column:account_id"`
-	ActivatedAt            *time.Time
+	ActivatedAt            *needforheat.Time
 	Uploads                []UploadModel `gorm:"polymorphic:Instance;"`
 }
 
