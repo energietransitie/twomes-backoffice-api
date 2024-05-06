@@ -167,10 +167,10 @@ func getItemFromDB(category datasourcetype.Category, typeInstanceID uint, db *go
 		var cloudFeedType CloudFeedTypeModel
 		db.Table("cloud_feed_type").Where("id = ?", typeInstanceID).First(&cloudFeedType)
 		item = cloudFeedType
-	// case datasourcetype.EnergyQueryType:
-	// 	var energyQueryType EnergyQueryTypeModel
-	// 	db.Table("energy_query_type").Where("id = ?", typeInstanceID).First(&energyQueryType)
-	// 	item = energyQueryType
+	case datasourcetype.EnergyQueryType:
+		var energyQueryType EnergyQueryTypeModel
+		db.Table("energy_query_type").Where("id = ?", typeInstanceID).First(&energyQueryType)
+		item = energyQueryType
 	default:
 		return nil
 	}
