@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"time"
+
 	"github.com/energietransitie/needforheat-server-api/needforheat"
 	"github.com/energietransitie/needforheat-server-api/needforheat/measurement"
 	"gorm.io/gorm"
@@ -12,7 +14,7 @@ type MeasurementModel struct {
 	PropertyModelID uint `gorm:"column:property_id"`
 	Property        PropertyModel
 	UploadModelID   uint `gorm:"column:upload_id"`
-	Time            needforheat.Time
+	Time            time.Time
 	Value           string
 }
 
@@ -28,7 +30,7 @@ func MakeMeasurementModel(measurement measurement.Measurement) MeasurementModel 
 		PropertyModelID: measurement.Property.ID,
 		Property:        MakePropertyModel(measurement.Property),
 		UploadModelID:   measurement.UploadID,
-		Time:            needforheat.Time(measurement.Time),
+		Time:            time.Time(measurement.Time),
 		Value:           measurement.Value,
 	}
 }

@@ -29,7 +29,7 @@ type DeviceModel struct {
 	AccountModelID       uint `gorm:"column:account_id"`
 	ActivationSecretHash string
 	ActivatedAt          *needforheat.Time
-	Uploads              []UploadModel `gorm:"foreignKey:InstanceID"`
+	Uploads              []UploadModel `gorm:"polymorphic:Instance;"`
 }
 
 // Set the name of the table in the database.
@@ -112,7 +112,7 @@ func (r *DeviceRepository) GetMeasurements(device device.Device, filters map[str
 	query := r.db.
 		Model(&measurement.Measurement{}).
 		Preload("Property").
-		Joins("JOIN upload ON measurement.upload_id = upload.id").
+		Joins("JOIN upload ON measurement.upload_id = upload.id AND upload.instance_type = 'device'").
 		Joins("JOIN device ON upload.instance_id = device.id").
 		Where("device.id = ?", device.ID)
 
@@ -145,7 +145,7 @@ func (r *DeviceRepository) GetProperties(device device.Device) ([]property.Prope
 	err := r.db.
 		Table("device").
 		Select("DISTINCT property.id, property.name").
-		Joins("JOIN upload ON device.id = upload.instance_id").
+		Joins("JOIN upload ON device.id = upload.instance_id AND upload.instance_type = 'device'").
 		Joins("JOIN measurement ON upload.id = measurement.upload_id").
 		Joins("JOIN property ON property.id = measurement.property_id").
 		Where("device.id = ?", device.ID).

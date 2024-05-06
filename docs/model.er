@@ -17,6 +17,7 @@ name {label: "String, unique, non-null"}
 *id {label: "Integer"}
 name {label: "String, unique, non-null"}
 +device_type_id {label: "Integer, non-null"}
++account_id {label: "Integer, non-null"}
 activation_secret_hash {label: "String, unique, non-null"}
 activated_at {label: "Timestamp"}
 
@@ -69,6 +70,7 @@ redirect_url {label: "String, non-null"}
 *cloud_feed_id {label: "Integer"}
 access_token {label: "String"}
 refresh_token {label: "String"}
+expiry {label: "Timestamp"}
 auth_grant_token {label: "String, non-null"}
 activated_at {label: "Timestamp"}
 
@@ -106,9 +108,9 @@ order {label: "Integer"}
 
 [DataSourcePrecedence]
 *data_source_type_id {label: "Integer"}
-*preceding_id {label: "Integer"}
+*precede_id {label: "Integer"}
 
-[APIKeys]
+[APIKey]
 *id {label: "Integer"}
 api_name {label: "String"}
 api_key {label: "String"}
@@ -117,7 +119,7 @@ App 1--* Campaign
 Campaign 1--* Account
 Account 1--* Device
 Device *--1 DeviceType
-Device 1--* Upload
+Device 1--* Upload {label: "instance id"}
 Upload 1--* Measurement
 Measurement *--1 Property
 CloudFeed *--1 CloudFeedType
@@ -135,5 +137,5 @@ DataSourceType 1--* DataSourcePrecedence
 DataSourcePrecedence *--1 DataSourceType
 
 EnergyQuery *--1 EnergyQueryType
-EnergyQuery 1--* Upload
+EnergyQuery 1--* Upload {label: "instance id"}
 EnergyQuery *--1 Account

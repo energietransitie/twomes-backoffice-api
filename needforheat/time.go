@@ -44,3 +44,7 @@ func (t *Time) Scan(value interface{}) error {
 	}
 	return fmt.Errorf("failed to scan Time field")
 }
+
+func (t Time) Unix() int64 {
+	return time.Time(t).Unix()
+}

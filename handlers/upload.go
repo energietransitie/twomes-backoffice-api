@@ -35,11 +35,11 @@ func (h *UploadHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		return NewHandlerError(err, "unauthorized", http.StatusUnauthorized).WithMessage("failed when getting authentication context value")
 	}
 
-	if !auth.IsKind(authorization.DeviceToken) {
+	if !auth.IsKind(authorization.DeviceToken) && !auth.IsKind(authorization.AccountToken) {
 		return NewHandlerError(err, "wrong token kind", http.StatusForbidden).WithMessage("wrong token kind was used")
 	}
 
-	upload, err := h.service.Create(auth.ID, request.DeviceTime, request.Measurements)
+	upload, err := h.service.Create(request.InstanceID, request.InstanceType, request.DeviceTime, request.Measurements)
 	if err != nil {
 		if errors.Is(err, services.ErrEmptyUpload) {
 			return NewHandlerError(err, "empty upload", http.StatusBadRequest)

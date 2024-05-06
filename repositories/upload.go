@@ -4,6 +4,7 @@ import (
 	"github.com/energietransitie/needforheat-server-api/needforheat"
 	"github.com/energietransitie/needforheat-server-api/needforheat/measurement"
 	"github.com/energietransitie/needforheat-server-api/needforheat/upload"
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
@@ -21,7 +22,8 @@ func NewUploadRepository(db *gorm.DB) *UploadRepository {
 // Database representation of a [upload.Upload]
 type UploadModel struct {
 	gorm.Model
-	InstanceID   uint `gorm:"column:instance_id"`
+	InstanceID   uint                `gorm:"column:instance_id"`
+	InstanceType upload.InstanceType `gorm:"default:device"`
 	ServerTime   needforheat.Time
 	DeviceTime   needforheat.Time
 	Size         int
@@ -44,6 +46,7 @@ func MakeUploadModel(upload upload.Upload) UploadModel {
 	return UploadModel{
 		Model:        gorm.Model{ID: upload.ID},
 		InstanceID:   upload.InstanceID,
+		InstanceType: upload.InstanceType,
 		ServerTime:   upload.ServerTime,
 		DeviceTime:   upload.DeviceTime,
 		Size:         upload.Size,
@@ -62,6 +65,7 @@ func (m *UploadModel) fromModel() upload.Upload {
 	return upload.Upload{
 		ID:           m.Model.ID,
 		InstanceID:   m.InstanceID,
+		InstanceType: StringToType(string(m.InstanceType)),
 		ServerTime:   needforheat.Time(m.ServerTime),
 		DeviceTime:   needforheat.Time(m.DeviceTime),
 		Size:         m.Size,
@@ -93,7 +97,9 @@ func (r *UploadRepository) GetAll() ([]upload.Upload, error) {
 
 func (r *UploadRepository) Create(upload upload.Upload) (upload.Upload, error) {
 	uploadModel := MakeUploadModel(upload)
+	logrus.Info(uploadModel)
 	err := r.db.Create(&uploadModel).Error
+	logrus.Info(err)
 	return uploadModel.fromModel(), err
 }
 
@@ -106,4 +112,15 @@ func (r *UploadRepository) GetLatestUploadForDeviceWithID(id uint) (upload.Uploa
 	var uploadModel UploadModel
 	err := r.db.Where(UploadModel{InstanceID: id}).Order("server_time desc").First(&uploadModel).Error
 	return uploadModel.fromModel(), err
+}
+
+func StringToType(category string) upload.InstanceType {
+	switch category {
+	case "device":
+		return upload.Device
+	case "energy_query":
+		return upload.EnergyQuery
+	default:
+		return ""
+	}
 }

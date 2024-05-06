@@ -16,6 +16,7 @@ import (
 	"github.com/energietransitie/needforheat-server-api/needforheat"
 	"github.com/energietransitie/needforheat-server-api/needforheat/cloudfeed"
 	"github.com/energietransitie/needforheat-server-api/needforheat/cloudfeedtype"
+	"github.com/energietransitie/needforheat-server-api/needforheat/upload"
 	"github.com/energietransitie/needforheat-server-api/services/cloudfeeds/enelogic"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
@@ -325,7 +326,7 @@ func (s *CloudFeedService) Download(ctx context.Context, cfa cloudfeed.CloudFeed
 		return errors.New(fmt.Sprint("no (new) data found for cloud feed auth with accountID", cfa.AccountID, "cloudFeedTypeID", cfa.CloudFeedTypeID))
 	}
 
-	upload, err := s.uploadService.Create(device.ID, needforheat.Time(time.Now()), measurements)
+	upload, err := s.uploadService.Create(device.ID, upload.Device, needforheat.Time(time.Now()), measurements)
 	if err != nil {
 		return errors.New(fmt.Sprint("error creating upload:", err))
 	}
