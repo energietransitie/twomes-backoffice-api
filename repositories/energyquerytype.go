@@ -19,9 +19,9 @@ func NewEnergyQueryTypeRepository(db *gorm.DB) *EnergyQueryTypeRepository {
 // Database representation of a [energyquerytype.EnergyQueryType]
 type EnergyQueryTypeModel struct {
 	gorm.Model
-	EnergyQueryVariety string
-	Formula            string
-	DataSourceTypes    []DataSourceTypeModel `gorm:"polymorphic:TypeInstance;"`
+	Name            string `gorm:"column:energy_query_variety"`
+	Formula         string
+	DataSourceTypes []DataSourceTypeModel `gorm:"polymorphic:TypeInstance;"`
 }
 
 // Set the name of the table in the database.
@@ -32,9 +32,9 @@ func (EnergyQueryTypeModel) TableName() string {
 // Create a EnergyQueryTypeModel from a [EnergyQueryType.EnergyQueryType].
 func MakeEnergyQueryTypeModel(energyQueryType energyquerytype.EnergyQueryType) EnergyQueryTypeModel {
 	return EnergyQueryTypeModel{
-		Model:              gorm.Model{ID: energyQueryType.ID},
-		EnergyQueryVariety: energyQueryType.EnergyQueryVariety,
-		Formula:            energyQueryType.Formula,
+		Model:   gorm.Model{ID: energyQueryType.ID},
+		Name:    energyQueryType.EnergyQueryVariety,
+		Formula: energyQueryType.Formula,
 	}
 }
 
@@ -42,7 +42,7 @@ func MakeEnergyQueryTypeModel(energyQueryType energyquerytype.EnergyQueryType) E
 func (m *EnergyQueryTypeModel) fromModel() energyquerytype.EnergyQueryType {
 	return energyquerytype.EnergyQueryType{
 		ID:                 m.Model.ID,
-		EnergyQueryVariety: m.EnergyQueryVariety,
+		EnergyQueryVariety: m.Name,
 		Formula:            m.Formula,
 	}
 }
