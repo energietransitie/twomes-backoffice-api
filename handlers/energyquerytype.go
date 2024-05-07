@@ -29,7 +29,7 @@ func (h *EnergyQueryTypeHandler) Create(w http.ResponseWriter, r *http.Request) 
 		return NewHandlerError(err, "bad request", http.StatusBadRequest).WithLevel(logrus.ErrorLevel)
 	}
 
-	dt, err := h.service.Create(request.Name, request.Formula)
+	dt, err := h.service.Create(request.EnergyQueryVariety, request.Formula)
 	if err != nil {
 		if helpers.IsMySQLDuplicateError(err) {
 			return NewHandlerError(err, "duplicate", http.StatusBadRequest)

@@ -58,7 +58,7 @@ func (s *EnergyQueryTypeService) GetByHash(energyQueryTypeHash string) (energyqu
 		return energyquerytype.EnergyQueryType{}, ErrHashDoesNotMatchEnergyQueryType
 	}
 
-	return s.repository.Find(energyquerytype.EnergyQueryType{Name: variety})
+	return s.repository.Find(energyquerytype.EnergyQueryType{EnergyQueryVariety: variety})
 }
 
 func (s *EnergyQueryTypeService) GetByID(id uint) (energyquerytype.EnergyQueryType, error) {
@@ -70,7 +70,7 @@ func (s *EnergyQueryTypeService) GetByIDForDataSourceType(id uint) (interface{},
 }
 
 func (s *EnergyQueryTypeService) GetByVariety(variety string) (energyquerytype.EnergyQueryType, error) {
-	return s.repository.Find(energyquerytype.EnergyQueryType{Name: variety})
+	return s.repository.Find(energyquerytype.EnergyQueryType{EnergyQueryVariety: variety})
 }
 
 func (s *EnergyQueryTypeService) GetTableName() string {
@@ -90,7 +90,7 @@ func (s *EnergyQueryTypeService) updateEnergyQueryTypeHashes() {
 	table := crc16.MakeTable(crc16.CRC16_XMODEM)
 
 	for _, EnergyQueryType := range EnergyQueryTypes {
-		hash := crc16.Checksum([]byte(EnergyQueryType.Name), table)
-		s.hashedEnergyQueryTypes[fmt.Sprintf("%X", hash)] = EnergyQueryType.Name
+		hash := crc16.Checksum([]byte(EnergyQueryType.EnergyQueryVariety), table)
+		s.hashedEnergyQueryTypes[fmt.Sprintf("%X", hash)] = EnergyQueryType.EnergyQueryVariety
 	}
 }
