@@ -33,7 +33,7 @@ func (EnergyQueryTypeModel) TableName() string {
 func MakeEnergyQueryTypeModel(energyQueryType energyquerytype.EnergyQueryType) EnergyQueryTypeModel {
 	return EnergyQueryTypeModel{
 		Model:              gorm.Model{ID: energyQueryType.ID},
-		EnergyQueryVariety: energyQueryType.EnergyQueryVariety,
+		EnergyQueryVariety: energyQueryType.Name,
 		Formula:            energyQueryType.Formula,
 	}
 }
@@ -41,9 +41,9 @@ func MakeEnergyQueryTypeModel(energyQueryType energyquerytype.EnergyQueryType) E
 // Create a [energyquerytype.EnergyQueryType] from a EnergyQueryTypeModel.
 func (m *EnergyQueryTypeModel) fromModel() energyquerytype.EnergyQueryType {
 	return energyquerytype.EnergyQueryType{
-		ID:                 m.Model.ID,
-		EnergyQueryVariety: m.EnergyQueryVariety,
-		Formula:            m.Formula,
+		ID:      m.Model.ID,
+		Name:    m.EnergyQueryVariety,
+		Formula: m.Formula,
 	}
 }
 

@@ -81,7 +81,7 @@ func (h *EnergyQueryHandler) GetEnergyQueryByName(w http.ResponseWriter, r *http
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting authentication context value")
 	}
 
-	energyQuery, err := h.service.GetByTypeAndAccount(energyquerytype.EnergyQueryType{EnergyQueryVariety: queryType}, auth.ID)
+	energyQuery, err := h.service.GetByTypeAndAccount(energyquerytype.EnergyQueryType{Name: queryType}, auth.ID)
 	if err != nil {
 		return NewHandlerError(err, "EnergyQuery not found", http.StatusNotFound).WithMessage("EnergyQuery not found")
 	}
@@ -111,7 +111,7 @@ func (h *EnergyQueryHandler) GetEnergyQueryMeasurements(w http.ResponseWriter, r
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting authentication context value")
 	}
 
-	EnergyQuery, err := h.getEnergyQueryByName(energyquerytype.EnergyQueryType{EnergyQueryVariety: queryType}, auth.ID)
+	EnergyQuery, err := h.getEnergyQueryByName(energyquerytype.EnergyQueryType{Name: queryType}, auth.ID)
 	if err != nil {
 		return err
 	}
@@ -154,7 +154,7 @@ func (h *EnergyQueryHandler) GetEnergyQueryProperties(w http.ResponseWriter, r *
 		return NewHandlerError(err, "internal server error", http.StatusInternalServerError).WithMessage("failed when getting authentication context value")
 	}
 
-	EnergyQuery, err := h.getEnergyQueryByName(energyquerytype.EnergyQueryType{EnergyQueryVariety: queryType}, auth.ID)
+	EnergyQuery, err := h.getEnergyQueryByName(energyquerytype.EnergyQueryType{Name: queryType}, auth.ID)
 	if err != nil {
 		return err
 	}
