@@ -110,8 +110,24 @@ func (r *UploadRepository) Delete(upload upload.Upload) error {
 
 func (r *UploadRepository) GetLatestUploadForDeviceWithID(id uint) (upload.Upload, error) {
 	var uploadModel UploadModel
-	err := r.db.Where(UploadModel{InstanceID: id}).Order("server_time desc").First(&uploadModel).Error
-	return uploadModel.fromModel(), err
+
+	// Subquery to find upload IDs where the only measurements are those with the property name 'heartbeat'
+	heartbeatOnlySubquery := r.db.
+		Table("upload").
+		Select("id").
+		Where("instance_id = ? AND size = (SELECT COUNT(*) FROM measurement WHERE upload_id = upload.id AND property_id = (SELECT id FROM property WHERE name = 'heartbeat'))", id)
+
+	// Main query to fetch the latest upload model excluding those with only 'heartbeat' property measurements
+	err := r.db.
+		Where("instance_id = ? AND id NOT IN (?)", id, heartbeatOnlySubquery).
+		Order("server_time desc").
+		First(&uploadModel).Error
+
+	if err != nil {
+		return upload.Upload{}, err
+	}
+
+	return uploadModel.fromModel(), nil
 }
 
 func StringToType(category string) upload.InstanceType {
