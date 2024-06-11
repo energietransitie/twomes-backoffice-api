@@ -60,7 +60,7 @@ volumes:
 ## Developing
 
 ### Requirements
-- [Go (minimum 1.20)](https://go.dev/dl/)
+- [Go (minimum 1.22)](https://go.dev/dl/)
 - [Docker](https://www.docker.com/products/docker-desktop)
 
 ### Running

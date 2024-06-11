@@ -76,7 +76,15 @@ activated_at {label: "Timestamp"}
 [EnergyQueryType]
 *id {label: "Integer"}
 energy_query_variety {label: "String, non-null, enum"}
+
+[EnergyQueryFormulas]
+*energy_query_type_id {label: "Integer"}
+*formula_id {label: "Integer"}
+
+[Formula]
+*id {label: "Integer"}
 formula {label: "String"}
+*property_id {label: "Integer"}
 
 [EnergyQuery]
 *id {label: "Integer"}
@@ -128,7 +136,6 @@ Upload 1--* Measurement
 Measurement *--1 Property
 CloudFeed *--1 CloudFeedType
 
-
 Campaign *--1 DataSourceList
 DataSourceList 1--* DataSourceListItems
 DataSourceType 1--* DataSourceListItems
@@ -148,3 +155,6 @@ CloudFeed *--1 DataSource
 EnergyQuery *--1 DataSource
 
 EnergyQuery *--1 EnergyQueryType
+EnergyQueryType 1--* EnergyQueryFormulas
+Formula 1--* EnergyQueryFormulas
+Formula *--1 Property
