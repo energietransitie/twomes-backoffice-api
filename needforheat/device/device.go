@@ -36,11 +36,24 @@ func MakeDevice(name string, deviceType devicetype.DeviceType, accountID uint, a
 		logrus.Error("a device was created, but activationSecretHash could not be generated")
 	}
 
-	return Device{
-		Name:                 name,
-		DeviceType:           deviceType,
-		AccountID:            accountID,
-		ActivationSecretHash: string(activationSecretHash),
+	now := time.Now().Unix()
+	activatedAt := needforheat.Time(time.Unix(now, 0))
+
+	if deviceType.Name == "cloudfeed" {
+		return Device{
+			Name:                 name,
+			DeviceType:           deviceType,
+			AccountID:            accountID,
+			ActivationSecretHash: string(activationSecretHash),
+			ActivatedAt:          &activatedAt,
+		}
+	} else {
+		return Device{
+			Name:                 name,
+			DeviceType:           deviceType,
+			AccountID:            accountID,
+			ActivationSecretHash: string(activationSecretHash),
+		}
 	}
 }
 
