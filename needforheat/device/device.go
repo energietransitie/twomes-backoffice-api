@@ -39,7 +39,8 @@ func MakeDevice(name string, deviceType devicetype.DeviceType, accountID uint, a
 	now := time.Now().Unix()
 	activatedAt := needforheat.Time(time.Unix(now, 0))
 
-	if deviceType.Name == "cloudfeed" {
+	// Hack, so monitoring works when you add a new ENelogic
+	if deviceType.Name == "enelogic" {
 		return Device{
 			Name:                 name,
 			DeviceType:           deviceType,
